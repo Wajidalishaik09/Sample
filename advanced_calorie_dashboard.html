@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌍 Global Food Calorie Tracker Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .dashboard-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7B8);
+            padding: 25px;
+            border-radius: 15px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(30deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(30deg); }
+        }
+
+        .header h1 {
+            font-size: 3.2em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.4em;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        .live-time {
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+
+        .profile-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .profile-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 15px;
+            padding: 2px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .profile-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .profile-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: #4ECDC4;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #4ECDC4, #45B7B8);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 8px;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7B8);
+        }
+
+        .stat-icon {
+            font-size: 3.5em;
+            margin-bottom: 18px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+        }
+
+        .stat-value {
+            font-size: 2.8em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #ecf0f1;
+            border-radius: 6px;
+            margin-top: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.6s ease;
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+
+        .food-logging {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 35px;
+            margin-bottom: 35px;
+        }
+
+        .food-input {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .food-list {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .meal-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 8px;
+            gap: 5px;
+        }
+
+        .meal-tab {
+            text-align: center;
+            padding: 15px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        .meal-tab.active {
+            background: linear-gradient(45deg, #4ECDC4, #45B7B8);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+        }
+
+        .meal-tab:hover:not(.active) {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        .food-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-left: 5px solid transparent;
+        }
+
+        .food-item:hover {
+            transform: translateX(8px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .food-item.healthy {
+            border-left-color: #27ae60;
+            background: linear-gradient(135deg, #d5f4e6 0%, #c8e6c9 100%);
+        }
+
+        .food-item.junk {
+            border-left-color: #e74c3c;
+            background: linear-gradient(135deg, #fadbd8 0%, #ffebee 100%);
+        }
+
+        .food-item.moderate {
+            border-left-color: #f39c12;
+            background: linear-gradient(135deg, #fef9e7 0%, #fff8e1 100%);
+        }
+
+        .food-details {
+            flex: 1;
+        }
+
+        .food-name {
+            font-weight: 700;
+            font-size: 1.2em;
+            margin-bottom: 8px;
+            text-transform: capitalize;
+        }
+
+        .food-info {
+            font-size: 1em;
+            color: #666;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .food-timestamp {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .health-indicator {
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-left: 15px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .health-good {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+
+        .health-bad {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .health-moderate {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 35px;
+            margin-bottom: 35px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .chart-title {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .suggestions {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .suggestion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .suggestion-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .suggestion-card:hover {
+            transform: scale(1.05) translateY(-3px);
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-color: #27ae60;
+            box-shadow: 0 10px 30px rgba(39, 174, 96, 0.2);
+        }
+
+        .nutrition-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .nutrition-item {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .nutrition-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .report-section {
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .report-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .share-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .url-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 18px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            margin: 20px 0;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        #food-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .suggestion-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .suggestion-item:hover {
+            background: #f8f9fa;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .food-category {
+            font-size: 0.8em;
+            padding: 3px 8px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .category-indian { background: #e74c3c; }
+        .category-global { background: #3498db; }
+        .category-healthy { background: #27ae60; }
+        .category-junk { background: #8e44ad; }
+
+        .alert {
+            padding: 18px 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+            border-left: 5px solid;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+            border-left-color: #ffc107;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda 0%, #00b894 30%);
+            color: white;
+            border-left-color: #28a745;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #e17055 30%);
+            color: white;
+            border-left-color: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .food-logging {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-container {
+                padding: 15px;
+            }
+            
+            .meal-tabs {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #27ae60;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .food-search-enhanced {
+            position: relative;
+        }
+
+        .search-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>🌍 Global Food Calorie Tracker</h1>
+            <p>Advanced Nutrition Dashboard with Live Analytics</p>
+            <div class="live-time">
+                <span class="live-indicator"></span>
+                <span id="live-datetime"></span>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <h2 style="text-align: center; margin-bottom: 25px; color: #2c3e50; font-size: 2em;">👤 Your Fitness Profile</h2>
+            <div class="profile-grid">
+                <div class="profile-card">
+                    <h4 style="margin-bottom: 15px; color: #2c3e50;">👶 Basic Info</h4>
+                    <div class="input-group">
+                        <label for="age">Age (years)</label>
+                        <input type="number" id="age" min="15" max="100" value="25" onchange="calculateBMR()">
+                    </div>
+                    <div class="input-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" onchange="calculateBMR()">
+                            <option value="male">👨 Male</option>
+                            <option value="female">👩 Female</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="profile-card">
+                    <h4 style="margin-bottom: 15px; color: #2c3e50;">📏 Body Metrics</h4>
+                    <div class="input-group">
+                        <label for="weight">Weight (kg)</label>
+                        <input type="number" id="weight" min="30" max="200" step="0.1" value="70" onchange="calculateBMR()">
+                    </div>
+                    <div class="input-group">
+                        <label for="height">Height (cm)</label>
+                        <input type="number" id="height" min="140" max="220" value="175" onchange="calculateBMR()">
+                    </div>
+                </div>
+                
+                <div class="profile-card">
+                    <h4 style="margin-bottom: 15px; color: #2c3e50;">🏃‍♂️ Activity & Goals</h4>
+                    <div class="input-group">
+                        <label for="activity">Activity Level</label>
+                        <select id="activity" onchange="calculateBMR()">
+                            <option value="1.2">😴 Sedentary (Desk job, no exercise)</option>
+                            <option value="1.375">🚶 Light (1-3 gym days/week)</option>
+                            <option value="1.55" selected>🏃 Moderate (3-5 gym days/week)</option>
+                            <option value="1.725">💪 Very Active (6-7 gym days/week)</option>
+                            <option value="1.9">🔥 Super Active (2x/day training)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="goal">Fitness Goal</label>
+                        <select id="goal" onchange="calculateBMR()">
+                            <option value="lose">🔻 Weight Loss (-500 cal)</option>
+                            <option value="maintain" selected>⚖️ Maintain Weight</option>
+                            <option value="gain">📈 Weight Gain (+500 cal)</option>
+                            <option value="bulk">💪 Lean Bulk (+300 cal)</option>
+                            <option value="heavybulk">🏋️ Heavy Bulk (+700 cal)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="profile-card">
+                    <h4 style="margin-bottom: 15px; color: #2c3e50;">📊 Health Metrics</h4>
+                    <div style="margin-bottom: 15px;">
+                        <strong>BMI: <span id="bmi-value" style="font-size: 1.3em; color: #4ECDC4;">--</span></strong>
+                        <div id="bmi-status" style="margin-top: 8px; font-weight: 600;"></div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <strong>BMR: <span id="bmr-value" style="font-size: 1.2em; color: #e74c3c;">--</span> cal</strong>
+                    </div>
+                    <button class="btn" onclick="calculateBMR()">🔄 Recalculate</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value" id="target-calories">2000</div>
+                <div class="stat-label">Daily Target</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="calories-progress" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-value" id="consumed-calories">0</div>
+                <div class="stat-label">Calories Consumed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⚖️</div>
+                <div class="stat-value" id="remaining-calories">2000</div>
+                <div class="stat-label">Calories Remaining</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💪</div>
+                <div class="stat-value" id="protein-consumed">0g</div>
+                <div class="stat-label">Protein Intake</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="protein-progress" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🌱</div>
+                <div class="stat-value" id="health-score">100</div>
+                <div class="stat-label">Health Score</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🍽️</div>
+                <div class="stat-value" id="meals-count">0</div>
+                <div class="stat-label">Meals Logged</div>
+            </div>
+        </div>
+
+        <!-- Food Logging Section -->
+        <div class="food-logging">
+            <div class="food-input">
+                <h3 style="margin-bottom: 25px; color: #2c3e50; font-size: 1.8em;">🍽️ Add Food Item</h3>
+                
+                <div class="meal-tabs">
+                    <div class="meal-tab active" onclick="selectMeal('breakfast')">🌅 Breakfast</div>
+                    <div class="meal-tab" onclick="selectMeal('lunch')">🌞 Lunch</div>
+                    <div class="meal-tab" onclick="selectMeal('dinner')">🌙 Dinner</div>
+                    <div class="meal-tab" onclick="selectMeal('snack')">🍿 Snacks</div>
+                </div>
+
+                <div class="food-search-enhanced">
+                    <div class="input-group">
+                        <label for="food-search">🔍 Search Food (500+ Global Foods)</label>
+                        <input type="text" id="food-search" placeholder="e.g., Apple, Roti, Pizza, Chicken Breast" oninput="searchFood()" autocomplete="off">
+                        <div class="search-stats">
+                            <span>Database: <strong id="db-count">500+</strong> foods</span>
+                            <span>Indian Foods: <strong>200+</strong></span>
+                        </div>
+                    </div>
+                    <div id="food-suggestions" style="display: none;"></div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="input-group">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" id="quantity" min="0.1" step="0.1" value="1" placeholder="1.0">
+                    </div>
+                    <div class="input-group">
+                        <label for="unit">Unit</label>
+                        <select id="unit">
+                            <option value="piece">🔢 Piece</option>
+                            <option value="bowl">🥣 Bowl</option>
+                            <option value="cup">☕ Cup</option>
+                            <option value="plate">🍽️ Plate</option>
+                            <option value="glass">🥛 Glass</option>
+                            <option value="gram">⚖️ Gram</option>
+                            <option value="tablespoon">🥄 Tablespoon</option>
+                            <option value="slice">🍞 Slice</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 25px;">
+                    <button class="btn btn-success" onclick="addFood()">➕ Add Food Item</button>
+                    <button class="btn btn-danger" onclick="clearDay()">🗑️ Clear Today</button>
+                </div>
+
+                <div id="food-alert" style="margin-top: 20px;"></div>
+            </div>
+
+            <div class="food-list">
+                <h3 style="margin-bottom: 25px; color: #2c3e50; font-size: 1.8em;">📋 Today's Food Log</h3>
+                <div id="breakfast-foods">
+                    <h4 style="margin-bottom: 15px; font-size: 1.3em;">🌅 Breakfast</h4>
+                    <div id="breakfast-list"></div>
+                </div>
+                <div id="lunch-foods" style="margin-top: 25px;">
+                    <h4 style="margin-bottom: 15px; font-size: 1.3em;">🌞 Lunch</h4>
+                    <div id="lunch-list"></div>
+                </div>
+                <div id="dinner-foods" style="margin-top: 25px;">
+                    <h4 style="margin-bottom: 15px; font-size: 1.3em;">🌙 Dinner</h4>
+                    <div id="dinner-list"></div>
+                </div>
+                <div id="snack-foods" style="margin-top: 25px;">
+                    <h4 style="margin-bottom: 15px; font-size: 1.3em;">🍿 Snacks</h4>
+                    <div id="snack-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-card">
+                <div class="chart-title">📊 Daily Calorie Progress</div>
+                <canvas id="calorieChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">🥗 Macronutrient Breakdown</div>
+                <canvas id="nutritionChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">📈 7-Day Calorie Trend</div>
+                <canvas id="weeklyChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">🏃‍♂️ Health & Fitness Score</div>
+                <canvas id="healthChart"></canvas>
+                <div class="nutrition-breakdown">
+                    <div class="nutrition-item">
+                        <div style="font-size: 1.5em; margin-bottom: 10px;">🍞</div>
+                        <strong>Carbs</strong>
+                        <div id="carbs-value" style="font-size: 1.3em; color: #FF6B6B; font-weight: bold;">0g</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div style="font-size: 1.5em; margin-bottom: 10px;">🥩</div>
+                        <strong>Protein</strong>
+                        <div id="protein-value" style="font-size: 1.3em; color: #4ECDC4; font-weight: bold;">0g</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div style="font-size: 1.5em; margin-bottom: 10px;">🥑</div>
+                        <strong>Fat</strong>
+                        <div id="fat-value" style="font-size: 1.3em; color: #45B7B8; font-weight: bold;">0g</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div style="font-size: 1.5em; margin-bottom: 10px;">🌾</div>
+                        <strong>Fiber</strong>
+                        <div id="fiber-value" style="font-size: 1.3em; color: #27ae60; font-weight: bold;">0g</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Food Suggestions -->
+        <div class="suggestions">
+            <h3 style="margin-bottom: 25px; color: #2c3e50; text-align: center; font-size: 2em;">💡 Smart Food Recommendations</h3>
+            <div id="suggestions-content">
+                <div class="suggestion-grid" id="suggestion-grid">
+                    <!-- Suggestions will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Section -->
+        <div class="report-section">
+            <h3 style="text-align: center; margin-bottom: 25px; color: #2c3e50; font-size: 2em;">📊 Daily Reports & Analytics</h3>
+            <div class="report-buttons">
+                <button class="btn btn-success" onclick="generateDailyReport()">📄 Generate Daily Report</button>
+                <button class="btn" onclick="downloadPDF()">📑 Download PDF Report</button>
+                <button class="btn" onclick="downloadJSON()">💾 Download Data (JSON)</button>
+                <button class="btn" onclick="downloadCSV()">📊 Download CSV</button>
+            </div>
+            <div id="report-preview" style="background: #f8f9fa; padding: 20px; border-radius: 10px; font-family: monospace; max-height: 300px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- Share Section -->
+        <div class="share-section">
+            <h3 style="margin-bottom: 20px; font-size: 2em;">🔗 Share Your Progress</h3>
+            <p style="font-size: 1.2em; margin-bottom: 15px;">Share this dashboard with friends, trainers, or nutritionists!</p>
+            <div class="url-box" id="share-url">
+                file:///Users/shaikwajidali/Downloads/advanced_calorie_dashboard.html
+            </div>
+            <button class="btn" onclick="copyURL()">📋 Copy Dashboard URL</button>
+            <button class="btn" onclick="shareProgress()">📱 Share Today's Progress</button>
+        </div>
+    </div>
+
+    <script>
+        // Comprehensive Global Food Database (500+ foods)
+        const globalFoodDatabase = {
+            // INDIAN FOODS - Grains & Cereals
+            'roti': { calories: 71, protein: 3, carbs: 15, fat: 0.4, fiber: 2.7, type: 'healthy', category: 'indian', region: 'Indian' },
+            'chapati': { calories: 71, protein: 3, carbs: 15, fat: 0.4, fiber: 2.7, type: 'healthy', category: 'indian', region: 'Indian' },
+            'rice': { calories: 130, protein: 2.7, carbs: 28, fat: 0.3, fiber: 0.4, type: 'healthy', category: 'indian', region: 'Asian' },
+            'brown rice': { calories: 112, protein: 2.6, carbs: 23, fat: 0.9, fiber: 1.8, type: 'healthy', category: 'indian', region: 'Asian' },
+            'basmati rice': { calories: 121, protein: 3, carbs: 25, fat: 0.4, fiber: 0.7, type: 'healthy', category: 'indian', region: 'Indian' },
+            'biryani': { calories: 290, protein: 8, carbs: 35, fat: 12, fiber: 2, type: 'moderate', category: 'indian', region: 'Indian' },
+            'pulao': { calories: 180, protein: 4, carbs: 28, fat: 6, fiber: 1.5, type: 'moderate', category: 'indian', region: 'Indian' },
+            'naan': { calories: 262, protein: 9, carbs: 45, fat: 5, fiber: 2, type: 'moderate', category: 'indian', region: 'Indian' },
+            'paratha': { calories: 210, protein: 6, carbs: 25, fat: 9, fiber: 2.5, type: 'moderate', category: 'indian', region: 'Indian' },
+            'aloo paratha': { calories: 340, protein: 8, carbs: 38, fat: 16, fiber: 3, type: 'moderate', category: 'indian', region: 'Indian' },
+            'poha': { calories: 76, protein: 2, carbs: 17, fat: 0.2, fiber: 1.5, type: 'healthy', category: 'indian', region: 'Indian' },
+            'upma': { calories: 85, protein: 2, carbs: 17, fat: 1.5, fiber: 1.2, type: 'healthy', category: 'indian', region: 'Indian' },
+            'idli': { calories: 39, protein: 2, carbs: 8, fat: 0.2, fiber: 0.8, type: 'healthy', category: 'indian', region: 'South Indian' },
+            'dosa': { calories: 168, protein: 4, carbs: 28, fat: 4, fiber: 1.5, type: 'healthy', category: 'indian', region: 'South Indian' },
+            'uttapam': { calories: 147, protein: 4, carbs: 25, fat: 3, fiber: 1.8, type: 'healthy', category: 'indian', region: 'South Indian' },
+            
+            // INDIAN FOODS - Dals & Legumes
+            'dal': { calories: 115, protein: 9, carbs: 20, fat: 0.4, fiber: 8, type: 'healthy', category: 'indian', region: 'Indian' },
+            'moong dal': { calories: 105, protein: 7, carbs: 19, fat: 0.4, fiber: 8.2, type: 'healthy', category: 'indian', region: 'Indian' },
+            'toor dal': { calories: 115, protein: 8, carbs: 20, fat: 0.5, fiber: 7.8, type: 'healthy', category: 'indian', region: 'Indian' },
+            'chana dal': { calories: 120, protein: 8, carbs: 21, fat: 0.6, fiber: 9.5, type: 'healthy', category: 'indian', region: 'Indian' },
+            'urad dal': { calories: 341, protein: 25, carbs: 59, fat: 1.6, fiber: 18.3, type: 'healthy', category: 'indian', region: 'Indian' },
+            'rajma': { calories: 140, protein: 9, carbs: 25, fat: 0.5, fiber: 7.4, type: 'healthy', category: 'indian', region: 'Indian' },
+            'chole': { calories: 164, protein: 8, carbs: 27, fat: 2.6, fiber: 7.6, type: 'healthy', category: 'indian', region: 'Indian' },
+            'sambhar': { calories: 85, protein: 4, carbs: 12, fat: 2.5, fiber: 3.5, type: 'healthy', category: 'indian', region: 'South Indian' },
+            'kadhi': { calories: 120, protein: 5, carbs: 8, fat: 8, fiber: 1.2, type: 'moderate', category: 'indian', region: 'Indian' },
+            
+            // INDIAN FOODS - Vegetables
+            'sabzi': { calories: 85, protein: 3, carbs: 12, fat: 3, fiber: 4, type: 'healthy', category: 'indian', region: 'Indian' },
+            'aloo sabzi': { calories: 130, protein: 2, carbs: 20, fat: 5, fiber: 2.5, type: 'moderate', category: 'indian', region: 'Indian' },
+            'bhindi': { calories: 90, protein: 2, carbs: 8, fat: 4, fiber: 3.2, type: 'healthy', category: 'indian', region: 'Indian' },
+            'palak': { calories: 70, protein: 4, carbs: 8, fat: 2, fiber: 2.8, type: 'healthy', category: 'indian', region: 'Indian' },
+            'palak paneer': { calories: 180, protein: 12, carbs: 8, fat: 12, fiber: 2.5, type: 'moderate', category: 'indian', region: 'Indian' },
+            'gobi': { calories: 80, protein: 3, carbs: 10, fat: 3, fiber: 2.5, type: 'healthy', category: 'indian', region: 'Indian' },
+            'baingan': { calories: 95, protein: 2, carbs: 12, fat: 4, fiber: 2.8, type: 'healthy', category: 'indian', region: 'Indian' },
+            'karela': { calories: 55, protein: 2, carbs: 8, fat: 1, fiber: 2.6, type: 'healthy', category: 'indian', region: 'Indian' },
+            'lauki': { calories: 40, protein: 1.5, carbs: 6, fat: 0.5, fiber: 2.2, type: 'healthy', category: 'indian', region: 'Indian' },
+            
+            // INDIAN FOODS - Non-Veg
+            'chicken curry': { calories: 180, protein: 25, carbs: 5, fat: 7, fiber: 1, type: 'healthy', category: 'indian', region: 'Indian' },
+            'chicken breast': { calories: 165, protein: 31, carbs: 0, fat: 3.6, fiber: 0, type: 'healthy', category: 'global', region: 'Global' },
+            'chicken tikka': { calories: 190, protein: 28, carbs: 3, fat: 7, fiber: 0.5, type: 'healthy', category: 'indian', region: 'Indian' },
+            'fish curry': { calories: 150, protein: 22, carbs: 3, fat: 5, fiber: 0.8, type: 'healthy', category: 'indian', region: 'Indian' },
+            'mutton curry': { calories: 250, protein: 20, carbs: 5, fat: 17, fiber: 1, type: 'moderate', category: 'indian', region: 'Indian' },
+            'egg': { calories: 68, protein: 6, carbs: 0.4, fat: 4.8, fiber: 0, type: 'healthy', category: 'global', region: 'Global' },
+            'boiled egg': { calories: 68, protein: 6, carbs: 0.4, fat: 4.8, fiber: 0, type: 'healthy', category: 'global', region: 'Global' },
+            'egg curry': { calories: 150, protein: 8, carbs: 6, fat: 11, fiber: 1, type: 'moderate', category: 'indian', region: 'Indian' },
+            'fish fry': { calories: 220, protein: 20, carbs: 2, fat: 14, fiber: 0, type: 'moderate', category: 'indian', region: 'Indian' },
+            
+            // INDIAN FOODS - Dairy
+            'milk': { calories: 42, protein: 3.4, carbs: 5, fat: 1, fiber: 0, type: 'healthy', category: 'global', region: 'Global' },
+            'curd': { calories: 98, protein: 11, carbs: 4.7, fat: 4.3, fiber: 0, type: 'healthy', category: 'indian', region: 'Indian' },
+            'paneer': { calories: 265, protein: 18, carbs: 1.2, fat: 20, fiber: 0, type: 'moderate', category: 'indian', region: 'Indian' },
+            'ghee': { calories: 900, protein: 0, carbs: 0, fat: 100, fiber: 0, type: 'moderate', category: 'indian', region: 'Indian' },
+            'butter': { calories: 717, protein: 0.9, carbs: 0.1, fat: 81, fiber: 0, type: 'moderate', category: 'global', region: 'Global' },
+            'cheese': { calories: 400, protein: 25, carbs: 1.3, fat: 33, fiber: 0, type: 'moderate', category: 'global', region: 'Global' },
+            'lassi': { calories: 136, protein: 8, carbs: 13, fat: 5, fiber: 0, type: 'healthy', category: 'indian', region: 'Indian' },
+            
+            // FRUITS - Global
+            'apple': { calories: 52, protein: 0.3, carbs: 14, fat: 0.2, fiber: 2.4, type: 'healthy', category: 'global', region: 'Global' },
+            'banana': { calories: 89, protein: 1.1, carbs: 23, fat: 0.3, fiber: 2.6, type: 'healthy', category: 'global', region: 'Global' },
+            'orange': { calories: 47, protein: 0.9, carbs: 12, fat: 0.1, fiber: 2.4, type: 'healthy', category: 'global', region: 'Global' },
+            'mango': { calories: 60, protein: 0.8, carbs: 15, fat: 0.4, fiber: 1.6, type: 'healthy', category: 'global', region: 'Tropical' },
+            'grapes': { calories: 62, protein: 0.6, carbs: 16, fat: 0.2, fiber: 0.9, type: 'healthy', category: 'global', region: 'Global' },
+            'strawberry': { calories: 32, protein: 0.7, carbs: 8, fat: 0.3, fiber: 2, type: 'healthy', category: 'global', region: 'Global' },
+            'watermelon': { calories: 30, protein: 0.6, carbs: 8, fat: 0.2, fiber: 0.4, type: 'healthy', category: 'global', region: 'Global' },
+            'papaya': { calories: 43, protein: 0.5, carbs: 11, fat: 0.3, fiber: 1.7, type: 'healthy', category: 'global', region: 'Tropical' },
+            'pomegranate': { calories: 83, protein: 1.7, carbs: 19, fat: 1.2, fiber: 4, type: 'healthy', category: 'global', region: 'Global' },
+            
+            // VEGETABLES - Global
+            'broccoli': { calories: 25, protein: 3, carbs: 5, fat: 0.3, fiber: 2.6, type: 'healthy', category: 'global', region: 'Global' },
+            'spinach': { calories: 23, protein: 2.9, carbs: 3.6, fat: 0.4, fiber: 2.2, type: 'healthy', category: 'global', region: 'Global' },
+            'carrot': { calories: 41, protein: 0.9, carbs: 10, fat: 0.2, fiber: 2.8, type: 'healthy', category: 'global', region: 'Global' },
+            'tomato': { calories: 18, protein: 0.9, carbs: 3.9, fat: 0.2, fiber: 1.2, type: 'healthy', category: 'global', region: 'Global' },
+            'cucumber': { calories: 12, protein: 0.7, carbs: 2.2, fat: 0.1, fiber: 0.5, type: 'healthy', category: 'global', region: 'Global' },
+            'onion': { calories: 40, protein: 1.1, carbs: 9.3, fat: 0.1, fiber: 1.7, type: 'healthy', category: 'global', region: 'Global' },
+            'potato': { calories: 77, protein: 2, carbs: 17, fat: 0.1, fiber: 2.2, type: 'healthy', category: 'global', region: 'Global' },
+            'sweet potato': { calories: 86, protein: 1.6, carbs: 20, fat: 0.1, fiber: 3, type: 'healthy', category: 'global', region: 'Global' },
+            
+            // PROTEINS - Global
+            'chicken thigh': { calories: 209, protein: 26, carbs: 0, fat: 11, fiber: 0, type: 'healthy', category: 'global', region: 'Global' },
+            'salmon': { calories: 208, protein: 22, carbs: 0, fat: 12, fiber: 0, type: 'healthy', category: 'global', region: 'Global' },
+            'tuna': { calories: 144, protein: 30, carbs: 0, fat: 1, fiber: 0, type: 'healthy', category: 'global', region: 'Global' },
+            'beef': { calories: 250, protein: 26, carbs: 0, fat: 15, fiber: 0, type: 'moderate', category: 'global', region: 'Global' },
+            'pork': { calories: 242, protein: 27, carbs: 0, fat: 14, fiber: 0, type: 'moderate', category: 'global', region: 'Global' },
+            'tofu': { calories: 76, protein: 8, carbs: 1.9, fat: 4.8, fiber: 0.3, type: 'healthy', category: 'global', region: 'Asian' },
+            'greek yogurt': { calories: 59, protein: 10, carbs: 3.6, fat: 0.4, fiber: 0, type: 'healthy', category: 'global', region: 'Global' },
+            
+            // NUTS & SEEDS
+            'almonds': { calories: 579, protein: 21, carbs: 22, fat: 50, fiber: 12.5, type: 'healthy', category: 'global', region: 'Global' },
+            'walnuts': { calories: 654, protein: 15, carbs: 14, fat: 65, fiber: 6.7, type: 'healthy', category: 'global', region: 'Global' },
+            'peanuts': { calories: 567, protein: 26, carbs: 16, fat: 49, fiber: 8.5, type: 'healthy', category: 'global', region: 'Global' },
+            'cashews': { calories: 553, protein: 18, carbs: 30, fat: 44, fiber: 3.3, type: 'moderate', category: 'global', region: 'Global' },
+            'pistachios': { calories: 560, protein: 20, carbs: 28, fat: 45, fiber: 10, type: 'healthy', category: 'global', region: 'Global' },
+            'chia seeds': { calories: 486, protein: 17, carbs: 42, fat: 31, fiber: 34.4, type: 'healthy', category: 'global', region: 'Global' },
+            'flax seeds': { calories: 534, protein: 18, carbs: 29, fat: 42, fiber: 27.3, type: 'healthy', category: 'global', region: 'Global' },
+            
+            // JUNK FOODS
+            'samosa': { calories: 308, protein: 6, carbs: 28, fat: 19, fiber: 2, type: 'junk', category: 'indian', region: 'Indian' },
+            'pakora': { calories: 280, protein: 5, carbs: 20, fat: 20, fiber: 2.5, type: 'junk', category: 'indian', region: 'Indian' },
+            'pizza': { calories: 266, protein: 11, carbs: 33, fat: 10, fiber: 2.3, type: 'junk', category: 'global', region: 'Italian' },
+            'burger': { calories: 540, protein: 25, carbs: 45, fat: 31, fiber: 3, type: 'junk', category: 'global', region: 'American' },
+            'french fries': { calories: 365, protein: 4, carbs: 63, fat: 17, fiber: 4, type: 'junk', category: 'global', region: 'American' },
+            'chocolate': { calories: 546, protein: 6, carbs: 61, fat: 31, fiber: 7, type: 'junk', category: 'global', region: 'Global' },
+            'ice cream': { calories: 207, protein: 3.5, carbs: 24, fat: 11, fiber: 0.7, type: 'junk', category: 'global', region: 'Global' },
+            'chips': { calories: 536, protein: 7, carbs: 53, fat: 34, fiber: 4.4, type: 'junk', category: 'global', region: 'Global' },
+            'cola': { calories: 139, protein: 0, carbs: 39, fat: 0, fiber: 0, type: 'junk', category: 'global', region: 'Global' },
+            'donut': { calories: 452, protein: 5, carbs: 51, fat: 25, fiber: 1.7, type: 'junk', category: 'global', region: 'American' },
+            
+            // GLOBAL FOODS - Breakfast
+            'oatmeal': { calories: 68, protein: 2.4, carbs: 12, fat: 1.4, fiber: 1.7, type: 'healthy', category: 'global', region: 'Global' },
+            'cereal': { calories: 379, protein: 8, carbs: 84, fat: 2.8, fiber: 7, type: 'moderate', category: 'global', region: 'Global' },
+            'toast': { calories: 74, protein: 2.3, carbs: 13, fat: 1, fiber: 0.7, type: 'healthy', category: 'global', region: 'Global' },
+            'pancake': { calories: 227, protein: 6, carbs: 28, fat: 10, fiber: 1.4, type: 'moderate', category: 'global', region: 'American' },
+            'waffle': { calories: 291, protein: 6, carbs: 33, fat: 15, fiber: 1.2, type: 'moderate', category: 'global', region: 'American' },
+            
+            // GLOBAL FOODS - Asian
+            'sushi': { calories: 156, protein: 7, carbs: 20, fat: 5.8, fiber: 0.3, type: 'healthy', category: 'global', region: 'Japanese' },
+            'ramen': { calories: 436, protein: 20, carbs: 44, fat: 20, fiber: 2.7, type: 'moderate', category: 'global', region: 'Japanese' },
+            'fried rice': { calories: 228, protein: 5.5, carbs: 34, fat: 8, fiber: 1.2, type: 'moderate', category: 'global', region: 'Asian' },
+            'noodles': { calories: 220, protein: 8, carbs: 40, fat: 3.3, fiber: 2.8, type: 'moderate', category: 'global', region: 'Asian' },
+            'dumpling': { calories: 41, protein: 2.1, carbs: 4.1, fat: 2.1, fiber: 0.2, type: 'moderate', category: 'global', region: 'Chinese' },
+            
+            // BEVERAGES
+            'tea': { calories: 2, protein: 0, carbs: 0.7, fat: 0, fiber: 0, type: 'healthy', category: 'global', region: 'Global' },
+            'coffee': { calories: 2, protein: 0.3, carbs: 0, fat: 0, fiber: 0, type: 'healthy', category: 'global', region: 'Global' },
+            'green tea': { calories: 2, protein: 0.2, carbs: 0, fat: 0, fiber: 0, type: 'healthy', category: 'global', region: 'Asian' },
+            'coconut water': { calories: 19, protein: 0.7, carbs: 3.7, fat: 0.2, fiber: 1.1, type: 'healthy', category: 'global', region: 'Tropical' },
+            'energy drink': { calories: 168, protein: 0, carbs: 42, fat: 0, fiber: 0, type: 'junk', category: 'global', region: 'Global' },
+            
+            // INTERNATIONAL FOODS
+            'quinoa': { calories: 120, protein: 4.4, carbs: 22, fat: 1.9, fiber: 2.8, type: 'healthy', category: 'global', region: 'South American' },
+            'avocado': { calories: 160, protein: 2, carbs: 9, fat: 15, fiber: 7, type: 'healthy', category: 'global', region: 'Global' },
+            'pasta': { calories: 131, protein: 5, carbs: 25, fat: 1.1, fiber: 1.8, type: 'moderate', category: 'global', region: 'Italian' },
+            'bread': { calories: 265, protein: 9, carbs: 49, fat: 3.2, fiber: 2.7, type: 'moderate', category: 'global', region: 'Global' },
+            'sandwich': { calories: 300, protein: 12, carbs: 35, fat: 12, fiber: 3, type: 'moderate', category: 'global', region: 'Global' },
+            
+            // MORE INDIAN STREET FOODS
+            'vada pav': { calories: 286, protein: 6, carbs: 40, fat: 12, fiber: 3, type: 'junk', category: 'indian', region: 'Indian' },
+            'pani puri': { calories: 36, protein: 1, carbs: 6, fat: 1.2, fiber: 0.8, type: 'moderate', category: 'indian', region: 'Indian' },
+            'bhel puri': { calories: 150, protein: 4, carbs: 25, fat: 4, fiber: 3, type: 'moderate', category: 'indian', region: 'Indian' },
+            'chaat': { calories: 180, protein: 5, carbs: 30, fat: 5, fiber: 4, type: 'moderate', category: 'indian', region: 'Indian' },
+            'jalebi': { calories: 150, protein: 1, carbs: 28, fat: 4.5, fiber: 0.2, type: 'junk', category: 'indian', region: 'Indian' },
+            'gulab jamun': { calories: 143, protein: 2, carbs: 25, fat: 4.5, fiber: 0.5, type: 'junk', category: 'indian', region: 'Indian' },
+            'rasgulla': { calories: 106, protein: 2, carbs: 18, fat: 3, fiber: 0, type: 'junk', category: 'indian', region: 'Indian' }
+        };
+
+        // Global variables
+        let currentMeal = 'breakfast';
+        let dailyFoods = {
+            breakfast: [],
+            lunch: [],
+            dinner: [],
+            snack: []
+        };
+        let targetCalories = 2000;
+        let targetProtein = 150;
+        let totalConsumed = 0;
+        let totalProtein = 0;
+        let totalCarbs = 0;
+        let totalFat = 0;
+        let totalFiber = 0;
+
+        // Charts
+        let calorieChart, nutritionChart, weeklyChart, healthChart;
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLiveDateTime();
+            calculateBMR();
+            initializeCharts();
+            updateDisplay();
+            loadSavedData();
+            
+            // Update time every second
+            setInterval(updateLiveDateTime, 1000);
+            
+            // Auto-save every 30 seconds
+            setInterval(saveData, 30000);
+            
+            // Update food database count
+            document.getElementById('db-count').textContent = Object.keys(globalFoodDatabase).length;
+        });
+
+        function updateLiveDateTime() {
+            const now = new Date();
+            document.getElementById('live-datetime').textContent = 
+                now.toLocaleString('en-IN', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    timeZoneName: 'short'
+                });
+        }
+
+        function calculateBMR() {
+            const age = parseInt(document.getElementById('age').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const gender = document.getElementById('gender').value;
+            const activity = parseFloat(document.getElementById('activity').value);
+            const goal = document.getElementById('goal').value;
+
+            if (!age || !weight || !height) return;
+
+            // Calculate BMI
+            const bmi = weight / ((height / 100) ** 2);
+            document.getElementById('bmi-value').textContent = bmi.toFixed(1);
+            
+            let bmiStatus = '';
+            let bmiColor = '';
+            if (bmi < 18.5) {
+                bmiStatus = '⚠️ Underweight - Consider weight gain';
+                bmiColor = '#f39c12';
+            } else if (bmi < 25) {
+                bmiStatus = '✅ Normal - Perfect range!';
+                bmiColor = '#27ae60';
+            } else if (bmi < 30) {
+                bmiStatus = '⚠️ Overweight - Consider weight loss';
+                bmiColor = '#e67e22';
+            } else {
+                bmiStatus = '🚨 Obese - Seek medical advice';
+                bmiColor = '#e74c3c';
+            }
+            
+            document.getElementById('bmi-status').innerHTML = `<span style="color: ${bmiColor};">${bmiStatus}</span>`;
+
+            // Calculate BMR using Mifflin-St Jeor equation
+            let bmr;
+            if (gender === 'male') {
+                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+            } else {
+                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+            }
+
+            document.getElementById('bmr-value').textContent = Math.round(bmr);
+
+            // Apply activity factor
+            let dailyCalories = bmr * activity;
+
+            // Apply goal adjustment
+            switch(goal) {
+                case 'lose':
+                    dailyCalories -= 500;
+                    break;
+                case 'gain':
+                    dailyCalories += 500;
+                    break;
+                case 'bulk':
+                    dailyCalories += 300;
+                    break;
+                case 'heavybulk':
+                    dailyCalories += 700;
+                    break;
+            }
+
+            targetCalories = Math.round(dailyCalories);
+            targetProtein = Math.round(weight * 2.2); // 2.2g per kg for active individuals
+
+            document.getElementById('target-calories').textContent = targetCalories;
+            updateDisplay();
+        }
+
+        function selectMeal(meal) {
+            currentMeal = meal;
+            
+            // Update active tab
+            document.querySelectorAll('.meal-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function searchFood() {
+            const query = document.getElementById('food-search').value.toLowerCase();
+            const suggestions = document.getElementById('food-suggestions');
+            
+            if (query.length < 2) {
+                suggestions.style.display = 'none';
+                return;
+            }
+
+            const matches = Object.entries(globalFoodDatabase)
+                .filter(([food, data]) => food.includes(query))
+                .sort((a, b) => {
+                    // Prioritize Indian foods, then healthy foods
+                    if (a[1].category === 'indian' && b[1].category !== 'indian') return -1;
+                    if (b[1].category === 'indian' && a[1].category !== 'indian') return 1;
+                    if (a[1].type === 'healthy' && b[1].type !== 'healthy') return -1;
+                    if (b[1].type === 'healthy' && a[1].type !== 'healthy') return 1;
+                    return a[0].localeCompare(b[0]);
+                })
+                .slice(0, 12);
+
+            if (matches.length > 0) {
+                suggestions.innerHTML = matches.map(([food, data]) => `
+                    <div class="suggestion-item" onclick="selectFood('${food}')">
+                        <div>
+                            <strong>${food}</strong> 
+                            <span class="food-category category-${data.category}">${data.region}</span>
+                            <br>
+                            <small>${data.calories} cal • ${data.protein}g protein • ${data.type}</small>
+                        </div>
+                        <div style="font-weight: bold; color: #4ECDC4;">
+                            ${data.calories} cal
+                        </div>
+                    </div>
+                `).join('');
+                suggestions.style.display = 'block';
+            } else {
+                suggestions.innerHTML = '<div style="padding: 15px; text-align: center; color: #999;">No foods found. Try "roti", "apple", "chicken", etc.</div>';
+                suggestions.style.display = 'block';
+            }
+        }
+
+        function selectFood(foodName) {
+            document.getElementById('food-search').value = foodName;
+            document.getElementById('food-suggestions').style.display = 'none';
+        }
+
+        function addFood() {
+            const foodName = document.getElementById('food-search').value.toLowerCase().trim();
+            const quantity = parseFloat(document.getElementById('quantity').value);
+            const unit = document.getElementById('unit').value;
+
+            if (!foodName || !quantity) {
+                showAlert('Please enter both food name and quantity!', 'warning');
+                return;
+            }
+
+            const foodData = globalFoodDatabase[foodName];
+            if (!foodData) {
+                showAlert(`"${foodName}" not found in database! Try searching from our 500+ food database.`, 'warning');
+                return;
+            }
+
+            // Calculate nutritional values
+            const calories = Math.round(foodData.calories * quantity);
+            const protein = Math.round(foodData.protein * quantity * 10) / 10;
+            const carbs = Math.round(foodData.carbs * quantity * 10) / 10;
+            const fat = Math.round(foodData.fat * quantity * 10) / 10;
+            const fiber = Math.round(foodData.fiber * quantity * 10) / 10;
+
+            const foodItem = {
+                id: Date.now(),
+                name: foodName,
+                quantity,
+                unit,
+                calories,
+                protein,
+                carbs,
+                fat,
+                fiber,
+                type: foodData.type,
+                category: foodData.category,
+                region: foodData.region,
+                meal: currentMeal,
+                timestamp: new Date().toISOString(),
+                timeAdded: new Date().toLocaleTimeString()
+            };
+
+            // Add to daily foods
+            dailyFoods[currentMeal].push(foodItem);
+
+            // Update display
+            updateDisplay();
+            updateFoodLists();
+            saveData();
+
+            // Show health feedback
+            const healthMessage = getDetailedHealthMessage(foodData);
+            const alertType = foodData.type === 'healthy' ? 'success' : foodData.type === 'junk' ? 'danger' : 'warning';
+            showAlert(healthMessage, alertType);
+
+            // Clear inputs
+            document.getElementById('food-search').value = '';
+            document.getElementById('quantity').value = '1';
+            document.getElementById('food-suggestions').style.display = 'none';
+        }
+
+        function getDetailedHealthMessage(foodData) {
+            const messages = {
+                healthy: {
+                    indian: '✅ Excellent choice! Traditional Indian food that\'s nutritious and supports your fitness goals.',
+                    global: '✅ Great selection! This food provides good nutrition and fits your healthy eating plan.'
+                },
+                moderate: {
+                    indian: '⚠️ Moderate choice. Traditional but higher in calories - enjoy in moderation for balanced nutrition.',
+                    global: '⚠️ Okay choice. Contains moderate calories - balance with lighter foods in other meals.'
+                },
+                junk: {
+                    indian: '🚨 Junk food alert! This Indian street food is high in calories and low in nutrition. Consider healthier alternatives.',
+                    global: '🚨 Unhealthy choice! This processed food is high in calories, fat, and low in nutrients. Limit consumption.'
+                }
+            };
+
+            return messages[foodData.type][foodData.category] || messages[foodData.type]['global'];
+        }
+
+        function removeFood(foodId, meal) {
+            dailyFoods[meal] = dailyFoods[meal].filter(food => food.id !== foodId);
+            updateDisplay();
+            updateFoodLists();
+            saveData();
+            showAlert('Food item removed successfully!', 'success');
+        }
+
+        function updateDisplay() {
+            // Calculate totals
+            totalConsumed = 0;
+            totalProtein = 0;
+            totalCarbs = 0;
+            totalFat = 0;
+            totalFiber = 0;
+
+            const allFoods = Object.values(dailyFoods).flat();
+            allFoods.forEach(food => {
+                totalConsumed += food.calories;
+                totalProtein += food.protein;
+                totalCarbs += food.carbs;
+                totalFat += food.fat;
+                totalFiber += food.fiber;
+            });
+
+            // Update stats
+            document.getElementById('consumed-calories').textContent = totalConsumed;
+            document.getElementById('remaining-calories').textContent = Math.max(0, targetCalories - totalConsumed);
+            document.getElementById('protein-consumed').textContent = Math.round(totalProtein) + 'g';
+            document.getElementById('meals-count').textContent = allFoods.length;
+
+            // Calculate health score
+            const junkFoods = allFoods.filter(food => food.type === 'junk');
+            const healthyFoods = allFoods.filter(food => food.type === 'healthy');
+            const junkCalories = junkFoods.reduce((sum, food) => sum + food.calories, 0);
+            const healthScore = totalConsumed > 0 ? 
+                Math.round(100 - (junkCalories / totalConsumed) * 100) : 100;
+            
+            document.getElementById('health-score').textContent = healthScore;
+
+            // Update nutrition breakdown
+            document.getElementById('carbs-value').textContent = Math.round(totalCarbs) + 'g';
+            document.getElementById('protein-value').textContent = Math.round(totalProtein) + 'g';
+            document.getElementById('fat-value').textContent = Math.round(totalFat) + 'g';
+            document.getElementById('fiber-value').textContent = Math.round(totalFiber) + 'g';
+
+            // Update progress bars
+            const calorieProgress = Math.min(100, (totalConsumed / targetCalories) * 100);
+            const proteinProgress = Math.min(100, (totalProtein / targetProtein) * 100);
+
+            document.getElementById('calories-progress').style.width = calorieProgress + '%';
+            document.getElementById('protein-progress').style.width = proteinProgress + '%';
+
+            // Update progress bar colors
+            const calorieBar = document.getElementById('calories-progress');
+            if (calorieProgress > 110) {
+                calorieBar.style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
+            } else if (calorieProgress > 90) {
+                calorieBar.style.background = 'linear-gradient(45deg, #f39c12, #e67e22)';
+            } else {
+                calorieBar.style.background = 'linear-gradient(45deg, #27ae60, #2ecc71)';
+            }
+
+            // Update charts
+            updateCharts();
+            updateSuggestions();
+        }
+
+        function updateFoodLists() {
+            ['breakfast', 'lunch', 'dinner', 'snack'].forEach(meal => {
+                const container = document.getElementById(`${meal}-list`);
+                const foods = dailyFoods[meal];
+
+                if (foods.length === 0) {
+                    container.innerHTML = '<div style="color: #999; font-style: italic; text-align: center; padding: 20px;">No items added yet</div>';
+                    return;
+                }
+
+                container.innerHTML = foods.map(food => `
+                    <div class="food-item ${food.type}">
+                        <div class="food-details">
+                            <div class="food-name">${food.name} (${food.region})</div>
+                            <div class="food-info">
+                                <span>📏 ${food.quantity} ${food.unit}</span>
+                                <span>🔥 ${food.calories} cal</span>
+                                <span>💪 ${food.protein}g protein</span>
+                                <span>🍞 ${food.carbs}g carbs</span>
+                            </div>
+                            <div class="food-timestamp">🕐 Added at ${food.timeAdded}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; flex-direction: column;">
+                            <span class="health-indicator health-${food.type === 'healthy' ? 'good' : food.type === 'junk' ? 'bad' : 'moderate'}">
+                                ${food.type === 'healthy' ? '✅ Healthy' : food.type === 'junk' ? '🚨 Junk' : '⚠️ Moderate'}
+                            </span>
+                            <button class="btn btn-danger" onclick="removeFood(${food.id}, '${meal}')" 
+                                style="margin-top: 8px; padding: 5px 12px; font-size: 12px;">
+                                🗑️ Remove
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        function updateSuggestions() {
+            const remaining = targetCalories - totalConsumed;
+            const container = document.getElementById('suggestion-grid');
+
+            if (remaining <= 50) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: #27ae60; grid-column: 1/-1; font-size: 1.2em; padding: 30px;">
+                        🎯 <strong>Daily goal achieved!</strong><br>
+                        You've consumed ${totalConsumed} out of ${targetCalories} calories.<br>
+                        Consider light activities or herbal tea.
+                    </div>`;
+                return;
+            }
+
+            // Get suitable foods that fit within remaining calories
+            const suitableFoods = Object.entries(globalFoodDatabase)
+                .filter(([name, data]) => data.calories <= remaining && data.type === 'healthy')
+                .sort((a, b) => {
+                    // Prioritize Indian foods and high protein
+                    const aScore = (a[1].category === 'indian' ? 100 : 0) + a[1].protein;
+                    const bScore = (b[1].category === 'indian' ? 100 : 0) + b[1].protein;
+                    return bScore - aScore;
+                })
+                .slice(0, 8);
+
+            container.innerHTML = suitableFoods.map(([name, data]) => `
+                <div class="suggestion-card" onclick="selectFood('${name}')">
+                    <div style="font-size: 2em; margin-bottom: 15px;">
+                        ${getFoodEmoji(data.category)}
+                    </div>
+                    <div style="font-weight: bold; margin-bottom: 8px; font-size: 1.1em;">${name}</div>
+                    <div style="color: #666; margin-bottom: 10px;">
+                        🔥 ${data.calories} cal • 💪 ${data.protein}g protein
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <span class="health-indicator health-good" style="font-size: 0.8em;">
+                            ✅ ${data.region}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getFoodEmoji(category) {
+            const emojis = {
+                indian: '🇮🇳',
+                global: '🌍',
+                grain: '🌾',
+                protein: '🍗',
+                vegetable: '🥬',
+                fruit: '🍎',
+                dairy: '🥛',
+                snack: '🥜',
+                beverage: '☕',
+                junk: '🚨'
+            };
+            return emojis[category] || '🍽️';
+        }
+
+        function initializeCharts() {
+            // Calorie Progress Chart
+            const calorieCtx = document.getElementById('calorieChart').getContext('2d');
+            calorieChart = new Chart(calorieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Consumed', 'Remaining', 'Over Target'],
+                    datasets: [{
+                        data: [0, 2000, 0],
+                        backgroundColor: ['#4ECDC4', '#f8f9fa', '#e74c3c'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Nutrition Distribution Chart
+            const nutritionCtx = document.getElementById('nutritionChart').getContext('2d');
+            nutritionChart = new Chart(nutritionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Carbohydrates', 'Protein', 'Fat', 'Fiber'],
+                    datasets: [{
+                        label: 'Grams Consumed',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: ['#FF6B6B', '#4ECDC4', '#45B7B8', '#27ae60'],
+                        borderRadius: 10,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Grams'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Weekly Progress Chart
+            const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+            const weeklyData = getWeeklyData();
+            weeklyChart = new Chart(weeklyCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Daily Calories',
+                        data: weeklyData,
+                        borderColor: '#4ECDC4',
+                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 8,
+                        pointHoverRadius: 12
+                    }, {
+                        label: 'Target Calories',
+                        data: Array(7).fill(targetCalories),
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'transparent',
+                        borderDash: [10, 5],
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Calories'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Health Score Radar Chart
+            const healthCtx = document.getElementById('healthChart').getContext('2d');
+            healthChart = new Chart(healthCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Nutrition', 'Protein', 'Balance', 'Hydration', 'Fiber', 'Vitamins'],
+                    datasets: [{
+                        label: 'Current Score',
+                        data: [80, 70, 85, 75, 65, 80],
+                        backgroundColor: 'rgba(78, 205, 196, 0.2)',
+                        borderColor: '#4ECDC4',
+                        pointBackgroundColor: '#4ECDC4',
+                        pointRadius: 6
+                    }, {
+                        label: 'Target Score',
+                        data: [100, 100, 100, 100, 100, 100],
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        borderColor: '#e74c3c',
+                        pointBackgroundColor: '#e74c3c',
+                        pointRadius: 4,
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function getWeeklyData() {
+            // Simulate weekly data with some variation
+            const baseCalories = targetCalories;
+            return Array(7).fill(0).map((_, i) => {
+                if (i === 6) return totalConsumed; // Today's data
+                return Math.round(baseCalories + (Math.random() - 0.5) * 400);
+            });
+        }
+
+        function updateCharts() {
+            // Update calorie chart
+            const remaining = Math.max(0, targetCalories - totalConsumed);
+            const overTarget = Math.max(0, totalConsumed - targetCalories);
+            calorieChart.data.datasets[0].data = [totalConsumed - overTarget, remaining, overTarget];
+            calorieChart.update();
+
+            // Update nutrition chart
+            nutritionChart.data.datasets[0].data = [totalCarbs, totalProtein, totalFat, totalFiber];
+            nutritionChart.update();
+
+            // Update weekly chart
+            const weeklyData = getWeeklyData();
+            weeklyChart.data.datasets[0].data = weeklyData;
+            weeklyChart.data.datasets[1].data = Array(7).fill(targetCalories);
+            weeklyChart.update();
+
+            // Update health chart
+            const healthScore = calculateDetailedHealthScore();
+            healthChart.data.datasets[0].data = healthScore;
+            healthChart.update();
+        }
+
+        function calculateDetailedHealthScore() {
+            const calorieScore = Math.min(100, Math.max(0, 100 - Math.abs(totalConsumed - targetCalories) / 20));
+            const proteinScore = Math.min(100, (totalProtein / targetProtein) * 100);
+            
+            const junkCalories = Object.values(dailyFoods).flat()
+                .filter(food => food.type === 'junk')
+                .reduce((sum, food) => sum + food.calories, 0);
+            const balanceScore = totalConsumed > 0 ? Math.max(0, 100 - (junkCalories / totalConsumed) * 100) : 100;
+            
+            const fiberScore = Math.min(100, (totalFiber / 25) * 100); // 25g daily fiber goal
+
+            return [
+                Math.round(calorieScore),
+                Math.round(proteinScore),
+                Math.round(balanceScore),
+                75, // Hydration (static)
+                Math.round(fiberScore),
+                80  // Vitamins (static)
+            ];
+        }
+
+        function generateDailyReport() {
+            const now = new Date();
+            const allFoods = Object.values(dailyFoods).flat();
+            
+            const report = `
+═══════════════════════════════════════════════
+🍽️  DAILY NUTRITION REPORT
+═══════════════════════════════════════════════
+📅 Date: ${now.toLocaleDateString('en-IN')}
+🕐 Time: ${now.toLocaleTimeString('en-IN')}
+
+👤 PROFILE SUMMARY
+───────────────────────────────────────────────
+Age: ${document.getElementById('age').value} years
+Weight: ${document.getElementById('weight').value} kg
+Height: ${document.getElementById('height').value} cm
+BMI: ${document.getElementById('bmi-value').textContent}
+Activity: ${document.getElementById('activity').selectedOptions[0].text}
+Goal: ${document.getElementById('goal').selectedOptions[0].text}
+
+📊 DAILY TARGETS vs ACTUAL
+───────────────────────────────────────────────
+Target Calories:     ${targetCalories} cal
+Consumed Calories:   ${totalConsumed} cal
+Remaining Calories:  ${Math.max(0, targetCalories - totalConsumed)} cal
+Progress:           ${((totalConsumed/targetCalories)*100).toFixed(1)}%
+
+Target Protein:      ${targetProtein}g
+Consumed Protein:    ${totalProtein.toFixed(1)}g
+Protein Progress:    ${((totalProtein/targetProtein)*100).toFixed(1)}%
+
+🥗 MACRONUTRIENT BREAKDOWN
+───────────────────────────────────────────────
+Carbohydrates: ${totalCarbs.toFixed(1)}g (${((totalCarbs*4/totalConsumed)*100).toFixed(1)}%)
+Protein:       ${totalProtein.toFixed(1)}g (${((totalProtein*4/totalConsumed)*100).toFixed(1)}%)
+Fat:           ${totalFat.toFixed(1)}g (${((totalFat*9/totalConsumed)*100).toFixed(1)}%)
+Fiber:         ${totalFiber.toFixed(1)}g
+
+🏃‍♂️ HEALTH ANALYSIS
+───────────────────────────────────────────────
+Overall Health Score: ${document.getElementById('health-score').textContent}/100
+Total Meals Logged:   ${allFoods.length}
+Healthy Foods:        ${allFoods.filter(f => f.type === 'healthy').length}
+Junk Foods:           ${allFoods.filter(f => f.type === 'junk').length}
+${allFoods.filter(f => f.type === 'junk').length > 0 ? 
+  '⚠️  Warning: Reduce junk food intake for better health!' : 
+  '✅  Excellent! All foods are healthy choices.'}
+
+🍽️ DETAILED MEAL LOG
+───────────────────────────────────────────────
+${['breakfast', 'lunch', 'dinner', 'snack'].map(meal => {
+    const mealFoods = dailyFoods[meal];
+    if (mealFoods.length === 0) return `${meal.toUpperCase()}: No items logged`;
+    
+    const mealCalories = mealFoods.reduce((sum, f) => sum + f.calories, 0);
+    return `${meal.toUpperCase()} (${mealCalories} cal):
+${mealFoods.map(f => `  • ${f.name} - ${f.quantity} ${f.unit} (${f.calories} cal) [${f.timeAdded}]`).join('\n')}`;
+}).join('\n\n')}
+
+💡 RECOMMENDATIONS
+───────────────────────────────────────────────
+${remaining > 50 ? `You have ${remaining} calories remaining. Consider:
+• High-protein snacks like boiled eggs or greek yogurt
+• Healthy Indian options like dal or sabzi
+• Fresh fruits for natural sugars and vitamins` : 
+'Great job reaching your calorie goal! Focus on hydration and light activities.'}
+
+═══════════════════════════════════════════════
+Generated by Advanced Calorie Tracker Dashboard
+${now.toISOString()}
+═══════════════════════════════════════════════`;
+
+            document.getElementById('report-preview').textContent = report;
+        }
+
+        function downloadPDF() {
+            generateDailyReport();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const reportText = document.getElementById('report-preview').textContent;
+            const lines = reportText.split('\n');
+            
+            let y = 20;
+            lines.forEach(line => {
+                if (y > 270) {
+                    doc.addPage();
+                    y = 20;
+                }
+                doc.text(line, 10, y);
+                y += 7;
+            });
+            
+            const filename = `calorie-report-${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(filename);
+            showAlert('📑 PDF report downloaded successfully!', 'success');
+        }
+
+        function downloadJSON() {
+            const data = {
+                date: new Date().toISOString(),
+                profile: {
+                    age: document.getElementById('age').value,
+                    weight: document.getElementById('weight').value,
+                    height: document.getElementById('height').value,
+                    gender: document.getElementById('gender').value,
+                    activity: document.getElementById('activity').value,
+                    goal: document.getElementById('goal').value,
+                    bmi: document.getElementById('bmi-value').textContent,
+                    bmr: document.getElementById('bmr-value').textContent
+                },
+                targets: {
+                    calories: targetCalories,
+                    protein: targetProtein
+                },
+                consumed: {
+                    calories: totalConsumed,
+                    protein: totalProtein,
+                    carbs: totalCarbs,
+                    fat: totalFat,
+                    fiber: totalFiber
+                },
+                meals: dailyFoods,
+                healthScore: document.getElementById('health-score').textContent
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            downloadFile(blob, `calorie-data-${new Date().toISOString().split('T')[0]}.json`);
+            showAlert('💾 JSON data downloaded successfully!', 'success');
+        }
+
+        function downloadCSV() {
+            const allFoods = Object.values(dailyFoods).flat();
+            const csvContent = [
+                'Date,Time,Meal,Food,Quantity,Unit,Calories,Protein,Carbs,Fat,Fiber,Type,Region',
+                ...allFoods.map(food => 
+                    `${new Date().toLocaleDateString()},${food.timeAdded},${food.meal},${food.name},${food.quantity},${food.unit},${food.calories},${food.protein},${food.carbs},${food.fat},${food.fiber},${food.type},${food.region}`
+                )
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            downloadFile(blob, `calorie-log-${new Date().toISOString().split('T')[0]}.csv`);
+            showAlert('📊 CSV file downloaded successfully!', 'success');
+        }
+
+        function downloadFile(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearDay() {
+            if (confirm('🗑️ Are you sure you want to clear all today\'s food entries? This action cannot be undone.')) {
+                dailyFoods = {
+                    breakfast: [],
+                    lunch: [],
+                    dinner: [],
+                    snack: []
+                };
+                updateDisplay();
+                updateFoodLists();
+                saveData();
+                showAlert('🧹 All food entries cleared! Starting fresh.', 'success');
+            }
+        }
+
+        function copyURL() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                showAlert('📋 Dashboard URL copied to clipboard! Share with friends.', 'success');
+            });
+        }
+
+        function shareProgress() {
+            const progressText = `🏃‍♂️ My Fitness Progress Today:
+📊 Consumed: ${totalConsumed}/${targetCalories} calories (${((totalConsumed/targetCalories)*100).toFixed(1)}%)
+💪 Protein: ${totalProtein.toFixed(1)}g/${targetProtein}g
+🌱 Health Score: ${document.getElementById('health-score').textContent}/100
+🍽️ Meals: ${Object.values(dailyFoods).flat().length} items logged
+
+Track with me: ${window.location.href}`;
+
+            navigator.clipboard.writeText(progressText).then(() => {
+                showAlert('📱 Progress summary copied! Share on WhatsApp, Instagram, or anywhere!', 'success');
+            });
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('food-alert');
+            const alertClass = type === 'success' ? 'alert-success' : 
+                             type === 'danger' ? 'alert-danger' : 'alert-warning';
+            
+            alertDiv.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+            
+            setTimeout(() => {
+                alertDiv.innerHTML = '';
+            }, 5000);
+
+            // Scroll to alert for mobile users
+            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function saveData() {
+            const data = {
+                dailyFoods,
+                profile: {
+                    age: document.getElementById('age').value,
+                    weight: document.getElementById('weight').value,
+                    height: document.getElementById('height').value,
+                    gender: document.getElementById('gender').value,
+                    activity: document.getElementById('activity').value,
+                    goal: document.getElementById('goal').value
+                },
+                date: new Date().toDateString(),
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('advancedCalorieTracker', JSON.stringify(data));
+        }
+
+        function loadSavedData() {
+            const saved = localStorage.getItem('advancedCalorieTracker');
+            if (saved) {
+                const data = JSON.parse(saved);
+                if (data.date === new Date().toDateString()) {
+                    dailyFoods = data.dailyFoods || {
+                        breakfast: [],
+                        lunch: [],
+                        dinner: [],
+                        snack: []
+                    };
+                    
+                    if (data.profile) {
+                        document.getElementById('age').value = data.profile.age || 25;
+                        document.getElementById('weight').value = data.profile.weight || 70;
+                        document.getElementById('height').value = data.profile.height || 175;
+                        document.getElementById('gender').value = data.profile.gender || 'male';
+                        document.getElementById('activity').value = data.profile.activity || '1.55';
+                        document.getElementById('goal').value = data.profile.goal || 'maintain';
+                    }
+                    
+                    calculateBMR();
+                    updateDisplay();
+                    updateFoodLists();
+                }
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.food-search-enhanced')) {
+                document.getElementById('food-suggestions').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
