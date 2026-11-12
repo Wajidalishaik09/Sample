@@ -154,6 +154,11 @@ nav.tabs button.on{color:var(--brand)}
 .qrow:last-child{border-bottom:0}
 .qrow b.c{font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
 .intent{width:100%;font-weight:600}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:30;padding:16px}
+.modal[hidden]{display:none}
+.modal .box2{background:var(--card);color:var(--ink);border-radius:16px;padding:18px;max-width:360px;width:100%;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.modal p{margin:0 0 14px}
+.sync{font-size:12.5px;padding:8px 10px;border-radius:10px;background:var(--chip);margin-bottom:10px}
 .ur{font-family:'Noto Nastaliq Urdu',serif;line-height:2.1}
 .arn{font-family:Amiri,serif}
 .dates{margin-top:10px;font-size:13px;opacity:.95}
@@ -681,7 +686,8 @@ nav.tabs button.on{color:var(--brand)}
 
     <h2>Backup</h2>
     <div class="card">
-      <p class="note" style="margin-top:0">Your data is stored only on this phone, in this browser. Export a backup now and then so you never lose your 100 days.</p>
+      <div class="sync" id="syncLine">💾 Saved on this device</div>
+      <p class="note" style="margin-top:0" id="backupNote">Your data is stored on this phone, in this browser. Export a backup now and then so you never lose your 100 days.</p>
       <div class="row">
         <button class="btn primary" id="expBtn">Export backup</button>
         <button class="btn" id="impBtn">Import backup</button>
@@ -708,6 +714,7 @@ nav.tabs button.on{color:var(--brand)}
 </nav>
 
 <div class="toast" id="toast"></div>
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true"><div class="box2"><p id="modalMsg"></p><div class="row"><button class="btn" id="modalNo">Cancel</button><button class="btn primary" id="modalYes">Yes</button></div></div></div>
 
 <script>
 (() => {
@@ -904,7 +911,7 @@ let S;
 try { S = Object.assign(blank(), JSON.parse(localStorage.getItem(KEY) || 'null') || {}); } catch(e){ S = blank(); }
 function norm(){ S.qada ||= {}; S.bad ||= []; S.myDuas ||= []; for(const k in S.days){ const d=S.days[k]||(S.days[k]={}); for(const b of ['p','s','a','h','g','b','t','n']) d[b] ||= {}; } }
 norm();
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} };
+const save = () => { S.updatedAt=Date.now(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} cloudQueue(); };
 
 /* ---------------- Dates ---------------- */
 function ymd(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
@@ -1235,9 +1242,12 @@ $('#locBtn').addEventListener('click',()=>{
     S.lat=pos.coords.latitude.toFixed(4); S.lng=pos.coords.longitude.toFixed(4); save(); loadSettings(); renderAll(); toast('Prayer times updated');
   },()=>toast('Could not get location — enter it manually'),{timeout:15000});
 });
-$('#expBtn').addEventListener('click',()=>{
-  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='namaz100-backup-'+todayStr()+'.json'; a.click();
+$('#expBtn').addEventListener('click',async()=>{
+  const name='namaz100-backup-'+todayStr()+'.json', json=JSON.stringify(S,null,2);
+  let dl=null; try{ if(window.claude && typeof window.claude.use==='function') dl=await window.claude.use('downloads'); }catch(e){}
+  if(dl){ try{ const r=await dl.save({filename:name, data:json}); if(r && r.status==='saved') toast('Backup saved'); }catch(e){ toast('Backup not saved'); } return; }
+  const blob=new Blob([json],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 });
 $('#impBtn').addEventListener('click',()=>$('#impFile').click());
@@ -1247,14 +1257,71 @@ $('#impFile').addEventListener('change',e=>{
    .catch(()=>toast('That file is not a valid backup'));
   e.target.value='';
 });
-$('#resetBtn').addEventListener('click',()=>{ if(confirm('Delete ALL your tracker data on this phone? Export a backup first if unsure.')){ S=blank(); save(); cur=todayStr(); loadSettings(); applyTheme(); renderAll(); toast('Reset done'); } });
+$('#resetBtn').addEventListener('click',async()=>{ if(await ask('Delete ALL your tracker data? Export a backup first if unsure.','Delete all')){ S=blank(); save(); cur=todayStr(); loadSettings(); applyTheme(); renderAll(); toast('Reset done'); } });
+
+/* ---------------- In-page confirm ---------------- */
+function ask(msg, yes){
+  return new Promise(res=>{
+    const m=$('#modal'); $('#modalMsg').textContent=msg; $('#modalYes').textContent=yes||'Yes'; m.hidden=false; $('#modalNo').focus();
+    const done=v=>{ m.hidden=true; $('#modalYes').onclick=$('#modalNo').onclick=null; res(v); };
+    $('#modalYes').onclick=()=>done(true); $('#modalNo').onclick=()=>done(false);
+  });
+}
+
+/* ---------------- Cloud sync (only inside claude.ai) ---------------- */
+const cloud={db:null, base:null, last:{}, timer:null, busy:false, again:false, ready:false};
+function setSync(t){ const el=$('#syncLine'); if(el) el.textContent=t; }
+function cloudQueue(){ if(!cloud.ready) return; clearTimeout(cloud.timer); cloud.timer=setTimeout(cloudFlush,1200); setSync('☁️ Saving…'); }
+function splitState(){
+  const meta=Object.assign({},S); delete meta.days; const months={};
+  for(const k in S.days){ const m=k.slice(0,7); (months[m] ||= {})[k]=S.days[k]; }
+  return {meta, months};
+}
+async function cloudFlush(){
+  if(!cloud.ready) return; if(cloud.busy){ cloud.again=true; return; }
+  cloud.busy=true;
+  try{
+    const {meta, months}=splitState();
+    const writes=[['meta', JSON.stringify(meta)]].concat(Object.keys(months).map(m=>['m-'+m, JSON.stringify(months[m])]));
+    for(const [id,json] of writes){
+      if(cloud.last[id]===json) continue;
+      await cloud.db.collection(cloud.base).doc(id).set({json});
+      cloud.last[id]=json;
+    }
+    setSync('☁️ Synced to your Claude account · '+new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}));
+  }catch(e){ setSync('⚠️ Cloud save failed — saved on this device. It will retry on your next change.'); }
+  cloud.busy=false; if(cloud.again){ cloud.again=false; cloudFlush(); }
+}
+async function cloudInit(){
+  if(!(window.claude && typeof window.claude.use==='function')) return;
+  let db=null, user=null;
+  try{ [db,user]=await Promise.all([window.claude.use('db'), window.claude.use('user')]); }catch(e){}
+  if(!db||!user){ setSync('💾 Saved on this device only (sign in to Claude to sync)'); return; }
+  let uid=null; try{ uid=await user.id(); }catch(e){}
+  if(!uid){ setSync('💾 Saved on this device only'); return; }
+  cloud.db=db; cloud.base='data/users/'+uid;
+  setSync('☁️ Loading your saved progress…');
+  try{
+    const snap=await Promise.race([db.collection(cloud.base).get(), new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),10000))]);
+    let meta=null; const days={};
+    snap.docs.forEach(d=>{ const j=(d.data()||{}).json; if(typeof j!=='string') return; cloud.last[d.id]=j;
+      try{ const o=JSON.parse(j); if(d.id==='meta') meta=o; else Object.assign(days,o); }catch(e){} });
+    if(meta && (meta.updatedAt||0) > (S.updatedAt||0)){
+      S=Object.assign(blank(), meta, {days}); norm(); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
+      cur=todayStr(); loadSettings(); applyTheme(); renderAll(); toast('Your saved progress is loaded');
+    }
+    cloud.ready=true;
+    $('#backupNote').textContent='Your progress is saved privately to your Claude account, so it is safe on any phone where you open this link. Only you can see it. You can still export a backup file.';
+    if(!meta || (S.updatedAt||0) > (meta.updatedAt||0)) cloudFlush(); else setSync('☁️ Synced to your Claude account');
+  }catch(e){ setSync('⚠️ Could not reach cloud storage — saved on this device. Reopen the page to retry.'); }
+}
 
 /* ---------------- Events ---------------- */
 document.addEventListener('click',e=>{
   const del=e.target.closest('[data-del]');
-  if(del){ e.stopPropagation(); const i=+del.dataset.del; if(!confirm('Remove "'+S.bad[i]+'"?')) return;
+  if(del){ e.stopPropagation(); const i=+del.dataset.del; ask('Remove "'+S.bad[i]+'"?','Remove').then(ok=>{ if(!ok) return;
     S.bad.splice(i,1); Object.values(S.days).forEach(d=>{ const nb={}; Object.keys(d.b||{}).forEach(k=>{k=+k; if(k<i) nb[k]=d.b[k]; else if(k>i) nb[k-1]=d.b[k];}); d.b=nb; });
-    save(); renderToday(); return; }
+    save(); renderToday(); }); return; }
   const btn=e.target.closest('.seg button');
   if(btn){ const p=btn.parentElement.dataset.p, v=btn.dataset.v, d=day();
     if(v==='sunnah') d.s[p]=!d.s[p]; else d.p[p] = d.p[p]===v ? undefined : v;
@@ -1351,7 +1418,7 @@ document.addEventListener('click',e=>{
   const a=e.target.closest('[data-myans]');
   if(a){ const x=S.myDuas[+a.dataset.myans]; x.ans = x.ans ? null : todayStr(); save(); renderMyDuas(); if(x.ans) toast('Alhamdulillah! Allah answered your dua 🤲'); return; }
   const dl=e.target.closest('[data-mydel]');
-  if(dl){ if(confirm('Delete this dua?')){ S.myDuas.splice(+dl.dataset.mydel,1); save(); renderMyDuas(); } return; }
+  if(dl){ ask('Delete this dua?','Delete').then(ok=>{ if(ok){ S.myDuas.splice(+dl.dataset.mydel,1); save(); renderMyDuas(); } }); return; }
 });
 function addMyDua(){ const v=$('#myDuaIn').value.trim(); if(!v) return; S.myDuas.push({t:v,c:$('#myDuaCat').value,added:todayStr(),ans:null}); $('#myDuaIn').value=''; save(); renderMyDuas(); toast('Added — ask for it in Tahajjud and sujood'); }
 $('#myDuaAdd').addEventListener('click',addMyDua);
@@ -1371,7 +1438,7 @@ let lastToday=todayStr();
 setInterval(()=>{ const t=todayStr(); if(t!==lastToday){ if(cur===lastToday) cur=t; lastToday=t; } if($('#v-today').classList.contains('on')) renderToday(); }, 60000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ const t=todayStr(); if(t!==lastToday){ if(cur===lastToday) cur=t; lastToday=t; } renderToday(); }});
 
-applyTheme(); loadSettings(); renderAll(); newQuiz();
+applyTheme(); loadSettings(); renderAll(); newQuiz(); cloudInit();
 
 /* ---------------- Install / offline ---------------- */
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
