@@ -117,7 +117,7 @@ label.f{display:block;font-size:12px;color:var(--muted);font-weight:600;margin:1
 .addrow input{flex:1}
 .addrow .btn{flex:none;padding:9px 14px}
 .x{margin-left:auto;background:none;border:0;color:var(--muted);font-size:18px;cursor:pointer;padding:0 4px}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:10}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,1fr);padding:6px 2px calc(6px + env(safe-area-inset-bottom));z-index:10}
 nav.tabs button{background:none;border:0;color:var(--muted);font:inherit;font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;cursor:pointer}
 nav.tabs button svg{width:22px;height:22px}
 nav.tabs button.on{color:var(--brand)}
@@ -131,6 +131,24 @@ nav.tabs button.on{color:var(--brand)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .pledge li{margin-bottom:8px}
 .welcome{padding:24px 0}
+.sos{width:100%;background:var(--miss);border-color:var(--miss);color:#fff;font-size:15px;min-height:52px}
+.soslist{display:none;margin-top:12px}
+.soslist.on{display:block}
+.soslist ol{padding-left:20px;margin:0}
+.soslist li{margin-bottom:8px}
+.tas-top{display:flex;gap:6px;flex-wrap:wrap}
+.tas-top button{flex:1 1 30%;font-size:12px}
+.tas-top button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.tasbih{display:block;width:210px;height:210px;margin:16px auto 8px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#1c7a57,#0a2a1f);color:#fff;font:inherit;cursor:pointer;box-shadow:0 8px 24px rgba(15,61,46,.35);touch-action:manipulation}
+.tasbih:active{transform:scale(.97)}
+.tasbih .n{font-size:54px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.tasbih .of{font-size:13px;opacity:.8}
+.tas-ar{font-family:Amiri,serif;font-size:24px;text-align:center;color:var(--gold)}
+.timer{font-size:52px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;margin:6px 0}
+.qrow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.qrow:last-child{border-bottom:0}
+.qrow b.c{font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
+.intent{width:100%;font-weight:600}
 </style>
 </head>
 <body>
@@ -165,6 +183,9 @@ nav.tabs button.on{color:var(--brand)}
       <button class="btn" id="nextDay" aria-label="Next day">›</button>
     </div>
 
+    <h2>🎯 Today's Intention</h2>
+    <div class="card"><input id="goal" class="intent" maxlength="90" placeholder="e.g. Pray Fajr on time & study 2 hours with focus"></div>
+
     <h2>5 Daily Prayers <span class="hint" id="timesHint">17 Fard rak'ahs</span></h2>
     <div class="card" id="prayers"></div>
 
@@ -174,7 +195,7 @@ nav.tabs button.on{color:var(--brand)}
     <h2>Student Haram Guard <span class="hint">tick = I stayed away</span></h2>
     <div class="card" id="haram"></div>
 
-    <h2>Good Deeds &amp; Study <span class="hint">tick = done</span></h2>
+    <h2>Good Deeds &amp; Sunnah <span class="hint" id="goodHint">tick = done</span></h2>
     <div class="card" id="good"></div>
 
     <h2>My Bad Habits to Quit <span class="hint">tick = avoided today</span></h2>
@@ -284,6 +305,55 @@ nav.tabs button.on{color:var(--brand)}
     </div>
   </section>
 
+  <!-- TOOLS -->
+  <section class="view" id="v-tools">
+    <h2>🆘 Urge SOS <span class="hint" id="urgeHint"></span></h2>
+    <div class="card">
+      <button class="btn sos" id="sosBtn">I'm being tempted right now</button>
+      <div class="soslist" id="sosList">
+        <ol>
+          <li><b>Stop &amp; seek refuge:</b> <i>A'udhu billahi minash-shaytanir-rajim</i> (Qur'an 7:200).</li>
+          <li><b>Change your position / leave the place.</b> Put the phone down, go to another room, go outside.</li>
+          <li><b>Make wudu.</b> It cools anger and desire and resets your mind.</li>
+          <li><b>Say:</b> <i>Ya Muqallibal-qulubi thabbit qalbi 'ala dinik</i> — "O Turner of hearts, keep my heart firm on Your religion."</li>
+          <li><b>Remember:</b> "Allah is watching" — and the sweetness of iman for leaving something for His sake.</li>
+          <li><b>Pray 2 rak'ahs</b> or read a page of Qur'an. "Prayer prohibits immorality" (29:45).</li>
+          <li><b>Call or meet</b> a good friend / family member. Don't stay alone with the urge.</li>
+        </ol>
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" id="urgeWin">✓ I resisted it</button>
+          <button class="btn" id="urgeSlip">I slipped — tawbah</button>
+        </div>
+      </div>
+    </div>
+
+    <h2>📿 Tasbih Counter <span class="hint" id="tasHint"></span></h2>
+    <div class="card">
+      <div class="tas-top" id="tasPick"></div>
+      <button class="tasbih" id="tasBtn" aria-label="Count"><div class="n" id="tasN">0</div><div class="of" id="tasOf">/ 33</div></button>
+      <div class="tas-ar" id="tasAr"></div>
+      <div class="note" style="text-align:center" id="tasTr"></div>
+      <div class="row" style="margin-top:10px"><button class="btn" id="tasUndo">−1</button><button class="btn" id="tasReset">Reset</button></div>
+    </div>
+
+    <h2>📚 Study Focus Timer <span class="hint" id="studyHint">0 min today</span></h2>
+    <div class="card">
+      <div class="note" style="text-align:center">Before you start: <i>Bismillah · Rabbi zidni 'ilma</i>. Phone face down 📵</div>
+      <div class="timer" id="timer">25:00</div>
+      <div class="row">
+        <select id="tLen"><option value="25">25 min</option><option value="45">45 min</option><option value="60">60 min</option></select>
+        <button class="btn primary" id="tStart">Start</button>
+        <button class="btn" id="tReset">Reset</button>
+      </div>
+    </div>
+
+    <h2>🕌 Qada (Missed Prayers) <span class="hint" id="qadaHint"></span></h2>
+    <div class="card">
+      <div id="qada"></div>
+      <p class="note" style="margin-bottom:0">Counted from prayers marked "Missed" in your tracker. Tap "+1 made up" each time you pray one as qada. Pray them as soon as you can.</p>
+    </div>
+  </section>
+
   <!-- PLEDGE / SETTINGS -->
   <section class="view" id="v-me">
     <h2>My Student Pledge</h2>
@@ -357,6 +427,7 @@ nav.tabs button.on{color:var(--brand)}
   <button data-v="journey"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>100 Days</button>
   <button data-v="duas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>Duas</button>
   <button data-v="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Learn</button>
+  <button data-v="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>Tools</button>
   <button data-v="me"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Pledge</button>
 </nav>
 
@@ -402,7 +473,24 @@ const GOOD = [
   {id:'studied',t:'Studied with full focus', d:'Seeking knowledge is an obligation — Ibn Majah 224'},
   {id:'sleep',  t:'Slept early to wake for Fajr', d:'Discipline starts the night before'},
   {id:'kind',   t:'One kind deed / sadaqah', d:'A smile is charity — Tirmidhi 1956'},
-  {id:'helpParents', t:'Helped my parents / family', d:''}
+  {id:'helpParents', t:'Helped my parents / family', d:''},
+  {id:'witr', t:'Prayed Witr before sleeping', d:'"Make Witr the last of your night prayer" — Bukhari 998'}
+];
+const FRIDAY = [
+  {id:'kahf', t:'Read Surah Al-Kahf (Friday)', d:'Light between the two Fridays — al-Hakim, authenticated by al-Albani'},
+  {id:'durood', t:'Abundant Durood on the Prophet ﷺ (Friday)', d:'Sunan Abi Dawud 1047'},
+  {id:'ghusl', t:'Ghusl & early to Jumu\'ah', d:'Sahih al-Bukhari 881'}
+];
+const MONTHU = [{id:'fast', t:'Sunnah fast (Monday / Thursday) — optional', d:'Deeds are presented on these days — Tirmidhi 747'}];
+function goodFor(ds){ const w=parse(ds).getDay(); return GOOD.concat(w===5?FRIDAY:[], (w===1||w===4)?MONTHU:[]); }
+
+const TASBIH = [
+  {id:'subhan', n:'SubhanAllah', ar:'سُبْحَانَ اللَّهِ', tr:'Glory be to Allah', target:33},
+  {id:'hamd', n:'Alhamdulillah', ar:'الْحَمْدُ لِلَّهِ', tr:'All praise is for Allah', target:33},
+  {id:'akbar', n:'Allahu Akbar', ar:'اللَّهُ أَكْبَرُ', tr:'Allah is the Greatest (34 after prayer — Muslim 597)', target:34},
+  {id:'istighfar', n:'Astaghfirullah', ar:'أَسْتَغْفِرُ اللَّهَ', tr:'I seek Allah\'s forgiveness', target:100},
+  {id:'salawat', n:'Durood', ar:'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ', tr:'O Allah, send blessings upon Muhammad ﷺ', target:100},
+  {id:'tahlil', n:'La ilaha illallah', ar:'لَا إِلَٰهَ إِلَّا اللَّهُ', tr:'None has the right to be worshipped but Allah', target:100}
 ];
 
 const DUAS = [
@@ -471,9 +559,11 @@ const AYAT = [
 
 /* ---------------- Storage ---------------- */
 const KEY = 'namaz100.v1';
-const blank = () => ({name:'', start:ymd(new Date()), lat:'', lng:'', method:'Karachi', asr:'2', theme:'', bad:[], days:{}});
+const blank = () => ({name:'', start:ymd(new Date()), lat:'', lng:'', method:'Karachi', asr:'2', theme:'', bad:[], days:{}, qada:{}, tas:'subhan'});
 let S;
 try { S = Object.assign(blank(), JSON.parse(localStorage.getItem(KEY) || 'null') || {}); } catch(e){ S = blank(); }
+function norm(){ S.qada ||= {}; S.bad ||= []; for(const k in S.days){ const d=S.days[k]||(S.days[k]={}); for(const b of ['p','s','a','h','g','b','t']) d[b] ||= {}; } }
+norm();
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} };
 
 /* ---------------- Dates ---------------- */
@@ -484,11 +574,11 @@ function diffDays(a,b){ return Math.round((parse(b)-parse(a))/86400000); }
 const todayStr = () => ymd(new Date());
 let cur = todayStr();
 
-const day = (s=cur) => (S.days[s] ||= {p:{}, s:{}, a:{}, h:{}, g:{}, b:{}, note:''});
+const day = (s=cur) => { const d=(S.days[s] ||= {}); for(const k of ['p','s','a','h','g','b','t']) d[k] ||= {}; return d; };
 const peek = s => S.days[s];
 
 /* ---------------- Scoring ---------------- */
-function scoreOf(d){
+function scoreOf(d,ds){
   if(!d) return null;
   let pts=0;
   PRAYERS.forEach(p => { const v=d.p[p.id]; if(v==='ok') pts+=10; else if(v==='late') pts+=5; });       // 50
@@ -496,10 +586,10 @@ function scoreOf(d){
   pts += 20 * HARAM.filter(x=>d.h[x.id]).length / HARAM.length;                                          // 20
   const bad = S.bad.length ? S.bad.filter((_,i)=>d.b[i]).length / S.bad.length : (HARAM.filter(x=>d.h[x.id]).length/HARAM.length);
   pts += 5 * bad;                                                                                        // 5
-  pts += 10 * GOOD.filter(x=>d.g[x.id]).length / GOOD.length;                                            // 10
+  const G=goodFor(ds); pts += 10 * Math.min(1, G.filter(x=>d.g[x.id]).length / (G.length-1));  // 1 item of slack                                            // 10
   return Math.round(pts);
 }
-const hasEntry = d => d && (Object.keys(d.p).length || Object.values(d.a).some(Boolean) || Object.values(d.h).some(Boolean) || Object.values(d.g).some(Boolean) || d.note);
+const hasEntry = d => d && (Object.keys(d.p).length || d.urge || d.study || d.goal || Object.values(d.a).some(Boolean) || Object.values(d.h).some(Boolean) || Object.values(d.g).some(Boolean) || d.note);
 const allOnTime = d => d && PRAYERS.every(p => d.p[p.id]==='ok');
 const allPrayed = d => d && PRAYERS.every(p => d.p[p.id]==='ok' || d.p[p.id]==='late');
 
@@ -576,11 +666,11 @@ function renderToday(){
 
   checkList($('#adhkar'), ADHKAR, 'a');
   checkList($('#haram'), HARAM, 'h');
-  checkList($('#good'), GOOD, 'g');
+  checkList($('#good'), goodFor(cur), 'g'); const wd=parse(cur).getDay(); $('#goodHint').textContent = wd===5?'Jumu\'ah Mubarak 🌙':(wd===1||wd===4)?'Sunnah fasting day':'tick = done'; if(document.activeElement!==$('#goal')) $('#goal').value=(peek(cur)||{}).goal||'';
   const bd=(peek(cur)||{}).b||{};
   $('#bad').innerHTML = S.bad.length ? S.bad.map((t,i)=>`<div class="check${bd[i]?' on':''}" data-b="b" data-id="${i}" role="checkbox" aria-checked="${!!bd[i]}" tabindex="0"><div class="box"></div><div class="t">Avoided: ${esc(t)}</div><button class="x" data-del="${i}" aria-label="Remove">×</button></div>`).join('')
     : `<p class="note" style="margin:0">Add the personal habits you want to leave (e.g. too much phone, sleeping late, anger, bad language). Be honest — only Allah and you will see this.</p>`;
-  $('#note').value = (peek(cur)||{}).note||'';
+  if(document.activeElement!==$('#note')) $('#note').value = (peek(cur)||{}).note||'';
   renderHeader();
 }
 
@@ -596,7 +686,7 @@ function renderHeader(){
   $('#dayNum').innerHTML = `Day ${dn||0} <small>/ 100</small>`;
   const st=streak(); $('#streakLine').textContent = `🔥 Streak: ${st} day${st===1?'':'s'} all 5 prayed`;
   $('#journeyBar').style.width = dn+'%';
-  const sc=scoreOf(peek(cur))||0;
+  const sc=scoreOf(peek(cur),cur)||0;
   $('#ringFg').setAttribute('stroke-dasharray', sc+' 100'); $('#ringTxt').textContent = sc+'%';
   const a=AYAT[(Math.max(1,dn)-1)%AYAT.length]; $('#ayah').innerHTML = `<b>${esc(a[0])}</b> — ${esc(a[1])}`;
 }
@@ -604,11 +694,11 @@ function renderHeader(){
 /* ---------------- Render: Journey ---------------- */
 function renderJourney(){
   const t=todayStr(); let logged=0, onTimeDays=0, total=0, ok=0, late=0, miss=0, haramClean=0;
-  const per={}; PRAYERS.forEach(p=>per[p.id]={ok:0,late:0,miss:0});
+  let urges=0, study=0; const per={}; PRAYERS.forEach(p=>per[p.id]={ok:0,late:0,miss:0});
   let html='';
   for(let i=0;i<100;i++){
     const ds=addDays(S.start,i), d=peek(ds), fut=ds>t;
-    const sc=hasEntry(d)?scoreOf(d):null;
+    const sc=hasEntry(d)?scoreOf(d,ds):null; if(d){ urges+=d.urge||0; study+=d.study||0; }
     if(sc!==null){ logged++; total+=sc; if(allOnTime(d)) onTimeDays++; if(HARAM.every(h=>d.h[h.id])) haramClean++;
       PRAYERS.forEach(p=>{ const v=d.p[p.id]; if(v) { per[p.id][v]++; if(v==='ok')ok++; else if(v==='late')late++; else miss++; }}); }
     const lv = sc===null?'':sc>=90?'l4':sc>=70?'l3':sc>=40?'l2':'l1';
@@ -618,7 +708,7 @@ function renderJourney(){
   const avg = logged?Math.round(total/logged):0, prayed=ok+late+miss;
   $('#stats').innerHTML = [
     [logged,'Days logged'],[avg+'%','Avg score'],[streak(),'Day streak'],
-    [onTimeDays,'Perfect days'],[prayed?Math.round(ok*100/prayed)+'%':'—','On-time rate'],[haramClean,'Haram-free days']
+    [onTimeDays,'Perfect days'],[prayed?Math.round(ok*100/prayed)+'%':'—','On-time rate'],[haramClean,'Haram-free days'],[urges,'Urges defeated'],[Math.round(study/60*10)/10+'h','Study hours'],[qadaLeft(),'Qada pending']
   ].map(([b,s])=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`).join('');
   $('#perPrayer').innerHTML = PRAYERS.map(p=>{ const c=per[p.id], n=c.ok+c.late+c.miss, pct=n?Math.round(c.ok*100/n):0;
     return `<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><b>${p.n}</b><span class="note">${c.ok} on time · ${c.late} late · ${c.miss} missed</span></div>
@@ -661,7 +751,7 @@ $('#expBtn').addEventListener('click',()=>{
 $('#impBtn').addEventListener('click',()=>$('#impFile').click());
 $('#impFile').addEventListener('change',e=>{
   const f=e.target.files[0]; if(!f) return;
-  f.text().then(t=>{ const o=JSON.parse(t); if(!o||typeof o.days!=='object') throw 0; S=Object.assign(blank(),o); save(); loadSettings(); applyTheme(); renderAll(); toast('Backup restored'); })
+  f.text().then(t=>{ const o=JSON.parse(t); if(!o||typeof o.days!=='object') throw 0; S=Object.assign(blank(),o); norm(); save(); loadSettings(); applyTheme(); renderAll(); toast('Backup restored'); })
    .catch(()=>toast('That file is not a valid backup'));
   e.target.value='';
 });
@@ -697,13 +787,75 @@ function addBad(){ const v=$('#badInput').value.trim(); if(!v) return; S.bad.pus
 $('#badAdd').addEventListener('click',addBad);
 $('#badInput').addEventListener('keydown',e=>{ if(e.key==='Enter') addBad(); });
 
+/* ---------------- Tools ---------------- */
+const T = todayStr;
+function vib(ms){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
+// SOS
+$('#sosBtn').addEventListener('click',()=>{ $('#sosList').classList.toggle('on'); });
+$('#urgeWin').addEventListener('click',()=>{ const d=day(T()); d.urge=(d.urge||0)+1; save(); renderTools(); renderHeader(); toast('MashaAllah! You chose Allah over your desire. 💪'); $('#sosList').classList.remove('on'); });
+$('#urgeSlip').addEventListener('click',()=>{ toast('Make wudu, pray 2 rak\'ahs and say Astaghfirullah. Allah loves those who repent (2:222). Start again now.'); $('#sosList').classList.remove('on'); });
+// Tasbih
+function tasCur(){ return TASBIH.find(x=>x.id===S.tas)||TASBIH[0]; }
+function renderTasbih(){
+  const t=tasCur(), d=peek(T())||{}, n=(d.t||{})[t.id]||0;
+  $('#tasPick').innerHTML=TASBIH.map(x=>`<button class="btn${x.id===t.id?' on':''}" data-tas="${x.id}">${esc(x.n)}</button>`).join('');
+  $('#tasN').textContent=n; $('#tasOf').textContent='/ '+t.target+(n>=t.target?' ✓':'');
+  $('#tasAr').textContent=t.ar; $('#tasTr').textContent=t.tr;
+  const tot=Object.values(d.t||{}).reduce((a,b)=>a+b,0); $('#tasHint').textContent=tot+' dhikr today';
+}
+$('#tasPick').addEventListener('click',e=>{ const b=e.target.closest('[data-tas]'); if(!b) return; S.tas=b.dataset.tas; save(); renderTasbih(); });
+$('#tasBtn').addEventListener('click',()=>{
+  const t=tasCur(), d=day(T()); d.t=d.t||{}; d.t[t.id]=(d.t[t.id]||0)+1; const n=d.t[t.id];
+  if(n===t.target){ vib([60,40,60]); toast(t.n+' ×'+t.target+' complete ✓');
+    if(t.id==='istighfar'){ d.a.istighfar=true; }
+    const i=TASBIH.indexOf(t); if(i<2){ S.tas=TASBIH[i+1].id; } }
+  else vib(12);
+  save(); renderTasbih(); if(cur===T()) renderToday();
+});
+$('#tasUndo').addEventListener('click',()=>{ const t=tasCur(), d=day(T()); d.t=d.t||{}; d.t[t.id]=Math.max(0,(d.t[t.id]||0)-1); save(); renderTasbih(); });
+$('#tasReset').addEventListener('click',()=>{ const t=tasCur(), d=day(T()); d.t=d.t||{}; d.t[t.id]=0; save(); renderTasbih(); });
+// Study timer (timestamp based, survives the phone sleeping)
+let tEnd=null, tLeft=null, tTick=null;
+function tLenMs(){ return (+$('#tLen').value)*60000; }
+function drawTimer(ms){ ms=Math.max(0,ms); const m=Math.floor(ms/60000), s=Math.floor(ms%60000/1000); $('#timer').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
+function tickTimer(){
+  if(tEnd===null) return; const left=tEnd-Date.now(); drawTimer(left);
+  if(left<=0){ clearInterval(tTick); tTick=null; tEnd=null; tLeft=null; $('#tStart').textContent='Start';
+    const d=day(T()); d.study=(d.study||0)+(+$('#tLen').value); d.g.studied=true; save(); vib([200,100,200]);
+    toast('Session done! Alhamdulillah. Take a 5 min break 🌿'); renderTools(); if(cur===T()) renderToday(); drawTimer(tLenMs()); }
+}
+$('#tStart').addEventListener('click',()=>{
+  if(tEnd!==null){ tLeft=tEnd-Date.now(); tEnd=null; clearInterval(tTick); $('#tStart').textContent='Resume'; return; }
+  tEnd=Date.now()+(tLeft ?? tLenMs()); tLeft=null; $('#tStart').textContent='Pause'; tTick=setInterval(tickTimer,500); tickTimer();
+});
+$('#tReset').addEventListener('click',()=>{ clearInterval(tTick); tEnd=null; tLeft=null; $('#tStart').textContent='Start'; drawTimer(tLenMs()); });
+$('#tLen').addEventListener('change',()=>{ if(tEnd===null){ tLeft=null; $('#tStart').textContent='Start'; drawTimer(tLenMs()); } });
+// Qada
+function missedCounts(){ const c={}; PRAYERS.forEach(p=>c[p.id]=0); Object.values(S.days).forEach(d=>PRAYERS.forEach(p=>{ if(d.p&&d.p[p.id]==='miss') c[p.id]++; })); return c; }
+function qadaLeft(){ const c=missedCounts(); return PRAYERS.reduce((a,p)=>a+Math.max(0,c[p.id]-(S.qada[p.id]||0)),0); }
+function renderQada(){
+  const c=missedCounts();
+  $('#qada').innerHTML=PRAYERS.map(p=>{ const left=Math.max(0,c[p.id]-(S.qada[p.id]||0));
+    return `<div class="qrow"><div><b>${p.n}</b><div class="pmeta">${c[p.id]} missed · ${S.qada[p.id]||0} made up</div></div><b class="c" style="color:${left?'var(--miss)':'var(--ok)'}">${left}</b><button class="btn" data-qada="${p.id}" ${left?'':'disabled'}>+1 made up</button></div>`; }).join('');
+  const l=qadaLeft(); $('#qadaHint').textContent = l ? l+' pending' : 'all clear ✓';
+}
+$('#qada').addEventListener('click',e=>{ const b=e.target.closest('[data-qada]'); if(!b) return; S.qada[b.dataset.qada]=(S.qada[b.dataset.qada]||0)+1; save(); renderQada(); toast('Qada recorded — may Allah accept it'); });
+function renderTools(){
+  const d=peek(T())||{};
+  $('#urgeHint').textContent=(d.urge||0)+' defeated today';
+  $('#studyHint').textContent=(d.study||0)+' min today';
+  renderTasbih(); renderQada();
+}
+$('#goal').addEventListener('input',e=>{ day().goal=e.target.value; save(); });
+
 function show(v){
   document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
   document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
   if(v==='journey') renderJourney();
+  if(v==='tools') renderTools();
   window.scrollTo(0,0);
 }
-function renderAll(){ renderToday(); renderJourney(); }
+function renderAll(){ renderToday(); renderJourney(); renderTools(); }
 
 // Refresh "today" + next-prayer highlight when the app comes back to the foreground or the minute changes
 let lastToday=todayStr();
