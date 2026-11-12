@@ -8,6 +8,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Namaz 100">
 <title>Namaz 100 Days</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -686,7 +689,11 @@ nav.tabs button.on{color:var(--brand)}
       <input type="file" id="impFile" accept="application/json" hidden>
       <button class="btn danger" id="resetBtn" style="width:100%;margin-top:10px">Reset everything</button>
     </div>
-    <p class="note" style="text-align:center">Tip: open this page in Chrome/Safari → menu → <b>Add to Home Screen</b> to use it like an app.</p>
+    <h2>📲 Install as App</h2>
+    <div class="card">
+      <button class="btn primary" id="installBtn" style="width:100%;display:none">📲 Install Namaz 100 on this phone</button>
+      <p class="note" id="installNote" style="margin-bottom:0"><b>Android (Chrome):</b> menu ⋮ → <b>Install app</b> / <b>Add to Home screen</b>.<br><b>iPhone (Safari):</b> Share ⬆ → <b>Add to Home Screen</b>.<br>After installing it opens full-screen and works offline.</p>
+    </div>
   </section>
 
 </main>
@@ -1365,6 +1372,15 @@ setInterval(()=>{ const t=todayStr(); if(t!==lastToday){ if(cur===lastToday) cur
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ const t=todayStr(); if(t!==lastToday){ if(cur===lastToday) cur=t; lastToday=t; } renderToday(); }});
 
 applyTheme(); loadSettings(); renderAll(); newQuiz();
+
+/* ---------------- Install / offline ---------------- */
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch(e){}
+let deferredInstall=null;
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredInstall=e; $('#installBtn').style.display='block'; });
+$('#installBtn').addEventListener('click',async()=>{ if(!deferredInstall) return; deferredInstall.prompt(); await deferredInstall.userChoice.catch(()=>{}); deferredInstall=null; $('#installBtn').style.display='none'; });
+window.addEventListener('appinstalled',()=>{ toast('Installed! Open Namaz 100 from your home screen 🌙'); $('#installNote').innerHTML='✓ Installed on this phone. Remember to export a backup now and then.'; });
+if(matchMedia('(display-mode: standalone)').matches || navigator.standalone) $('#installNote').innerHTML='✓ You are using the installed app. Remember to export a backup now and then.';
 })();
 </script>
 </body>
