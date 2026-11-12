@@ -198,6 +198,12 @@ nav.tabs button.on{color:var(--brand)}
     <h2>Good Deeds &amp; Sunnah <span class="hint" id="goodHint">tick = done</span></h2>
     <div class="card" id="good"></div>
 
+    <h2>Nafl Prayers 🌙 <span class="hint">extra reward · see Learn</span></h2>
+    <div class="card">
+      <div id="nafl"></div>
+      <input id="hajahFor" style="margin-top:10px" maxlength="120" placeholder="My Hajah / Istikhara is for… (e.g. exam result, career choice)">
+    </div>
+
     <h2>My Bad Habits to Quit <span class="hint">tick = avoided today</span></h2>
     <div class="card">
       <div id="bad"></div>
@@ -253,6 +259,51 @@ nav.tabs button.on{color:var(--brand)}
         <tr><td><b>Maghrib</b></td><td class="myth">Peaceful future</td><td>The five prayers wipe away minor sins between them (Muslim 233). Pray it promptly.</td></tr>
         <tr><td><b>Isha</b></td><td class="myth">Peaceful sleep</td><td>In congregation = half the night in prayer; with Fajr in congregation = the whole night (Muslim 656).</td></tr>
       </table>
+    </div>
+
+    <h2>Nafl Prayers: Tahajjud · Hajah · Istikhara</h2>
+    <div class="card" id="naflGuide">
+      <details><summary>🌙 Tahajjud (Night Prayer)</summary>
+        <p><b>Virtue:</b> "The best prayer after the obligatory prayers is the prayer at night." — Sahih Muslim 1163. In the last third of every night Allah descends to the lowest heaven and says: "Who is calling upon Me, that I may answer him? Who is asking of Me, that I may give him? Who is seeking My forgiveness, that I may forgive him?" — Sahih al-Bukhari 1145.</p>
+        <p><b>Time:</b> after Isha until Fajr begins. Best in the <b>last third of the night</b>, ideally after some sleep. <span id="thirdNote"></span></p>
+        <p><b>Rak'ahs:</b> pray in sets of <b>2</b>. Minimum 2; the Prophet ﷺ usually prayed 8, then Witr, 11 in total (Sahih al-Bukhari 1147). Even 2 rak'ahs counts.</p>
+        <ol class="steps">
+          <li>Sleep with the intention to wake up. Set an alarm ~30–60 min before Fajr.</li>
+          <li>Make wudu, and make niyyah in your heart for Tahajjud.</li>
+          <li>Pray 2 rak'ahs like any Sunnah prayer (Fatihah + any surah each rak'ah). Repeat in sets of 2 as you are able.</li>
+          <li>Make long sujood and ask Allah for everything you need, in any language, after the Sunnah duas.</li>
+          <li>End with <b>Witr</b> (if you didn't pray it after Isha) — "Make Witr the last of your night prayer" (Bukhari 998).</li>
+          <li>Afterwards: Istighfar. "And in the hours before dawn they would seek forgiveness" (Qur'an 51:18).</li>
+        </ol>
+        <p class="note" style="margin-bottom:0">Afraid you won't wake up? Pray Witr before sleeping (Muslim 755), and pray any Tahajjud you manage later in 2s, without repeating Witr.</p>
+      </details>
+      <details><summary>🤲 Salat al-Hajah (Prayer of Need)</summary>
+        <p><b>When:</b> whenever you have a need — exams, job, health, family problems, debt. Not during the forbidden times (see bottom).</p>
+        <ol class="steps">
+          <li>Make wudu well and completely.</li>
+          <li>Pray <b>2 rak'ahs</b> with niyyah of Salat al-Hajah, with full concentration.</li>
+          <li>After salam: praise Allah, send Durood on the Prophet ﷺ.</li>
+          <li>Ask Allah for your need with humility and certainty — in your own words and/or the dua below.</li>
+          <li>Then do your part: study, apply, work hard — and trust Allah (tawakkul).</li>
+        </ol>
+        <p class="note">Basis: "Whoever performs wudu well, then prays two rak'ahs completing them, Allah gives him what he asks, sooner or later" — Musnad Ahmad 27497. "Seek help through patience and prayer" — Qur'an 2:45.</p>
+        <div id="hajahDua"></div>
+        <p class="note" style="margin-bottom:0">Honesty note: the specific dua above (Jami' at-Tirmidhi 479) is graded <b>weak (da'if)</b> by many hadith scholars; many still recite it for its good meaning. Asking in your own words after 2 rak'ahs is perfectly fine.</p>
+      </details>
+      <details><summary>🧭 Salat al-Istikhara (Prayer for Guidance)</summary>
+        <p><b>When:</b> for any permissible decision — choosing a course or college, a job, a business, marriage, travel. Not for things that are clearly fard (just do them) or haram (just leave them).</p>
+        <p><b>Basis:</b> Jabir (RA) said the Prophet ﷺ taught us Istikhara in all matters as he taught us a surah of the Qur'an — Sahih al-Bukhari 1162.</p>
+        <ol class="steps">
+          <li>Make wudu.</li>
+          <li>Pray <b>2 rak'ahs</b> (non-obligatory) with niyyah of Istikhara.</li>
+          <li>After salam, recite the dua below. At "<i>hadhal-amra</i>" (this matter), name or think of your decision.</li>
+          <li>Then go ahead with what seems best after consulting wise people. If it is good, Allah will make it easy; if not, He will turn it away from you.</li>
+          <li>You may repeat it on more days if still unsure.</li>
+        </ol>
+        <div id="istikharaDua"></div>
+        <p class="note" style="margin-bottom:0">You do <b>not</b> need to see a dream or a special sign. The result is ease or difficulty in the matter, and contentment with what Allah decides.</p>
+      </details>
+      <div class="callout" style="margin-top:12px"><b>Don't pray nafl at these times</b> (Sahih Muslim 831): from Fajr until the sun has fully risen · when the sun is at its peak (just before Dhuhr) · after Asr until sunset. Tahajjud is at night, so it's never affected.</div>
     </div>
 
     <h2>The 5 Daily Prayers</h2>
@@ -366,6 +417,7 @@ nav.tabs button.on{color:var(--brand)}
         <li><b>Study with honesty and effort</b> — knowledge is an amanah (trust).</li>
         <li><b>Respect my parents</b> and make dua for them every day.</li>
         <li>Guard my <b>time and phone</b> — health and free time are two blessings most people waste (Bukhari 6412).</li>
+        <li>Pray <b>Tahajjud</b> at least once a week, and turn to <b>Salat al-Hajah</b> and <b>Istikhara</b> for my needs and decisions.</li>
         <li>When I fall, make <b>tawbah</b> and get back up the same day.</li>
       </ol>
       <p class="note" style="margin-bottom:0">"The most beloved deeds to Allah are those done consistently, even if small." — Bukhari 6464</p>
@@ -493,6 +545,23 @@ const TASBIH = [
   {id:'tahlil', n:'La ilaha illallah', ar:'لَا إِلَٰهَ إِلَّا اللَّهُ', tr:'None has the right to be worshipped but Allah', target:100}
 ];
 
+const ISTIKHARA_DUA = {t:'Dua of Istikhara', tag:'After 2 rak\'ahs',
+   ar:'اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ، وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ، وَأَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ، فَإِنَّكَ تَقْدِرُ وَلَا أَقْدِرُ، وَتَعْلَمُ وَلَا أَعْلَمُ، وَأَنْتَ عَلَّامُ الْغُيُوبِ. اللَّهُمَّ إِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ خَيْرٌ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي فَاقْدُرْهُ لِي وَيَسِّرْهُ لِي ثُمَّ بَارِكْ لِي فِيهِ، وَإِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ شَرٌّ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي فَاصْرِفْهُ عَنِّي وَاصْرِفْنِي عَنْهُ، وَاقْدُرْ لِيَ الْخَيْرَ حَيْثُ كَانَ ثُمَّ أَرْضِنِي بِهِ',
+   tr:"Allahumma inni astakhiruka bi'ilmika, wa astaqdiruka bi-qudratika, wa as'aluka min fadlikal-'azim, fa innaka taqdiru wa la aqdir, wa ta'lamu wa la a'lam, wa anta 'allamul-ghuyub. Allahumma in kunta ta'lamu anna hadhal-amra [name your matter] khayrun li fi dini wa ma'ashi wa 'aqibati amri, faqdurhu li wa yassirhu li thumma barik li fih. Wa in kunta ta'lamu anna hadhal-amra sharrun li fi dini wa ma'ashi wa 'aqibati amri, fasrifhu 'anni wasrifni 'anhu, waqdur liyal-khayra haythu kana thumma ardini bih.",
+   en:'O Allah, I seek Your guidance by Your knowledge, and I seek ability by Your power, and I ask You of Your great bounty. You have power and I have none; You know and I know not; You are the Knower of the unseen. O Allah, if You know that this matter [name it] is good for me in my religion, my livelihood and the outcome of my affairs, then decree it for me, make it easy for me, then bless me in it. And if You know that this matter is bad for me in my religion, my livelihood and the outcome of my affairs, then turn it away from me and turn me away from it, and decree for me what is good wherever it may be, then make me content with it.',
+   src:'Sahih al-Bukhari 1162'};
+const HAJAH_DUA = {t:'Dua of Salat al-Hajah', tag:'After 2 rak\'ahs',
+   ar:'لَا إِلَهَ إِلَّا اللَّهُ الْحَلِيمُ الْكَرِيمُ، سُبْحَانَ اللَّهِ رَبِّ الْعَرْشِ الْعَظِيمِ، الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ، أَسْأَلُكَ مُوجِبَاتِ رَحْمَتِكَ، وَعَزَائِمَ مَغْفِرَتِكَ، وَالْغَنِيمَةَ مِنْ كُلِّ بِرٍّ، وَالسَّلَامَةَ مِنْ كُلِّ إِثْمٍ، لَا تَدَعْ لِي ذَنْبًا إِلَّا غَفَرْتَهُ، وَلَا هَمًّا إِلَّا فَرَّجْتَهُ، وَلَا حَاجَةً هِيَ لَكَ رِضًا إِلَّا قَضَيْتَهَا يَا أَرْحَمَ الرَّاحِمِينَ',
+   tr:"La ilaha illallahul-Halimul-Karim. Subhanallahi Rabbil-'arshil-'azim. Alhamdu lillahi Rabbil-'alamin. As'aluka mujibati rahmatik, wa 'aza'ima maghfiratik, wal-ghanimata min kulli birr, was-salamata min kulli ithm. La tada' li dhanban illa ghafartah, wa la hamman illa farrajtah, wa la hajatan hiya laka ridan illa qadaytaha, ya Arhamar-Rahimin.",
+   en:'There is no god but Allah, the Forbearing, the Generous. Glory be to Allah, Lord of the Mighty Throne. All praise is for Allah, Lord of the worlds. I ask You for what brings Your mercy, Your sure forgiveness, a share of every good deed and safety from every sin. Leave no sin of mine unforgiven, no worry unrelieved, and no need that pleases You unfulfilled, O Most Merciful of the merciful.',
+   src:"Jami' at-Tirmidhi 479 — graded weak (da'if)"};
+
+const NAFL = [
+  {id:'tahajjud', t:'Tahajjud — night prayer (min. 2 rak\'ahs)', d:'Best prayer after the Fard — Muslim 1163'},
+  {id:'hajah', t:'Salat al-Hajah — 2 rak\'ahs for my need', d:'When you need something from Allah'},
+  {id:'istikhara', t:'Salat al-Istikhara — 2 rak\'ahs for a decision', d:'Before a choice: course, job, marriage…'}
+];
+
 const DUAS = [
   {t:'Lawful Wealth & Provision (Rizq)', tag:'After Fajr',
    ar:'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا',
@@ -522,6 +591,8 @@ const DUAS = [
    ar:'اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ، وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ',
    tr:"Allahummak-fini bihalalika 'an haramik, wa aghnini bifadlika 'amman siwak.",
    en:'O Allah, suffice me with what You have made lawful against what You have made unlawful, and enrich me by Your grace from needing anyone besides You.', src:"Jami' at-Tirmidhi 3563"},
+  ISTIKHARA_DUA,
+  HAJAH_DUA,
   {t:'Steadfast Heart', tag:'When tempted',
    ar:'يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَى دِينِكَ',
    tr:"Ya Muqallibal-qulubi thabbit qalbi 'ala dinik.",
@@ -562,7 +633,7 @@ const KEY = 'namaz100.v1';
 const blank = () => ({name:'', start:ymd(new Date()), lat:'', lng:'', method:'Karachi', asr:'2', theme:'', bad:[], days:{}, qada:{}, tas:'subhan'});
 let S;
 try { S = Object.assign(blank(), JSON.parse(localStorage.getItem(KEY) || 'null') || {}); } catch(e){ S = blank(); }
-function norm(){ S.qada ||= {}; S.bad ||= []; for(const k in S.days){ const d=S.days[k]||(S.days[k]={}); for(const b of ['p','s','a','h','g','b','t']) d[b] ||= {}; } }
+function norm(){ S.qada ||= {}; S.bad ||= []; for(const k in S.days){ const d=S.days[k]||(S.days[k]={}); for(const b of ['p','s','a','h','g','b','t','n']) d[b] ||= {}; } }
 norm();
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} };
 
@@ -574,7 +645,7 @@ function diffDays(a,b){ return Math.round((parse(b)-parse(a))/86400000); }
 const todayStr = () => ymd(new Date());
 let cur = todayStr();
 
-const day = (s=cur) => { const d=(S.days[s] ||= {}); for(const k of ['p','s','a','h','g','b','t']) d[k] ||= {}; return d; };
+const day = (s=cur) => { const d=(S.days[s] ||= {}); for(const k of ['p','s','a','h','g','b','t','n']) d[k] ||= {}; return d; };
 const peek = s => S.days[s];
 
 /* ---------------- Scoring ---------------- */
@@ -589,7 +660,7 @@ function scoreOf(d,ds){
   const G=goodFor(ds); pts += 10 * Math.min(1, G.filter(x=>d.g[x.id]).length / (G.length-1));  // 1 item of slack                                            // 10
   return Math.round(pts);
 }
-const hasEntry = d => d && (Object.keys(d.p).length || d.urge || d.study || d.goal || Object.values(d.a).some(Boolean) || Object.values(d.h).some(Boolean) || Object.values(d.g).some(Boolean) || d.note);
+const hasEntry = d => d && (Object.keys(d.p).length || d.urge || d.study || d.goal || Object.values(d.a).some(Boolean) || Object.values(d.h).some(Boolean) || Object.values(d.g).some(Boolean) || Object.values(d.n||{}).some(Boolean) || d.note);
 const allOnTime = d => d && PRAYERS.every(p => d.p[p.id]==='ok');
 const allPrayed = d => d && PRAYERS.every(p => d.p[p.id]==='ok' || d.p[p.id]==='late');
 
@@ -625,6 +696,11 @@ function prayerTimes(dateStr){
   return out;
 }
 function fmt(h){ if(!isFinite(h)) return '—'; h=fix(h+0.5/60,24); let H=Math.floor(h), m=Math.floor((h-H)*60); const ap=H>=12?'PM':'AM'; H=H%12||12; return H+':'+String(m).padStart(2,'0')+' '+ap; }
+
+function lastThird(ds){
+  const a=prayerTimes(ds), b=prayerTimes(addDays(ds,1)); if(!a||!b||!isFinite(a.maghrib)||!isFinite(b.fajr)) return null;
+  const night=(b.fajr+24)-a.maghrib; return fmt(a.maghrib+night*2/3);
+}
 
 /* ---------------- UI helpers ---------------- */
 const $=s=>document.querySelector(s);
@@ -666,6 +742,9 @@ function renderToday(){
 
   checkList($('#adhkar'), ADHKAR, 'a');
   checkList($('#haram'), HARAM, 'h');
+  const lt=lastThird(cur); const NL=NAFL.map(x=>x.id==='tahajjud'&&lt?Object.assign({},x,{d:'Tonight, last third of the night starts ~'+lt+' · Muslim 1163'}):x);
+  checkList($('#nafl'), NL, 'n');
+  if(document.activeElement!==$('#hajahFor')) $('#hajahFor').value=(peek(cur)||{}).hajahFor||'';
   checkList($('#good'), goodFor(cur), 'g'); const wd=parse(cur).getDay(); $('#goodHint').textContent = wd===5?'Jumu\'ah Mubarak 🌙':(wd===1||wd===4)?'Sunnah fasting day':'tick = done'; if(document.activeElement!==$('#goal')) $('#goal').value=(peek(cur)||{}).goal||'';
   const bd=(peek(cur)||{}).b||{};
   $('#bad').innerHTML = S.bad.length ? S.bad.map((t,i)=>`<div class="check${bd[i]?' on':''}" data-b="b" data-id="${i}" role="checkbox" aria-checked="${!!bd[i]}" tabindex="0"><div class="box"></div><div class="t">Avoided: ${esc(t)}</div><button class="x" data-del="${i}" aria-label="Remove">×</button></div>`).join('')
@@ -694,11 +773,11 @@ function renderHeader(){
 /* ---------------- Render: Journey ---------------- */
 function renderJourney(){
   const t=todayStr(); let logged=0, onTimeDays=0, total=0, ok=0, late=0, miss=0, haramClean=0;
-  let urges=0, study=0; const per={}; PRAYERS.forEach(p=>per[p.id]={ok:0,late:0,miss:0});
+  let urges=0, study=0, thj=0, hjh=0, ist=0; const per={}; PRAYERS.forEach(p=>per[p.id]={ok:0,late:0,miss:0});
   let html='';
   for(let i=0;i<100;i++){
     const ds=addDays(S.start,i), d=peek(ds), fut=ds>t;
-    const sc=hasEntry(d)?scoreOf(d,ds):null; if(d){ urges+=d.urge||0; study+=d.study||0; }
+    const sc=hasEntry(d)?scoreOf(d,ds):null; if(d){ urges+=d.urge||0; study+=d.study||0; const n=d.n||{}; if(n.tahajjud) thj++; if(n.hajah) hjh++; if(n.istikhara) ist++; }
     if(sc!==null){ logged++; total+=sc; if(allOnTime(d)) onTimeDays++; if(HARAM.every(h=>d.h[h.id])) haramClean++;
       PRAYERS.forEach(p=>{ const v=d.p[p.id]; if(v) { per[p.id][v]++; if(v==='ok')ok++; else if(v==='late')late++; else miss++; }}); }
     const lv = sc===null?'':sc>=90?'l4':sc>=70?'l3':sc>=40?'l2':'l1';
@@ -708,7 +787,7 @@ function renderJourney(){
   const avg = logged?Math.round(total/logged):0, prayed=ok+late+miss;
   $('#stats').innerHTML = [
     [logged,'Days logged'],[avg+'%','Avg score'],[streak(),'Day streak'],
-    [onTimeDays,'Perfect days'],[prayed?Math.round(ok*100/prayed)+'%':'—','On-time rate'],[haramClean,'Haram-free days'],[urges,'Urges defeated'],[Math.round(study/60*10)/10+'h','Study hours'],[qadaLeft(),'Qada pending']
+    [onTimeDays,'Perfect days'],[prayed?Math.round(ok*100/prayed)+'%':'—','On-time rate'],[haramClean,'Haram-free days'],[urges,'Urges defeated'],[Math.round(study/60*10)/10+'h','Study hours'],[qadaLeft(),'Qada pending'],[thj,'Tahajjud nights'],[hjh,'Salat al-Hajah'],[ist,'Istikhara']
   ].map(([b,s])=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`).join('');
   $('#perPrayer').innerHTML = PRAYERS.map(p=>{ const c=per[p.id], n=c.ok+c.late+c.miss, pct=n?Math.round(c.ok*100/n):0;
     return `<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><b>${p.n}</b><span class="note">${c.ok} on time · ${c.late} late · ${c.miss} missed</span></div>
@@ -719,7 +798,11 @@ function renderJourney(){
 }
 
 /* ---------------- Render: Duas ---------------- */
+function duaCard(x){ return `<div class="card dua" style="box-shadow:none"><h3>${esc(x.t)}<span class="tag">${esc(x.tag)}</span></h3>
+    <div class="ar" lang="ar">${x.ar}</div><div class="tr">${esc(x.tr)}</div><div class="en">"${esc(x.en)}"</div><div class="src">${esc(x.src)}</div></div>`; }
 function renderDuas(){
+  $('#istikharaDua').innerHTML=duaCard(ISTIKHARA_DUA); $('#hajahDua').innerHTML=duaCard(HAJAH_DUA);
+  const lt=lastThird(todayStr()); $('#thirdNote').textContent = lt ? 'For your location tonight: from about '+lt+'.' : 'Set your location in Pledge → Settings to see tonight\'s time.';
   $('#duaList').innerHTML = DUAS.map(x=>`<div class="card dua"><h3>${esc(x.t)}<span class="tag">${esc(x.tag)}</span></h3>
     <div class="ar" lang="ar">${x.ar}</div><div class="tr">${esc(x.tr)}</div><div class="en">"${esc(x.en)}"</div><div class="src">${esc(x.src)}</div></div>`).join('');
 }
@@ -847,6 +930,7 @@ function renderTools(){
   renderTasbih(); renderQada();
 }
 $('#goal').addEventListener('input',e=>{ day().goal=e.target.value; save(); });
+$('#hajahFor').addEventListener('input',e=>{ day().hajahFor=e.target.value; save(); });
 
 function show(v){
   document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
@@ -855,7 +939,7 @@ function show(v){
   if(v==='tools') renderTools();
   window.scrollTo(0,0);
 }
-function renderAll(){ renderToday(); renderJourney(); renderTools(); }
+function renderAll(){ renderDuas(); renderToday(); renderJourney(); renderTools(); }
 
 // Refresh "today" + next-prayer highlight when the app comes back to the foreground or the minute changes
 let lastToday=todayStr();
