@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Namaz 100">
 <title>Namaz 100 Days</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#f4f1ea; --card:#ffffff; --ink:#1b2a24; --muted:#5f6f68; --line:#e3ddd0;
@@ -151,6 +151,43 @@ nav.tabs button.on{color:var(--brand)}
 .qrow:last-child{border-bottom:0}
 .qrow b.c{font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
 .intent{width:100%;font-weight:600}
+.ur{font-family:'Noto Nastaliq Urdu',serif;line-height:2.1}
+.arn{font-family:Amiri,serif}
+.dates{margin-top:10px;font-size:13px;opacity:.95}
+.dates .hj{display:flex;justify-content:space-between;gap:10px;direction:rtl;margin-top:2px;color:#f3d48a}
+.dates .hj span{font-size:14px}
+.daynums{font-size:15px;opacity:.85;margin-left:4px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.cal-head .t{text-align:center;font-weight:700}
+.cal-head .t small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .wd{text-align:center;font-size:10.5px;color:var(--muted);font-weight:600;padding:2px 0;line-height:1.3}
+.cal .wd .ur{font-size:10px;line-height:1.6;display:block}
+.cday{border:1px solid var(--line);border-radius:8px;min-height:54px;padding:3px 4px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;background:var(--card);position:relative}
+.cday .g{font-weight:700;font-size:14px}
+.cday .h{font-size:13px;color:var(--gold);text-align:right;font-family:Amiri,serif;line-height:1}
+.cday .h small{font-family:Inter,sans-serif;font-size:9px;color:var(--muted)}
+.cday.empty{border:0;background:none;cursor:default}
+.cday.today{outline:2px solid var(--gold);outline-offset:1px}
+.cday.ev::after{content:"";position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--miss)}
+.cday.l1{background:#f3d9a6;color:#5a4210}.cday.l2{background:#a7d8bd;color:#0f3d2e}.cday.l3{background:#3fa57a;color:#fff}.cday.l4{background:#0f5a40;color:#fff}
+.cday.l3 .h,.cday.l4 .h{color:#f3d48a}
+.cday.fri{border-color:var(--gold)}
+.evlist{margin-top:10px;font-size:13px}
+.evlist div{padding:6px 0;border-bottom:1px solid var(--line)}
+.evlist div:last-child{border-bottom:0}
+.numt td{font-size:14px;vertical-align:middle}
+.numt td.a{font-family:Amiri,serif;font-size:20px;text-align:center}
+.numt td.u{font-family:'Noto Nastaliq Urdu',serif;font-size:16px;text-align:center;line-height:2}
+.numt td.w{font-size:12px}
+.numt td.w .ar{font-family:Amiri,serif;font-size:15px}
+.numt td.w .ur{font-size:13px;line-height:1.9}
+.quizq{font-size:52px;text-align:center;margin:6px 0;font-family:Amiri,serif;line-height:1.4}
+.quizq.urq{font-family:'Noto Nastaliq Urdu',serif;line-height:2.2;font-size:44px}
+.quizo{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.quizo button.good{background:var(--ok);border-color:var(--ok);color:#fff}
+.quizo button.bad{background:var(--miss);border-color:var(--miss);color:#fff}
+.tasn3{text-align:center;font-size:20px;color:var(--muted);margin-top:-2px}
 .masjid-top{background:linear-gradient(90deg,#b88a2e,#e0b65a);color:#2a1d04;padding:calc(8px + env(safe-area-inset-top)) 16px 8px;text-align:center;font-size:13px;line-height:1.35}
 .masjid-top b{font-size:14px;display:block}
 .sched{background:var(--gold-soft);border:1px solid var(--gold);border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:10px}
@@ -196,6 +233,7 @@ nav.tabs button.on{color:var(--brand)}
         <text id="ringTxt" x="18" y="21" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">0%</text>
       </svg>
     </div>
+    <div class="dates" id="dates"></div>
     <div class="bar"><i id="journeyBar" style="width:0%"></i></div>
     <div class="ayah" id="ayah"></div>
   </div>
@@ -257,6 +295,18 @@ nav.tabs button.on{color:var(--brand)}
 
   <!-- JOURNEY -->
   <section class="view" id="v-journey">
+    <h2>📅 Calendar <span class="hint">English · Hijri (Islamic)</span></h2>
+    <div class="card">
+      <div class="cal-head">
+        <button class="btn" id="calPrev" aria-label="Previous month">‹</button>
+        <div class="t" id="calTitle"></div>
+        <button class="btn" id="calNext" aria-label="Next month">›</button>
+      </div>
+      <div class="cal" id="cal"></div>
+      <div class="legend"><span>Big = English date</span><span style="color:var(--gold)">Small gold = Hijri date</span><span><i style="background:var(--miss);border-radius:50%"></i>Islamic day / Sunnah fast</span></div>
+      <div class="evlist" id="evlist"></div>
+    </div>
+
     <h2>100-Day Journey</h2>
     <div class="score" id="stats"></div>
     <h2>Progress Map <span class="hint">tap a day to open it</span></h2>
@@ -456,6 +506,24 @@ nav.tabs button.on{color:var(--brand)}
       <p class="note">Total: 17 Fard rak'ahs a day. Sunnah prayers are extra, for extra reward.</p>
     </div>
 
+    <h2>🔢 Numbers: English · Arabic · Urdu</h2>
+    <div class="card">
+      <p class="note" style="margin-top:0">Arabic and Urdu digits are written left-to-right like English (e.g. 25 = ٢٥ = ۲۵). Notice that Urdu writes <b>4, 5, 6, 7</b> differently from Arabic.</p>
+      <div class="quiz">
+        <div class="quizq" id="quizQ">٢٥</div>
+        <div class="note" style="text-align:center" id="quizHint">Which number is this?</div>
+        <div class="quizo" id="quizO" style="margin-top:8px"></div>
+        <div class="note" style="text-align:center;margin-top:8px" id="quizScore"></div>
+      </div>
+      <details style="margin-top:6px"><summary>Full chart 0 – 100</summary>
+        <table class="numt" id="numTable"></table>
+      </details>
+    </div>
+
+    <h2>🌙 Islamic Months (Hijri)</h2>
+    <div class="card"><table class="numt" id="monthTable"></table>
+      <p class="note" style="margin-bottom:0">The Hijri month starts with the new moon. Sacred months (Qur'an 9:36): Muharram, Rajab, Dhul Qa'dah, Dhul Hijjah.</p></div>
+
     <h2>Why prayer helps you quit bad habits</h2>
     <div class="card">
       <p style="margin-top:0"><b>"Indeed, prayer prohibits immorality and wrongdoing."</b> <span class="note">— Qur'an 29:45</span></p>
@@ -519,6 +587,7 @@ nav.tabs button.on{color:var(--brand)}
     <div class="card">
       <div class="tas-top" id="tasPick"></div>
       <button class="tasbih" id="tasBtn" aria-label="Count"><div class="n" id="tasN">0</div><div class="of" id="tasOf">/ 33</div></button>
+      <div class="tasn3" id="tasN3"></div>
       <div class="tas-ar" id="tasAr"></div>
       <div class="note" style="text-align:center" id="tasTr"></div>
       <div class="row" style="margin-top:10px"><button class="btn" id="tasUndo">−1</button><button class="btn" id="tasReset">Reset</button></div>
@@ -592,6 +661,17 @@ nav.tabs button.on{color:var(--brand)}
         </div>
       </div>
       <p class="note">Calculated times are approximate. Always follow your local masjid's timetable.</p>
+      <div class="row">
+        <div>
+          <label class="f" for="sHadj">Hijri date adjustment</label>
+          <select id="sHadj"><option value="-2">−2 days</option><option value="-1">−1 day</option><option value="0">0 (Umm al-Qura)</option><option value="1">+1 day</option><option value="2">+2 days</option></select>
+        </div>
+        <div>
+          <label class="f" for="sNums">Numbers</label>
+          <select id="sNums"><option value="all">English + Arabic + Urdu</option><option value="en">English only</option></select>
+        </div>
+      </div>
+      <p class="note">Set the Hijri adjustment so the date matches your local moon sighting (e.g. India / Pakistan are often −1 day from Saudi).</p>
       <label class="f">Theme</label>
       <select id="sTheme"><option value="">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
     </div>
@@ -613,7 +693,7 @@ nav.tabs button.on{color:var(--brand)}
 
 <nav class="tabs">
   <button class="on" data-v="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>Today</button>
-  <button data-v="journey"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>100 Days</button>
+  <button data-v="journey"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Calendar</button>
   <button data-v="duas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>Duas</button>
   <button data-v="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Learn</button>
   <button data-v="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>Tools</button>
@@ -671,7 +751,11 @@ const FRIDAY = [
   {id:'ghusl', t:'Ghusl & early to Jumu\'ah', d:'Sahih al-Bukhari 881'}
 ];
 const MONTHU = [{id:'fast', t:'Sunnah fast (Monday / Thursday) — optional', d:'Deeds are presented on these days — Tirmidhi 747'}];
-function goodFor(ds){ const w=parse(ds).getDay(); return GOOD.concat(w===5?FRIDAY:[], (w===1||w===4)?MONTHU:[]); }
+function goodFor(ds){ const w=parse(ds).getDay(); const hx=[]; const h=hijri(ds);
+  if(h){ const ev=hijriEvents(h);
+    if(ev.some(e=>e.fast)) hx.push({id:'hfast', t:'Sunnah fast today — '+ev.filter(e=>e.fast).map(e=>e.t).join(', '), d:ev.filter(e=>e.fast).map(e=>e.src).join(' · ')});
+    if(h.m===9) hx.push({id:'ramadan', t:'Ramadan fast + Taraweeh', d:'Fasting Ramadan is fard — Qur\'an 2:183'}); }
+  return GOOD.concat(w===5?FRIDAY:[], (w===1||w===4)&&!hx.length?MONTHU:[], hx); }
 
 const TASBIH = [
   {id:'subhan', n:'SubhanAllah', ar:'سُبْحَانَ اللَّهِ', tr:'Glory be to Allah', target:33},
@@ -894,12 +978,115 @@ function checkList(el, items, bucket){
     <div class="box"></div><div><div class="t">${esc(x.t)}</div>${x.d?`<div class="d">${esc(x.d)}</div>`:''}</div></div>`).join('');
 }
 
+/* ---------------- Numerals & Hijri calendar ---------------- */
+const toAr = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+const toUr = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+const HM = [ // English, Arabic, Urdu
+  ['Muharram','مُحَرَّم','محرم الحرام'], ['Safar','صَفَر','صفر المظفر'], ["Rabi' al-Awwal",'رَبِيع الأَوَّل','ربیع الاول'],
+  ["Rabi' al-Thani",'رَبِيع الآخِر','ربیع الثانی'], ['Jumada al-Ula','جُمَادَى الأُولَى','جمادی الاول'], ['Jumada al-Thani','جُمَادَى الآخِرَة','جمادی الثانی'],
+  ['Rajab','رَجَب','رجب المرجب'], ["Sha'ban",'شَعْبَان','شعبان المعظم'], ['Ramadan','رَمَضَان','رمضان المبارک'],
+  ['Shawwal','شَوَّال','شوال المکرم'], ["Dhul Qa'dah",'ذُو القَعْدَة','ذوالقعدہ'], ['Dhul Hijjah','ذُو الحِجَّة','ذوالحجہ']];
+const WD = [['Sun','الأحد','اتوار'],['Mon','الاثنين','پیر'],['Tue','الثلاثاء','منگل'],['Wed','الأربعاء','بدھ'],['Thu','الخميس','جمعرات'],['Fri','الجمعة','جمعہ'],['Sat','السبت','ہفتہ']];
+const GM_UR = ['جنوری','فروری','مارچ','اپریل','مئی','جون','جولائی','اگست','ستمبر','اکتوبر','نومبر','دسمبر'];
+let HFMT=null; try{ HFMT=new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura',{day:'numeric',month:'numeric',year:'numeric'}); if(!/^\d+$/.test(HFMT.formatToParts(new Date()).find(p=>p.type==='month').value)) HFMT=null; }catch(e){ HFMT=null; }
+const HCACHE={};
+function hijri(ds){
+  if(!HFMT) return null; const k=ds+'|'+(S.hadj||0); if(HCACHE[k]) return HCACHE[k];
+  const d=parse(addDays(ds, +S.hadj||0)); d.setHours(12);
+  const p={}; HFMT.formatToParts(d).forEach(x=>p[x.type]=x.value);
+  return HCACHE[k]={d:+p.day, m:+p.month, y:parseInt(p.year,10)};
+}
+const hijriEn = ds => { const h=hijri(ds); return h ? `${h.d} ${HM[h.m-1][0]} ${h.y} AH` : ''; };
+function hijriEvents(h){
+  const E=[], add=(t,src,fast)=>E.push({t,src,fast:!!fast});
+  if(h.m===1&&h.d===1) add('Islamic New Year '+h.y+' AH','Sacred month — Qur\'an 9:36');
+  if(h.m===1&&(h.d===9||h.d===10)) add(h.d===9?"Tasu'a (9th Muharram)":'Ashura (10th Muharram)','Fast expiates the past year — Muslim 1162',true);
+  if(h.m===7&&h.d===1) add('Rajab begins — a sacred month','Qur\'an 9:36');
+  if(h.m===8&&h.d===1) add("Sha'ban begins — the Prophet ﷺ fasted much in it",'Bukhari 1969');
+  if(h.m===9&&h.d===1) add('Ramadan begins 🌙','Qur\'an 2:183–185');
+  if(h.m===9&&h.d>=21&&h.d%2===1) add('Odd night of the last 10 — seek Laylat al-Qadr','Bukhari 2017');
+  if(h.m===10&&h.d===1) add('Eid al-Fitr — no fasting today','Bukhari 1990');
+  if(h.m===10&&h.d>=2&&h.d<=7) add('6 fasts of Shawwal','Like fasting the whole year — Muslim 1164',true);
+  if(h.m===12&&h.d>=1&&h.d<=8) add('First 10 days of Dhul Hijjah — best days of the year','Bukhari 969');
+  if(h.m===12&&h.d===9) add('Day of Arafah','Fast expiates two years — Muslim 1162',true);
+  if(h.m===12&&h.d===10) add('Eid al-Adha — no fasting today','Bukhari 1991');
+  if(h.m===12&&(h.d===11||h.d===12||h.d===13)) add('Days of Tashreeq — no fasting','Muslim 1141');
+  else if(h.d>=13&&h.d<=15 && !(h.m===9)) add('Ayyam al-Beed (white days)','Fast 13th, 14th, 15th — Nasa\'i 2420',true);
+  return E;
+}
+function renderDates(){
+  const t=todayStr(), d=parse(t), w=WD[d.getDay()], h=hijri(t);
+  const en=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  let html=`<div>📅 ${esc(en)}${h?' · 🌙 '+esc(hijriEn(t)):''}</div>`;
+  if(h) html+=`<div class="hj"><span class="arn" lang="ar">${w[1]} ${toAr(h.d)} ${HM[h.m-1][1]} ${toAr(h.y)} هـ</span><span class="ur" lang="ur">${w[2]}، ${toUr(h.d)} ${HM[h.m-1][2]} ${toUr(h.y)}ھ</span></div>`;
+  const ev=h?hijriEvents(h):[]; if(ev.length) html+=`<div style="margin-top:4px">⭐ ${ev.map(e=>esc(e.t)).join(' · ')}</div>`;
+  $('#dates').innerHTML=html;
+}
+let calY, calM; { const n=new Date(); calY=n.getFullYear(); calM=n.getMonth(); }
+function renderCalendar(){
+  const first=new Date(calY,calM,1), days=new Date(calY,calM+1,0).getDate(), t=todayStr();
+  const h1=hijri(ymd(first)), h2=hijri(ymd(new Date(calY,calM,days)));
+  const gEn=first.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  const hTxt = h1 ? (h1.m===h2.m ? `${HM[h1.m-1][0]} ${h1.y}` : `${HM[h1.m-1][0]} – ${HM[h2.m-1][0]} ${h2.y}`)+' AH' : '';
+  const hUr = h1 ? (h1.m===h2.m ? HM[h1.m-1][2] : HM[h1.m-1][2]+' – '+HM[h2.m-1][2])+' '+toUr(h2.y)+'ھ' : '';
+  $('#calTitle').innerHTML = `${esc(gEn)} <span class="ur" lang="ur" style="font-weight:400;font-size:13px">${GM_UR[calM]}</span><small>${esc(hTxt)}</small><small class="ur" lang="ur">${hUr}</small>`;
+  let html = WD.map(w=>`<div class="wd">${w[0]}<span class="ur" lang="ur">${w[2]}</span></div>`).join('');
+  for(let i=0;i<first.getDay();i++) html+='<div class="cday empty"></div>';
+  const evs=[];
+  for(let dnum=1; dnum<=days; dnum++){
+    const ds=ymd(new Date(calY,calM,dnum)), h=hijri(ds), d=peek(ds), sc=hasEntry(d)?scoreOf(d,ds):null;
+    const lv = sc===null?'':sc>=90?'l4':sc>=70?'l3':sc>=40?'l2':'l1';
+    const ev=h?hijriEvents(h):[]; if(ev.length) evs.push([ds,h,ev]);
+    const hn = h ? (S.nums==='en' ? h.d : toAr(h.d)) : '';
+    const mon = h && h.d===1 ? `<small>${esc(HM[h.m-1][0].split(' ')[0])}</small> ` : '';
+    html+=`<div class="cday ${lv}${ds===t?' today':''}${ev.length?' ev':''}${new Date(calY,calM,dnum).getDay()===5?' fri':''}" data-cal="${ds}" title="${esc(hijriEn(ds))}"><div class="g">${dnum}</div><div class="h">${mon}${hn}</div></div>`;
+  }
+  $('#cal').innerHTML=html;
+  // group consecutive identical events
+  const seen=new Set();
+  $('#evlist').innerHTML = evs.length ? evs.flatMap(([ds,h,ev])=>ev.filter(e=>{const k=e.t.replace(/\(.*\)/,'')+h.m+(/Odd night/.test(e.t)?h.d:''); if(seen.has(k)) return false; seen.add(k); return true;})
+      .map(e=>`<div><b>${parse(ds).getDate()} ${esc(parse(ds).toLocaleDateString('en-GB',{month:'short'}))}</b> · ${h.d} ${esc(HM[h.m-1][0])} — ${esc(e.t)}${e.fast?' <span class="tag">Sunnah fast</span>':''} <span class="note">(${esc(e.src)})</span></div>`)).join('')
+    : '<span class="note">No special Islamic days this month. Remember the Monday & Thursday Sunnah fasts.</span>';
+}
+$('#calPrev').addEventListener('click',()=>{ calM--; if(calM<0){calM=11;calY--;} renderCalendar(); });
+$('#calNext').addEventListener('click',()=>{ calM++; if(calM>11){calM=0;calY++;} renderCalendar(); });
+$('#cal').addEventListener('click',e=>{ const c=e.target.closest('[data-cal]'); if(!c) return; const ds=c.dataset.cal;
+  if(ds>todayStr()) return toast(hijriEn(ds)+' — not yet'); cur=ds; show('today'); renderToday(); });
+
+const AR_W = {0:['صفر','sifr'],1:['واحد','wahid'],2:['اثنان','ithnan'],3:['ثلاثة','thalatha'],4:['أربعة',"arba'a"],5:['خمسة','khamsa'],6:['ستة','sitta'],7:['سبعة',"sab'a"],8:['ثمانية','thamaniya'],9:['تسعة',"tis'a"],10:['عشرة',"'ashara"],
+  11:['أحد عشر',"ahada 'ashar"],12:['اثنا عشر',"ithna 'ashar"],13:['ثلاثة عشر',"thalatha 'ashar"],14:['أربعة عشر',"arba'ata 'ashar"],15:['خمسة عشر',"khamsata 'ashar"],16:['ستة عشر',"sittata 'ashar"],17:['سبعة عشر',"sab'ata 'ashar"],18:['ثمانية عشر',"thamaniyata 'ashar"],19:['تسعة عشر',"tis'ata 'ashar"],20:['عشرون',"'ishrun"],
+  30:['ثلاثون','thalathun'],33:['ثلاثة وثلاثون','thalatha wa thalathun'],34:['أربعة وثلاثون',"arba'a wa thalathun"],40:['أربعون',"arba'un"],50:['خمسون','khamsun'],60:['ستون','sittun'],70:['سبعون',"sab'un"],80:['ثمانون','thamanun'],90:['تسعون',"tis'un"],99:['تسعة وتسعون',"tis'a wa tis'un"],100:['مائة',"mi'a"]};
+const UR_W = {0:['صفر','sifr'],1:['ایک','aik'],2:['دو','do'],3:['تین','teen'],4:['چار','chaar'],5:['پانچ','paanch'],6:['چھ','chhe'],7:['سات','saat'],8:['آٹھ','aath'],9:['نو','nau'],10:['دس','das'],
+  11:['گیارہ','gyarah'],12:['بارہ','barah'],13:['تیرہ','terah'],14:['چودہ','chaudah'],15:['پندرہ','pandrah'],16:['سولہ','solah'],17:['سترہ','satrah'],18:['اٹھارہ','atharah'],19:['انیس','unnees'],20:['بیس','bees'],
+  30:['تیس','tees'],33:['تینتیس','taintees'],34:['چونتیس','chauntees'],40:['چالیس','chalees'],50:['پچاس','pachaas'],60:['ساٹھ','saath'],70:['ستر','sattar'],80:['اسی','assi'],90:['نوے','nawwe'],99:['ننانوے','ninnanwe'],100:['سو','sau']};
+function renderNumbers(){
+  const rows=Object.keys(AR_W).map(Number).sort((a,b)=>a-b);
+  $('#numTable').innerHTML = `<tr><th>English</th><th style="text-align:center">Arabic</th><th style="text-align:center">Urdu</th><th>Arabic word</th><th>Urdu word</th></tr>` +
+    rows.map(n=>`<tr><td><b>${n}</b></td><td class="a">${toAr(n)}</td><td class="u" lang="ur">${toUr(n)}</td><td class="w"><span class="ar" lang="ar">${AR_W[n][0]}</span><br>${esc(AR_W[n][1])}</td><td class="w"><span class="ur" lang="ur">${UR_W[n][0]}</span><br>${esc(UR_W[n][1])}</td></tr>`).join('');
+  $('#monthTable').innerHTML = `<tr><th>#</th><th>English</th><th>Arabic</th><th>Urdu</th></tr>` +
+    HM.map((m,i)=>`<tr><td class="a">${i+1}<br><span class="arn">${toAr(i+1)}</span> · <span class="ur" lang="ur">${toUr(i+1)}</span></td><td><b>${esc(m[0])}</b>${[0,6,10,11].includes(i)?' <span class="tag">sacred</span>':''}${i===8?' <span class="tag">fasting</span>':''}</td><td class="w"><span class="ar arn" lang="ar" style="font-size:17px">${m[1]}</span></td><td class="w"><span class="ur" lang="ur">${m[2]}</span></td></tr>`).join('');
+}
+let quiz={n:25,ok:0,tot:0};
+function newQuiz(){
+  const n=1+Math.floor(Math.random()*100), ur=Math.random()<.5;
+  quiz.n=n; const q=$('#quizQ'); q.textContent= ur?toUr(n):toAr(n); q.className='quizq'+(ur?' ur urq':''); q.lang=ur?'ur':'ar';
+  $('#quizHint').textContent = (ur?'Urdu':'Arabic')+' digits — which number is this?';
+  const opts=new Set([n]); while(opts.size<4){ let m = Math.random()<.5 ? Number(String(n).split('').reverse().join('')) : 1+Math.floor(Math.random()*100); if(m>=1&&m<=100) opts.add(m); }
+  $('#quizO').innerHTML=[...opts].sort(()=>Math.random()-.5).map(o=>`<button class="btn" data-q="${o}">${o}</button>`).join('');
+}
+$('#quizO').addEventListener('click',e=>{ const b=e.target.closest('[data-q]'); if(!b||quiz.lock) return; quiz.lock=true; quiz.tot++;
+  const right=+b.dataset.q===quiz.n; if(right) quiz.ok++; b.classList.add(right?'good':'bad');
+  if(!right) $('#quizO').querySelector(`[data-q="${quiz.n}"]`).classList.add('good');
+  $('#quizScore').textContent=`Score: ${quiz.ok} / ${quiz.tot}`; vib(right?15:[40,30,40]);
+  setTimeout(()=>{ quiz.lock=false; newQuiz(); }, right?700:1500); });
+function vib(ms){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
+
 /* ---------------- Render: Today ---------------- */
 function renderToday(){
   const dn = diffDays(S.start, cur)+1;
   const dt=parse(cur);
   const label = dt.toLocaleDateString(undefined,{weekday:'long', day:'numeric', month:'short'});
-  $('#dateLbl').innerHTML = `${cur===todayStr()?'Today':esc(label)}<small>${dn>=1&&dn<=100?'Day '+dn+' of 100':(dn<1?'Before your journey':'After day 100')}${cur===todayStr()?' · '+esc(label):''}</small>`;
+  $('#dateLbl').innerHTML = `${cur===todayStr()?'Today':esc(label)}<small>${dn>=1&&dn<=100?'Day '+dn+' of 100':(dn<1?'Before your journey':'After day 100')}${cur===todayStr()?' · '+esc(label):''}${hijri(cur)?' · '+hijriEn(cur):''}</small>`;
   $('#nextDay').disabled = cur>=todayStr();
 
   const d=peek(cur)||{p:{},s:{}};
@@ -953,7 +1140,8 @@ function streak(){
 function renderHeader(){
   const dn=Math.min(100,Math.max(0,diffDays(S.start,todayStr())+1));
   $('#hello').textContent = S.name ? `Assalamu Alaikum, ${S.name}` : 'Namaz 100 Days';
-  $('#dayNum').innerHTML = `Day ${dn||0} <small>/ 100</small>`;
+  $('#dayNum').innerHTML = `Day ${dn||0} <small>/ 100</small>` + (S.nums!=='en' ? `<span class="daynums"><span class="arn">${toAr(dn||0)}</span> · <span class="ur" lang="ur">${toUr(dn||0)}</span></span>` : '');
+  renderDates();
   const st=streak(); $('#streakLine').textContent = `🔥 Streak: ${st} day${st===1?'':'s'} all 5 prayed`;
   $('#journeyBar').style.width = dn+'%';
   const sc=scoreOf(peek(cur),cur)||0;
@@ -1024,11 +1212,11 @@ function renderDuas(){
 /* ---------------- Settings ---------------- */
 function loadSettings(){
   $('#sName').value=S.name; $('#sStart').value=S.start; $('#sLat').value=S.lat; $('#sLng').value=S.lng;
-  $('#sMethod').value=S.method; $('#sAsr').value=S.asr; $('#sTheme').value=S.theme;
+  $('#sMethod').value=S.method; $('#sAsr').value=S.asr; $('#sTheme').value=S.theme; $('#sHadj').value=String(S.hadj||0); $('#sNums').value=S.nums||'all';
 }
-['sName','sStart','sLat','sLng','sMethod','sAsr','sTheme'].forEach(id=>{
+['sName','sStart','sLat','sLng','sMethod','sAsr','sTheme','sHadj','sNums'].forEach(id=>{
   $('#'+id).addEventListener('change',e=>{
-    const k={sName:'name',sStart:'start',sLat:'lat',sLng:'lng',sMethod:'method',sAsr:'asr',sTheme:'theme'}[id];
+    const k={sName:'name',sStart:'start',sLat:'lat',sLng:'lng',sMethod:'method',sAsr:'asr',sTheme:'theme',sHadj:'hadj',sNums:'nums'}[id];
     let v=e.target.value.trim(); if(k==='start'&&!v) v=todayStr();
     S[k]=v; save(); applyTheme(); renderAll(); toast('Saved');
   });
@@ -1087,7 +1275,6 @@ $('#badInput').addEventListener('keydown',e=>{ if(e.key==='Enter') addBad(); });
 
 /* ---------------- Tools ---------------- */
 const T = todayStr;
-function vib(ms){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
 // SOS
 $('#sosBtn').addEventListener('click',()=>{ $('#sosList').classList.toggle('on'); });
 $('#urgeWin').addEventListener('click',()=>{ const d=day(T()); d.urge=(d.urge||0)+1; save(); renderTools(); renderHeader(); toast('MashaAllah! You chose Allah over your desire. 💪'); $('#sosList').classList.remove('on'); });
@@ -1097,7 +1284,7 @@ function tasCur(){ return TASBIH.find(x=>x.id===S.tas)||TASBIH[0]; }
 function renderTasbih(){
   const t=tasCur(), d=peek(T())||{}, n=(d.t||{})[t.id]||0;
   $('#tasPick').innerHTML=TASBIH.map(x=>`<button class="btn${x.id===t.id?' on':''}" data-tas="${x.id}">${esc(x.n)}</button>`).join('');
-  $('#tasN').textContent=n; $('#tasOf').textContent='/ '+t.target+(n>=t.target?' ✓':'');
+  $('#tasN').textContent=n; $('#tasOf').textContent='/ '+t.target+(n>=t.target?' ✓':''); $('#tasN3').innerHTML = S.nums==='en'?'':`<span class="arn">${toAr(n)}</span> · <span class="ur" lang="ur">${toUr(n)}</span>`;
   $('#tasAr').textContent=t.ar; $('#tasTr').textContent=t.tr;
   const tot=Object.values(d.t||{}).reduce((a,b)=>a+b,0); $('#tasHint').textContent=tot+' dhikr today';
 }
@@ -1166,18 +1353,18 @@ $('#myDuaIn').addEventListener('keydown',e=>{ if(e.key==='Enter') addMyDua(); })
 function show(v){
   document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
   document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
-  if(v==='journey') renderJourney();
+  if(v==='journey'){ renderJourney(); renderCalendar(); }
   if(v==='tools') renderTools();
   window.scrollTo(0,0);
 }
-function renderAll(){ renderDuas(); renderToday(); renderJourney(); renderTools(); }
+function renderAll(){ renderNumbers(); renderCalendar(); renderDuas(); renderToday(); renderJourney(); renderTools(); }
 
 // Refresh "today" + next-prayer highlight when the app comes back to the foreground or the minute changes
 let lastToday=todayStr();
 setInterval(()=>{ const t=todayStr(); if(t!==lastToday){ if(cur===lastToday) cur=t; lastToday=t; } if($('#v-today').classList.contains('on')) renderToday(); }, 60000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ const t=todayStr(); if(t!==lastToday){ if(cur===lastToday) cur=t; lastToday=t; } renderToday(); }});
 
-applyTheme(); loadSettings(); renderDuas(); renderAll();
+applyTheme(); loadSettings(); renderAll(); newQuiz();
 })();
 </script>
 </body>
