@@ -35,7 +35,7 @@
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
 body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
 .wrap{max-width:560px;margin:0 auto;padding:0 16px}
-header.top{background:linear-gradient(160deg,#0f5a40,#0a2a1f);color:#fff;padding:calc(18px + env(safe-area-inset-top)) 0 22px;border-radius:0 0 22px 22px}
+header.top{background:linear-gradient(160deg,#0f5a40,#0a2a1f);color:#fff;padding:16px 0 22px;border-radius:0 0 22px 22px}
 header.top h1{margin:0;font-size:20px;letter-spacing:.2px}
 header.top .sub{opacity:.85;font-size:13px;margin-top:2px}
 .dayline{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:14px}
@@ -57,7 +57,9 @@ h2 .hint{font-size:12px;color:var(--muted);font-weight:500}
 .pmeta{font-size:12px;color:var(--muted)}
 .ptime{font-variant-numeric:tabular-nums;font-weight:600;font-size:14px;text-align:right}
 .ptime.next{color:var(--brand)}
-.seg{grid-column:1 / -1;display:grid;grid-template-columns:repeat(3,1fr) auto;gap:6px}
+.seg{grid-column:1 / -1;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.seg .sun{grid-column:1 / -1}
+.seg button.on.mas{background:#0f5a40;border-color:#e0b65a;color:#fff;box-shadow:0 0 0 1px #e0b65a inset}
 .seg button,.btn{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:10px;padding:9px 6px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;min-height:40px}
 .seg button.on.ok{background:var(--ok);border-color:var(--ok);color:#fff}
 .seg button.on.late{background:var(--late);border-color:var(--late);color:#fff}
@@ -149,6 +151,11 @@ nav.tabs button.on{color:var(--brand)}
 .qrow:last-child{border-bottom:0}
 .qrow b.c{font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
 .intent{width:100%;font-weight:600}
+.masjid-top{background:linear-gradient(90deg,#b88a2e,#e0b65a);color:#2a1d04;padding:calc(8px + env(safe-area-inset-top)) 16px 8px;text-align:center;font-size:13px;line-height:1.35}
+.masjid-top b{font-size:14px;display:block}
+.sched{background:var(--gold-soft);border:1px solid var(--gold);border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:10px}
+.sched b.h{display:block;color:var(--gold);margin-bottom:4px}
+.sched div{margin:4px 0}
 .dmini{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;background:var(--card)}
 .dmini summary{font-size:14px}
 .dmini .ar{font-size:20px}
@@ -173,6 +180,7 @@ nav.tabs button.on{color:var(--brand)}
 </head>
 <body>
 
+<div class="masjid-top" role="note"><b>🕌 Namaz must be prayed in the Masjid, not at home.</b>"Prayer in congregation is 27 times better than prayer alone." — Sahih al-Bukhari 645</div>
 <header class="top">
   <div class="wrap">
     <h1 id="hello">Namaz 100 Days</h1>
@@ -218,8 +226,9 @@ nav.tabs button.on{color:var(--brand)}
     <h2>Good Deeds &amp; Sunnah <span class="hint" id="goodHint">tick = done</span></h2>
     <div class="card" id="good"></div>
 
-    <h2>Nafl Prayers 🌙 <span class="hint">extra reward · see Learn</span></h2>
+    <h2>Daily Nafl 🌙 <span class="hint">every day</span></h2>
     <div class="card">
+      <div class="sched" id="sched"></div>
       <div id="nafl"></div>
       <div class="rk" id="rkTah"></div>
       <div class="rk" id="rkWitr"></div>
@@ -261,7 +270,7 @@ nav.tabs button.on{color:var(--brand)}
         <span><i style="background:#0f5a40"></i>90%+</span>
       </div>
     </div>
-    <h2>Prayer-by-Prayer</h2>
+    <h2>Prayer-by-Prayer <span class="hint">dark = Masjid · light = home</span></h2>
     <div class="card" id="perPrayer"></div>
     <h2>Milestones</h2>
     <div class="card" id="milestones"></div>
@@ -371,7 +380,8 @@ nav.tabs button.on{color:var(--brand)}
 
       <details id="g-hajah"><summary>🤲 Salat al-Hajah — the Prayer of Need</summary>
         <div class="gsec">When to pray</div>
-        <p>Whenever you have a need: exams, results, admission, job, health, debt, family problems, a bad habit you can't leave. Pray at any time <b>except the forbidden times</b>. Best: in the <b>last third of the night</b>, or before an important event (e.g. the night before or the morning of an exam).</p>
+        <p><b>My daily plan:</b> every night after Isha, or in the last third of the night together with Tahajjud. If missed, in the morning after sunrise (Duha time).</p>
+        <p>Also whenever you have a special need: exams, results, admission, job, health, debt, family problems, a bad habit you can't leave. Pray at any time <b>except the forbidden times</b>. Best: in the <b>last third of the night</b>, or before an important event (e.g. the night before or the morning of an exam).</p>
         <div class="live" id="liveNafl">Set your location to see today's allowed times.</div>
 
         <div class="gsec">Step by step</div>
@@ -402,7 +412,8 @@ nav.tabs button.on{color:var(--brand)}
 
       <details id="g-ist"><summary>🧭 Salat al-Istikhara — the Prayer for Guidance</summary>
         <div class="gsec">When to pray</div>
-        <p>Before any <b>permissible decision</b>: choosing a course, college or subject; a job or business; marriage; travel; a big purchase. Not for things that are fard (just do them) or haram (just leave them). Do your research and <b>consult</b> wise, trustworthy people first: "and consult them in the matter, then when you have decided, rely on Allah" (Qur'an 3:159).</p>
+        <p><b>My daily plan:</b> every night right after Salat al-Hajah (after Isha or in Tahajjud time), for as long as I have a decision to make — write it in the "My Hajah / Istikhara is for…" box on Today.</p>
+        <p>Use it before any <b>permissible decision</b>: choosing a course, college or subject; a job or business; marriage; travel; a big purchase. Not for things that are fard (just do them) or haram (just leave them). Do your research and <b>consult</b> wise, trustworthy people first: "and consult them in the matter, then when you have decided, rely on Allah" (Qur'an 3:159).</p>
         <p>Pray at any time except the forbidden times. The last third of the night is excellent, because dua is most hopeful then.</p>
         <div class="live" id="liveNafl2"></div>
 
@@ -537,7 +548,7 @@ nav.tabs button.on{color:var(--brand)}
     <div class="card pledge">
       <p style="margin-top:0">For the next <b>100 days</b>, with Allah's help, I commit as a student to:</p>
       <ol>
-        <li>Pray all <b>5 Fard prayers on time</b> — never skip, never delay without reason.</li>
+        <li>Pray all <b>5 Fard prayers on time, in the Masjid with jama'ah</b> — not at home. Never skip, never delay without reason.</li>
         <li>Recite my <b>morning &amp; evening adhkar</b> and daily duas.</li>
         <li><b>Stay away from haram:</b> no cheating in exams, no lying, no backbiting, no haram content, lower my gaze, no alcohol/drugs, no haram earnings.</li>
         <li><b>Study with honesty and effort</b> — knowledge is an amanah (trust).</li>
@@ -727,8 +738,8 @@ const HAJ_DUAS = [
 
 const NAFL = [
   {id:'tahajjud', t:'Tahajjud — night prayer (min. 2 rak\'ahs)', d:'Best prayer after the Fard — Muslim 1163'},
-  {id:'hajah', t:'Salat al-Hajah — 2 rak\'ahs for my need', d:'When you need something from Allah'},
-  {id:'istikhara', t:'Salat al-Istikhara — 2 rak\'ahs for a decision', d:'Before a choice: course, job, marriage…'}
+  {id:'hajah', t:'Salat al-Hajah — 2 rak\'ahs (daily)', d:'For my needs: studies, success, family, rizq'},
+  {id:'istikhara', t:'Salat al-Istikhara — 2 rak\'ahs (daily)', d:'For my current decision — write it in the box below'}
 ];
 
 const DUAS = [
@@ -819,7 +830,7 @@ const peek = s => S.days[s];
 function scoreOf(d,ds){
   if(!d) return null;
   let pts=0;
-  PRAYERS.forEach(p => { const v=d.p[p.id]; if(v==='ok') pts+=10; else if(v==='late') pts+=5; });       // 50
+  PRAYERS.forEach(p => { const v=d.p[p.id]; if(v==='masjid') pts+=10; else if(v==='ok') pts+=7; else if(v==='late') pts+=4; });       // 50
   pts += 15 * ADHKAR.filter(x=>d.a[x.id]).length / ADHKAR.length;                                       // 15
   pts += 20 * HARAM.filter(x=>d.h[x.id]).length / HARAM.length;                                          // 20
   const bad = S.bad.length ? S.bad.filter((_,i)=>d.b[i]).length / S.bad.length : (HARAM.filter(x=>d.h[x.id]).length/HARAM.length);
@@ -828,8 +839,10 @@ function scoreOf(d,ds){
   return Math.round(pts);
 }
 const hasEntry = d => d && (Object.keys(d.p).length || d.urge || d.study || d.goal || Object.values(d.a).some(Boolean) || Object.values(d.h).some(Boolean) || Object.values(d.g).some(Boolean) || Object.values(d.n||{}).some(Boolean) || d.note);
-const allOnTime = d => d && PRAYERS.every(p => d.p[p.id]==='ok');
-const allPrayed = d => d && PRAYERS.every(p => d.p[p.id]==='ok' || d.p[p.id]==='late');
+const onTime = v => v==='ok' || v==='masjid';
+const allOnTime = d => d && PRAYERS.every(p => onTime(d.p[p.id]));
+const allMasjid = d => d && PRAYERS.every(p => d.p[p.id]==='masjid');
+const allPrayed = d => d && PRAYERS.every(p => ['ok','late','masjid'].includes(d.p[p.id]));
 
 /* ---------------- Prayer times (PrayTimes-style) ---------------- */
 const METHODS = { MWL:{f:18,i:17}, ISNA:{f:15,i:15}, Karachi:{f:18,i:18}, Egypt:{f:19.5,i:17.5}, Makkah:{f:18.5,iMin:90} };
@@ -900,15 +913,23 @@ function renderToday(){
       <div><div class="pname">${p.n}<span class="ar">${p.ar}</span></div><div class="pmeta">${p.fard} Fard · Sunnah: ${p.sunnah}</div></div>
       <div class="ptime${nextId===p.id?' next':''}">${pt?fmt(pt[p.id]):''}${nextId===p.id?'<div class="pmeta">next</div>':''}</div>
       <div class="seg" data-p="${p.id}">
-        <button class="ok${v==='ok'?' on':''}" data-v="ok">✓ On time</button>
+        <button class="ok mas${v==='masjid'?' on':''}" data-v="masjid">🕌 Masjid</button>
+        <button class="ok${v==='ok'?' on':''}" data-v="ok">✓ Home</button>
         <button class="late${v==='late'?' on':''}" data-v="late">⏱ Late</button>
         <button class="miss${v==='miss'?' on':''}" data-v="miss">✗ Missed</button>
-        <button class="sun${s?' on':''}" data-v="sunnah">${s?'★':'☆'} Sunnah</button>
+        <button class="sun${s?' on':''}" data-v="sunnah">${s?'★':'☆'} Sunnah prayed</button>
       </div></div>`;
   }).join('');
 
   checkList($('#adhkar'), ADHKAR, 'a');
   checkList($('#haram'), HARAM, 'h');
+  { const a=prayerTimes(cur), b=prayerTimes(addDays(cur,1)), l3=lastThird(cur);
+    const T=(x)=>a?' <b>'+fmt(x)+'</b>':'';
+    $('#sched').innerHTML = `<b class="h">📅 My daily Hajah &amp; Istikhara plan</b>
+      <div>🌃 <b>After Isha</b>${a?' (from'+T(a.isha)+')':''}: 2 rak'ahs <b>Hajah</b> → 2 rak'ahs <b>Istikhara</b> → Witr (if you won't wake).</div>
+      <div>🌙 <b>Best — last third of the night</b>${l3?' (from <b>'+l3+'</b> until Fajr'+T(b.fajr)+')':''}: Tahajjud → Hajah → Istikhara → Witr.</div>
+      <div>☀️ <b>Missed at night?</b> Pray in the morning${a?' between'+T(a.sunrise+15/60)+' and'+T(a.dhuhr-10/60):' (after sunrise until before Dhuhr)'}.</div>
+      <div class="note">Fard in the Masjid first; these nafl can be prayed at home. Not after Asr until sunset, not from Fajr until sunrise.${a?'':' Set your location in Pledge → Settings to see exact times.'}</div>`; }
   const lt=lastThird(cur); const NL=NAFL.map(x=>x.id==='tahajjud'&&lt?Object.assign({},x,{d:'Tonight, last third of the night starts ~'+lt+' · Muslim 1163'}):x);
   checkList($('#nafl'), NL, 'n');
   const dd=peek(cur)||{};
@@ -942,14 +963,14 @@ function renderHeader(){
 
 /* ---------------- Render: Journey ---------------- */
 function renderJourney(){
-  const t=todayStr(); let logged=0, onTimeDays=0, total=0, ok=0, late=0, miss=0, haramClean=0;
-  let thjRak=0, urges=0, study=0, thj=0, hjh=0, ist=0; const per={}; PRAYERS.forEach(p=>per[p.id]={ok:0,late:0,miss:0});
+  const t=todayStr(); let masjid=0, masjidDays=0, logged=0, onTimeDays=0, total=0, ok=0, late=0, miss=0, haramClean=0;
+  let thjRak=0, urges=0, study=0, thj=0, hjh=0, ist=0; const per={}; PRAYERS.forEach(p=>per[p.id]={masjid:0,ok:0,late:0,miss:0});
   let html='';
   for(let i=0;i<100;i++){
     const ds=addDays(S.start,i), d=peek(ds), fut=ds>t;
     const sc=hasEntry(d)?scoreOf(d,ds):null; if(d){ urges+=d.urge||0; study+=d.study||0; const n=d.n||{}; if(n.tahajjud) thj++; thjRak+=(d.thjR||0); if(n.hajah) hjh++; if(n.istikhara) ist++; }
-    if(sc!==null){ logged++; total+=sc; if(allOnTime(d)) onTimeDays++; if(HARAM.every(h=>d.h[h.id])) haramClean++;
-      PRAYERS.forEach(p=>{ const v=d.p[p.id]; if(v) { per[p.id][v]++; if(v==='ok')ok++; else if(v==='late')late++; else miss++; }}); }
+    if(sc!==null){ logged++; total+=sc; if(allOnTime(d)) onTimeDays++; if(allMasjid(d)) masjidDays++; if(HARAM.every(h=>d.h[h.id])) haramClean++;
+      PRAYERS.forEach(p=>{ const v=d.p[p.id]; if(v) { per[p.id][v]++; if(v==='masjid'){masjid++;ok++;} else if(v==='ok')ok++; else if(v==='late')late++; else miss++; }}); }
     const lv = sc===null?'':sc>=90?'l4':sc>=70?'l3':sc>=40?'l2':'l1';
     html+=`<div class="cell ${lv}${ds===t?' today':''}${fut?' future':''}" data-d="${ds}" title="${ds}">${i+1}</div>`;
   }
@@ -957,11 +978,11 @@ function renderJourney(){
   const avg = logged?Math.round(total/logged):0, prayed=ok+late+miss;
   $('#stats').innerHTML = [
     [logged,'Days logged'],[avg+'%','Avg score'],[streak(),'Day streak'],
-    [onTimeDays,'Perfect days'],[prayed?Math.round(ok*100/prayed)+'%':'—','On-time rate'],[haramClean,'Haram-free days'],[urges,'Urges defeated'],[Math.round(study/60*10)/10+'h','Study hours'],[qadaLeft(),'Qada pending'],[thj,'Tahajjud nights'],[thjRak,'Tahajjud rak\'ahs'],[S.myDuas.filter(x=>x.ans).length+'/'+S.myDuas.length,'Duas answered'],[hjh,'Salat al-Hajah'],[ist,'Istikhara']
+    [masjid,'Masjid prayers'],[prayed?Math.round(masjid*100/prayed)+'%':'—','Masjid rate'],[masjidDays,'All-5 Masjid days'],[onTimeDays,'Perfect days'],[prayed?Math.round(ok*100/prayed)+'%':'—','On-time rate'],[haramClean,'Haram-free days'],[urges,'Urges defeated'],[Math.round(study/60*10)/10+'h','Study hours'],[qadaLeft(),'Qada pending'],[thj,'Tahajjud nights'],[thjRak,'Tahajjud rak\'ahs'],[S.myDuas.filter(x=>x.ans).length+'/'+S.myDuas.length,'Duas answered'],[hjh,'Salat al-Hajah'],[ist,'Istikhara']
   ].map(([b,s])=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`).join('');
-  $('#perPrayer').innerHTML = PRAYERS.map(p=>{ const c=per[p.id], n=c.ok+c.late+c.miss, pct=n?Math.round(c.ok*100/n):0;
-    return `<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><b>${p.n}</b><span class="note">${c.ok} on time · ${c.late} late · ${c.miss} missed</span></div>
-    <div style="height:8px;background:var(--chip);border-radius:8px;overflow:hidden;margin-top:4px"><i style="display:block;height:100%;width:${pct}%;background:var(--ok)"></i></div></div>`; }).join('');
+  $('#perPrayer').innerHTML = PRAYERS.map(p=>{ const c=per[p.id], n=c.masjid+c.ok+c.late+c.miss, pct=n?Math.round(c.masjid*100/n):0, pct2=n?Math.round(c.ok*100/n):0;
+    return `<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><b>${p.n}</b><span class="note">🕌 ${c.masjid} · home ${c.ok} · late ${c.late} · missed ${c.miss}</span></div>
+    <div style="height:8px;background:var(--chip);border-radius:8px;overflow:hidden;margin-top:4px"><i style="display:inline-block;height:100%;width:${pct}%;background:#0f5a40"></i><i style="display:inline-block;height:100%;width:${pct2}%;background:#a7d8bd"></i></div></div>`; }).join('');
   const ms=[[7,'First week — the habit is starting'],[21,'21 days — habit is forming'],[40,'40 days of consistency'],[70,'70 days — almost there'],[100,'100 days — Alhamdulillah! Keep going for life']];
   const best=Math.max(onTimeDays,0);
   $('#milestones').innerHTML = ms.map(([n,t])=>`<div class="check${logged>=n?' on':''}" style="cursor:default"><div class="box"></div><div><div class="t">Day ${n}</div><div class="d">${t}</div></div></div>`).join('');
@@ -1044,7 +1065,8 @@ document.addEventListener('click',e=>{
     if(v==='sunnah') d.s[p]=!d.s[p]; else d.p[p] = d.p[p]===v ? undefined : v;
     if(d.p[p]===undefined) delete d.p[p];
     save(); renderToday();
-    if(v==='ok' && d.p[p]==='ok'){ if(allOnTime(d)) toast('MashaAllah! All 5 prayers on time today 🌙'); else toast('Alhamdulillah — '+PRAYERS.find(x=>x.id===p).n+' prayed on time'); }
+    if(v==='masjid' && d.p[p]==='masjid'){ toast(allMasjid(d)?'MashaAllah! All 5 prayers in the Masjid today 🕌':'Alhamdulillah — '+PRAYERS.find(x=>x.id===p).n+' in jama\'ah: 27× the reward 🕌'); }
+    if(v==='ok' && d.p[p]==='ok'){ toast('Prayed at home. Try to reach the Masjid for the next prayer, in sha Allah 🕌'); }
     if(v==='miss' && d.p[p]==='miss') toast('Make it up (qada) as soon as you can, and make tawbah. Don\'t give up.');
     return; }
   const chk=e.target.closest('.check[data-b]');
