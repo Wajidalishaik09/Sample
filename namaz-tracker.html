@@ -680,6 +680,11 @@ nav.tabs button.on{color:var(--brand)}
         </div>
       </div>
       <p class="note">Set the Hijri adjustment so the date matches your local moon sighting (e.g. India / Pakistan are often −1 day from Saudi).</p>
+      <div id="remindBox" hidden>
+        <label class="f" for="sRemind">🔔 Prayer reminders (notifications)</label>
+        <select id="sRemind"><option value="-1">Off</option><option value="0">At prayer time</option><option value="10">10 min before — time to leave for the Masjid</option><option value="15">15 min before</option><option value="20">20 min before</option><option value="30">30 min before</option></select>
+        <p class="note">Reminders use your location's prayer times. Open the app at least once a week so they stay up to date.</p>
+      </div>
       <label class="f">Theme</label>
       <select id="sTheme"><option value="">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
     </div>
@@ -1226,11 +1231,11 @@ function renderDuas(){
 /* ---------------- Settings ---------------- */
 function loadSettings(){
   $('#sName').value=S.name; $('#sStart').value=S.start; $('#sLat').value=S.lat; $('#sLng').value=S.lng;
-  $('#sMethod').value=S.method; $('#sAsr').value=S.asr; $('#sTheme').value=S.theme; $('#sHadj').value=String(S.hadj||0); $('#sNums').value=S.nums||'all';
+  $('#sMethod').value=S.method; $('#sAsr').value=S.asr; $('#sTheme').value=S.theme; $('#sHadj').value=String(S.hadj||0); $('#sNums').value=S.nums||'all'; $('#sRemind').value=String(S.remind ?? 10);
 }
-['sName','sStart','sLat','sLng','sMethod','sAsr','sTheme','sHadj','sNums'].forEach(id=>{
+['sName','sStart','sLat','sLng','sMethod','sAsr','sTheme','sHadj','sNums','sRemind'].forEach(id=>{
   $('#'+id).addEventListener('change',e=>{
-    const k={sName:'name',sStart:'start',sLat:'lat',sLng:'lng',sMethod:'method',sAsr:'asr',sTheme:'theme',sHadj:'hadj',sNums:'nums'}[id];
+    const k={sName:'name',sStart:'start',sLat:'lat',sLng:'lng',sMethod:'method',sAsr:'asr',sTheme:'theme',sHadj:'hadj',sNums:'nums',sRemind:'remind'}[id];
     let v=e.target.value.trim(); if(k==='start'&&!v) v=todayStr();
     S[k]=v; save(); applyTheme(); renderAll(); toast('Saved');
   });
@@ -1244,6 +1249,7 @@ $('#locBtn').addEventListener('click',()=>{
 });
 $('#expBtn').addEventListener('click',async()=>{
   const name='namaz100-backup-'+todayStr()+'.json', json=JSON.stringify(S,null,2);
+  if(window.AndroidBridge){ try{ AndroidBridge.saveFile(name, json); }catch(e){ toast('Could not save the backup'); } return; }
   let dl=null; try{ if(window.claude && typeof window.claude.use==='function') dl=await window.claude.use('downloads'); }catch(e){}
   if(dl){ try{ const r=await dl.save({filename:name, data:json}); if(r && r.status==='saved') toast('Backup saved'); }catch(e){ toast('Backup not saved'); } return; }
   const blob=new Blob([json],{type:'application/json'});
@@ -1436,9 +1442,34 @@ function renderAll(){ renderNumbers(); renderCalendar(); renderDuas(); renderTod
 // Refresh "today" + next-prayer highlight when the app comes back to the foreground or the minute changes
 let lastToday=todayStr();
 setInterval(()=>{ const t=todayStr(); if(t!==lastToday){ if(cur===lastToday) cur=t; lastToday=t; } if($('#v-today').classList.contains('on')) renderToday(); }, 60000);
-document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ const t=todayStr(); if(t!==lastToday){ if(cur===lastToday) cur=t; lastToday=t; } renderToday(); }});
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ syncReminders(); const t=todayStr(); if(t!==lastToday){ if(cur===lastToday) cur=t; lastToday=t; } renderToday(); }});
 
 applyTheme(); loadSettings(); renderAll(); newQuiz(); cloudInit();
+
+/* ---------------- Android app: prayer reminders ---------------- */
+function syncReminders(){
+  if(!window.AndroidBridge) return;
+  const mins = +(S.remind ?? 10), list=[];
+  if(mins>=0){
+    for(let i=0;i<7;i++){
+      const ds=addDays(todayStr(),i), pt=prayerTimes(ds); if(!pt) break;
+      const base=parse(ds).getTime();
+      PRAYERS.forEach(p=>{ const h=pt[p.id]; if(!isFinite(h)) return;
+        const at=base+Math.round(h*3600000)-mins*60000; if(at<=Date.now()) return;
+        list.push({t:at, title: mins? `🕌 ${p.n} in ${mins} min — ${fmt(h)}` : `🕌 It's ${p.n} time — ${fmt(h)}`,
+          body: mins? 'Leave now for the Masjid. Prayer in jama\'ah is 27× better (Bukhari 645).' : 'Go to the Masjid for jama\'ah. Namaz must be prayed in the Masjid, not at home.'}); });
+    }
+  }
+  try{ AndroidBridge.setReminders(JSON.stringify(list)); }catch(e){}
+}
+if(window.AndroidBridge){
+  $('#remindBox').hidden=false;
+  $('#installNote').innerHTML='✓ You are using the Namaz 100 Android app. Your data is saved on this phone — export a backup now and then.';
+  $('#syncLine').textContent='💾 Saved on this phone (Android app)';
+  ['sRemind','sLat','sLng','sMethod','sAsr','sHadj'].forEach(id=>$('#'+id).addEventListener('change',()=>setTimeout(syncReminders,50)));
+  $('#locBtn').addEventListener('click',()=>setTimeout(syncReminders,4000));
+  syncReminders();
+}
 
 /* ---------------- Install / offline ---------------- */
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
