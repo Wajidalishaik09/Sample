@@ -128,6 +128,7 @@ h2 .hint{font-size:12px;color:var(--muted);font-weight:500}
 .seg button.on.ok{background:var(--ok);border-color:var(--ok);color:#fff}
 .seg button.on.late{background:var(--late);border-color:var(--late);color:#fff}
 .seg button.on.miss{background:var(--miss);border-color:var(--miss);color:#fff}
+.seg button.on.exc{background:#b06c9a;border-color:#b06c9a;color:#fff}
 .seg .sun{padding:9px 10px;font-weight:500;font-size:12px}
 .seg .sun.on{background:var(--gold-soft);border-color:var(--gold);color:var(--gold)}
 .check{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer;user-select:none}
@@ -286,7 +287,7 @@ nav.tabs button.on{color:var(--brand)}
 </head>
 <body>
 
-<div class="masjid-top" role="note"><b>🕌 Namaz must be prayed in the Masjid, not at home.</b>"Prayer in congregation is 27 times better than prayer alone." — Sahih al-Bukhari 645</div>
+<div class="masjid-top" role="note" id="banner"><b>🕌 Namaz must be prayed in the Masjid, not at home.</b>"Prayer in congregation is 27 times better than prayer alone." — Sahih al-Bukhari 645</div>
 <header class="top" id="hdr">
   <canvas id="sky" aria-hidden="true"></canvas>
   <div class="orb moon" id="orb" aria-hidden="true"></div>
@@ -400,7 +401,7 @@ nav.tabs button.on{color:var(--brand)}
         <span><i style="background:#0f5a40"></i>90%+</span>
       </div>
     </div>
-    <h2>Prayer-by-Prayer <span class="hint">dark = Masjid · light = home</span></h2>
+    <h2>Prayer-by-Prayer <span class="hint" id="ppHint">dark = Masjid · light = home</span></h2>
     <div class="card" id="perPrayer"></div>
     <h2>Milestones</h2>
     <div class="card" id="milestones"></div>
@@ -730,7 +731,7 @@ nav.tabs button.on{color:var(--brand)}
     <div class="card pledge">
       <p style="margin-top:0">For the next <b>100 days</b>, with Allah's help, I commit as a student to:</p>
       <ol>
-        <li>Pray all <b>5 Fard prayers on time, in the Masjid with jama'ah</b> — not at home. Never skip, never delay without reason.</li>
+        <li id="pledge1">Pray all <b>5 Fard prayers on time, in the Masjid with jama'ah</b> — not at home. Never skip, never delay without reason.</li>
         <li>Recite my <b>morning &amp; evening adhkar</b> and daily duas.</li>
         <li><b>Stay away from haram:</b> no cheating in exams, no lying, no backbiting, no haram content, lower my gaze, no alcohol/drugs, no haram earnings.</li>
         <li><b>Study with honesty and effort</b> — knowledge is an amanah (trust).</li>
@@ -744,6 +745,8 @@ nav.tabs button.on{color:var(--brand)}
 
     <h2>Settings</h2>
     <div class="card">
+      <label class="f" for="sGender">I am a</label>
+      <select id="sGender"><option value="b">🧔 Brother — pray in the Masjid</option><option value="s">🧕 Sister — pray on time at home</option></select>
       <label class="f" for="sName">Your name</label>
       <input id="sName" placeholder="Name (optional)">
       <label class="f" for="sStart">Day 1 of my 100 days</label>
@@ -825,6 +828,14 @@ nav.tabs button.on{color:var(--brand)}
 
 <div class="toast" id="toast"></div>
 <div id="fx" aria-hidden="true"></div>
+<div class="celebrate" id="welcome" hidden role="dialog" aria-label="Welcome"><div class="cbox" style="max-width:360px;width:100%">
+  <div class="big" style="font-size:72px">🌙</div><b>Assalamu Alaikum!</b>
+  <div class="t">Welcome to <b style="display:inline;font-size:inherit;color:inherit">Namaz 100</b> — 100 days to build the habit of praying on time.</div>
+  <input id="wName" placeholder="Your name (optional)" maxlength="30" style="margin-top:16px;text-align:center">
+  <div class="t" style="margin-top:14px">I am a…</div>
+  <div class="row" style="margin-top:8px"><button class="btn primary" id="wBro" style="min-height:64px;font-size:16px">🧔 Brother</button><button class="btn primary" id="wSis" style="min-height:64px;font-size:16px">🧕 Sister</button></div>
+  <small>Brothers track prayers in the Masjid. Sisters track prayers on time at home, with an "Excused" option. You can change this later in Pledge → Settings.</small>
+</div></div>
 <div class="celebrate" id="celebrate" hidden role="dialog" aria-label="Celebration"><div class="cbox"><div class="big">🕌</div><b>MashaAllah!</b><div class="t" id="celebrateTxt">All 5 prayers in the Masjid today</div><div class="t">"Prayer in congregation is 27 times better" — Bukhari 645</div><small>Tap anywhere to continue</small></div></div>
 <div class="modal" id="modal" hidden role="dialog" aria-modal="true"><div class="box2"><p id="modalMsg"></p><div class="row"><button class="btn" id="modalNo">Cancel</button><button class="btn primary" id="modalYes">Yes</button></div></div></div>
 
@@ -1040,7 +1051,7 @@ const peek = s => S.days[s];
 function scoreOf(d,ds){
   if(!d) return null;
   let pts=0;
-  PRAYERS.forEach(p => { const v=d.p[p.id]; if(v==='masjid') pts+=10; else if(v==='ok') pts+=7; else if(v==='late') pts+=4; });       // 50
+  PRAYERS.forEach(p => { const v=d.p[p.id]; if(v==='masjid'||v==='exc'||(v==='ok'&&SIS())) pts+=10; else if(v==='ok') pts+=7; else if(v==='late') pts+=4; });       // 50
   pts += 15 * ADHKAR.filter(x=>d.a[x.id]).length / ADHKAR.length;                                       // 15
   pts += 20 * HARAM.filter(x=>d.h[x.id]).length / HARAM.length;                                          // 20
   const bad = S.bad.length ? S.bad.filter((_,i)=>d.b[i]).length / S.bad.length : (HARAM.filter(x=>d.h[x.id]).length/HARAM.length);
@@ -1049,10 +1060,11 @@ function scoreOf(d,ds){
   return Math.round(pts);
 }
 const hasEntry = d => d && (Object.keys(d.p).length || d.urge || d.study || d.goal || Object.values(d.a).some(Boolean) || Object.values(d.h).some(Boolean) || Object.values(d.g).some(Boolean) || Object.values(d.n||{}).some(Boolean) || d.note);
-const onTime = v => v==='ok' || v==='masjid';
+const SIS = () => S.gender==='s';
+const onTime = v => v==='ok' || v==='masjid' || v==='exc';
 const allOnTime = d => d && PRAYERS.every(p => onTime(d.p[p.id]));
-const allMasjid = d => d && PRAYERS.every(p => d.p[p.id]==='masjid');
-const allPrayed = d => d && PRAYERS.every(p => ['ok','late','masjid'].includes(d.p[p.id]));
+const allMasjid = d => d && PRAYERS.every(p => SIS() ? onTime(d.p[p.id]) : d.p[p.id]==='masjid');
+const allPrayed = d => d && PRAYERS.every(p => ['ok','late','masjid','exc'].includes(d.p[p.id]));
 
 /* ---------------- Prayer times (PrayTimes-style) ---------------- */
 const METHODS = { MWL:{f:18,i:17}, ISNA:{f:15,i:15}, Karachi:{f:18,i:18}, Egypt:{f:19.5,i:17.5}, Makkah:{f:18.5,iMin:90} };
@@ -1222,14 +1234,17 @@ function renderToday(){
   $('#timesHint').textContent = pt ? `Sunrise ${fmt(pt.sunrise)}` : '17 Fard rak\'ahs';
   $('#prayers').innerHTML = PRAYERS.map(p=>{
     const v=d.p[p.id]; const s=d.s&&d.s[p.id];
-    return `<div class="prayer${v==='masjid'?' done-mas':''}">
+    const sis=SIS();
+    return `<div class="prayer${(v==='masjid'||(sis&&v==='ok'))?' done-mas':''}">
       <div><div class="pname">${p.n}<span class="ar">${p.ar}</span></div><div class="pmeta">${p.fard} Fard · Sunnah: ${p.sunnah}</div></div>
       <div class="ptime${nextId===p.id?' next':''}">${pt?fmt(pt[p.id]):''}${nextId===p.id?'<div class="pmeta">next</div>':''}</div>
       <div class="seg" data-p="${p.id}">
-        <button class="ok mas${v==='masjid'?' on':''}" data-v="masjid">🕌 Masjid</button>
-        <button class="ok${v==='ok'?' on':''}" data-v="ok">✓ Home</button>
+        ${sis ? `<button class="ok mas${v==='ok'?' on':''}" data-v="ok">🌸 On time</button>`
+              : `<button class="ok mas${v==='masjid'?' on':''}" data-v="masjid">🕌 Masjid</button>
+        <button class="ok${v==='ok'?' on':''}" data-v="ok">✓ Home</button>`}
         <button class="late${v==='late'?' on':''}" data-v="late">⏱ Late</button>
         <button class="miss${v==='miss'?' on':''}" data-v="miss">✗ Missed</button>
+        ${sis ? `<button class="exc${v==='exc'?' on':''}" data-v="exc" title="Not praying during haid / nifas — no qada needed">🌸 Excused</button>` : ''}
         <button class="sun${s?' on':''}" data-v="sunnah">${s?'★':'☆'} Sunnah prayed</button>
       </div></div>`;
   }).join('');
@@ -1245,14 +1260,14 @@ function renderToday(){
       <div class="note">❌ Not before Isha as your daily plan, not between Asr and Maghrib, not from Fajr until sunrise.${a?'':' Set your location in Pledge → Settings to see exact times.'}</div>`;
     const li=(ic,t,d,tm,key)=>`<li class="${key?'key':''}"><span class="dot">${ic}</span>${tm?`<span class="tm">${tm}</span>`:''}<b>${t}</b><span class="d">${d}</span></li>`;
     $('#nightOrder').innerHTML =
-      li('🕌','Isha — 4 Fard in the Masjid','With jama\'ah. (Many Hanafis also pray 4 optional Sunnah before it.)', a?fmt(a.isha):'', true)+
+      li(SIS()?'🌸':'🕌', SIS()?'Isha — 4 Fard, on time':'Isha — 4 Fard in the Masjid', SIS()?'At the start of its time. (Many Hanafis also pray 4 optional Sunnah before it.)':'With jama\'ah. (Many Hanafis also pray 4 optional Sunnah before it.)', a?fmt(a.isha):'', true)+
       li('2️⃣','2 Sunnah after Isha','Sunnah mu\'akkadah — prayed after the Fard.','')+
       li('🤲','Salat al-Hajah — 2 rak\'ahs','AFTER Isha\'s Fard &amp; Sunnah. Then ask Allah for your need.','')+
       li('🧭','Salat al-Istikhara — 2 rak\'ahs','Right after Hajah. Then read the Istikhara dua for your decision.','')+
       li('🌟','Witr — 3 rak\'ahs (last prayer)','Qunut in the 3rd rak\'ah. If you will wake for Tahajjud, move Witr to the end of Tahajjud.','',true)+
       li('😴','Sleep early, in wudu','With the intention to wake for Tahajjud or Fajr.','')+
       li('✨','Tahajjud (optional, best)','Last third of the night — 2 to 8 rak\'ahs, then Witr if you delayed it.', l3?('from '+l3):'')+
-      li('🌅','Fajr — 2 Sunnah at home, 2 Fard in the Masjid','The Sunnah of Fajr is better than the world and all it contains (Muslim 725).', b?fmt(b.fajr):'', true);
+      li('🌅', SIS()?'Fajr — 2 Sunnah, then 2 Fard':'Fajr — 2 Sunnah at home, 2 Fard in the Masjid','The Sunnah of Fajr is better than the world and all it contains (Muslim 725).', b?fmt(b.fajr):'', true);
   }
   const lt=lastThird(cur); const NL=NAFL.map(x=>x.id==='tahajjud'&&lt?Object.assign({},x,{d:'Tonight, last third of the night starts ~'+lt+' · Muslim 1163'}):x);
   checkList($('#nafl'), NL, 'n');
@@ -1289,13 +1304,13 @@ function renderHeader(){
 /* ---------------- Render: Journey ---------------- */
 function renderJourney(){
   const t=todayStr(); let masjid=0, masjidDays=0, logged=0, onTimeDays=0, total=0, ok=0, late=0, miss=0, haramClean=0;
-  let thjRak=0, urges=0, study=0, thj=0, hjh=0, ist=0; const per={}; PRAYERS.forEach(p=>per[p.id]={masjid:0,ok:0,late:0,miss:0});
+  let thjRak=0, urges=0, study=0, thj=0, hjh=0, ist=0; const per={}; PRAYERS.forEach(p=>per[p.id]={masjid:0,ok:0,late:0,miss:0,exc:0});
   let html='';
   for(let i=0;i<100;i++){
     const ds=addDays(S.start,i), d=peek(ds), fut=ds>t;
     const sc=hasEntry(d)?scoreOf(d,ds):null; if(d){ urges+=d.urge||0; study+=d.study||0; const n=d.n||{}; if(n.tahajjud) thj++; thjRak+=(d.thjR||0); if(n.hajah) hjh++; if(n.istikhara) ist++; }
     if(sc!==null){ logged++; total+=sc; if(allOnTime(d)) onTimeDays++; if(allMasjid(d)) masjidDays++; if(HARAM.every(h=>d.h[h.id])) haramClean++;
-      PRAYERS.forEach(p=>{ const v=d.p[p.id]; if(v) { per[p.id][v]++; if(v==='masjid'){masjid++;ok++;} else if(v==='ok')ok++; else if(v==='late')late++; else miss++; }}); }
+      PRAYERS.forEach(p=>{ const v=d.p[p.id]; if(v) { per[p.id][v]++; if(v==='masjid'){masjid++;ok++;} else if(v==='ok'||v==='exc')ok++; else if(v==='late')late++; else miss++; }}); }
     const lv = sc===null?'':sc>=90?'l4':sc>=70?'l3':sc>=40?'l2':'l1';
     html+=`<div class="cell ${lv}${ds===t?' today':''}${fut?' future':''}" data-d="${ds}" title="${ds}">${i+1}</div>`;
   }
@@ -1303,10 +1318,10 @@ function renderJourney(){
   const avg = logged?Math.round(total/logged):0, prayed=ok+late+miss;
   $('#stats').innerHTML = [
     [logged,'Days logged'],[avg+'%','Avg score'],[streak(),'Day streak'],
-    [masjid,'Masjid prayers'],[prayed?Math.round(masjid*100/prayed)+'%':'—','Masjid rate'],[masjidDays,'All-5 Masjid days'],[onTimeDays,'Perfect days'],[prayed?Math.round(ok*100/prayed)+'%':'—','On-time rate'],[haramClean,'Haram-free days'],[urges,'Urges defeated'],[Math.round(study/60*10)/10+'h','Study hours'],[qadaLeft(),'Qada pending'],[thj,'Tahajjud nights'],[thjRak,'Tahajjud rak\'ahs'],[S.myDuas.filter(x=>x.ans).length+'/'+S.myDuas.length,'Duas answered'],[hjh,'Salat al-Hajah'],[ist,'Istikhara']
+    ...(SIS() ? [[ok,'On-time prayers'],[masjidDays,'All-5 on-time days']] : [[masjid,'Masjid prayers'],[prayed?Math.round(masjid*100/prayed)+'%':'—','Masjid rate'],[masjidDays,'All-5 Masjid days']]),[onTimeDays,'Perfect days'],[prayed?Math.round(ok*100/prayed)+'%':'—','On-time rate'],[haramClean,'Haram-free days'],[urges,'Urges defeated'],[Math.round(study/60*10)/10+'h','Study hours'],[qadaLeft(),'Qada pending'],[thj,'Tahajjud nights'],[thjRak,'Tahajjud rak\'ahs'],[S.myDuas.filter(x=>x.ans).length+'/'+S.myDuas.length,'Duas answered'],[hjh,'Salat al-Hajah'],[ist,'Istikhara']
   ].map(([b,s])=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`).join('');
   $('#perPrayer').innerHTML = PRAYERS.map(p=>{ const c=per[p.id], n=c.masjid+c.ok+c.late+c.miss, pct=n?Math.round(c.masjid*100/n):0, pct2=n?Math.round(c.ok*100/n):0;
-    return `<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><b>${p.n}</b><span class="note">🕌 ${c.masjid} · home ${c.ok} · late ${c.late} · missed ${c.miss}</span></div>
+    return `<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><b>${p.n}</b><span class="note">${SIS()?`on time ${c.ok} · late ${c.late} · missed ${c.miss} · excused ${c.exc}`:`🕌 ${c.masjid} · home ${c.ok} · late ${c.late} · missed ${c.miss}`}</span></div>
     <div style="height:8px;background:var(--chip);border-radius:8px;overflow:hidden;margin-top:4px"><i style="display:inline-block;height:100%;width:${pct}%;background:#0f5a40"></i><i style="display:inline-block;height:100%;width:${pct2}%;background:#a7d8bd"></i></div></div>`; }).join('');
   const ms=[[7,'First week — the habit is starting'],[21,'21 days — habit is forming'],[40,'40 days of consistency'],[70,'70 days — almost there'],[100,'100 days — Alhamdulillah! Keep going for life']];
   const best=Math.max(onTimeDays,0);
@@ -1350,11 +1365,11 @@ function renderDuas(){
 /* ---------------- Settings ---------------- */
 function loadSettings(){
   $('#sName').value=S.name; $('#sStart').value=S.start; $('#sLat').value=S.lat; $('#sLng').value=S.lng;
-  $('#sMethod').value=S.method; $('#sAsr').value=S.asr; $('#sTheme').value=S.theme; $('#sHadj').value=String(S.hadj||0); $('#sNums').value=S.nums||'all'; $('#sRemind').value=String(S.remind ?? 10);
+  $('#sMethod').value=S.method; $('#sAsr').value=S.asr; $('#sTheme').value=S.theme; $('#sHadj').value=String(S.hadj||0); $('#sNums').value=S.nums||'all'; $('#sRemind').value=String(S.remind ?? 10); $('#sGender').value=S.gender||'b';
 }
-['sName','sStart','sLat','sLng','sMethod','sAsr','sTheme','sHadj','sNums','sRemind'].forEach(id=>{
+['sName','sStart','sLat','sLng','sMethod','sAsr','sTheme','sHadj','sNums','sRemind','sGender'].forEach(id=>{
   $('#'+id).addEventListener('change',e=>{
-    const k={sName:'name',sStart:'start',sLat:'lat',sLng:'lng',sMethod:'method',sAsr:'asr',sTheme:'theme',sHadj:'hadj',sNums:'nums',sRemind:'remind'}[id];
+    const k={sName:'name',sStart:'start',sLat:'lat',sLng:'lng',sMethod:'method',sAsr:'asr',sTheme:'theme',sHadj:'hadj',sNums:'nums',sRemind:'remind',sGender:'gender'}[id];
     let v=e.target.value.trim(); if(k==='start'&&!v) v=todayStr();
     S[k]=v; save(); applyTheme(); renderAll(); toast('Saved');
   });
@@ -1411,7 +1426,9 @@ function rain(emojis, n){
 function celebrateBtn(el, v, d){
   el.classList.add(v==='miss'?'shake':'pop');
   if(v==='masjid'){ burst(el,['🕌','✨','⭐','🌙','🤲','💚','🌟'],18,'+10 · 27× reward'); vib([20,40,60]); }
+  else if(v==='ok' && SIS()){ burst(el,['🌸','✨','⭐','🌙','🤲','💚','🌟'],18,'+10 · on time'); vib([20,40,60]); }
   else if(v==='ok') burst(el,['✅','✨','🏠'],8,'+7');
+  else if(v==='exc') burst(el,['🌸','💗'],6);
   else if(v==='late') burst(el,['⏱️','🤲'],5,'+4');
   else if(v==='sunnah') burst(el,['⭐','🌟','✨'],10);
   else if(v==='miss') vib([60,40,60]);
@@ -1470,8 +1487,27 @@ function tickNext(){
   const d=peek(t)||{p:{}}, pvDone=d.p&&d.p[pv.p.id];
   el.innerHTML=`<div class="row1"><span class="nm">🕌 Next: ${nx.p.n} <span class="arn" style="opacity:.8">${nx.p.ar}</span></span><span class="cd">${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}</span></div>
     <div class="pb"><i style="width:${pct.toFixed(1)}%"></i></div>
-    <div class="sm">${nx.tom?'Tomorrow ':''}${fmt((nx.at-base)/3600000 - (nx.tom?24:0))} · ${hh===0&&mm<15?'⏰ Leave for the Masjid now!':'Be in the Masjid before the iqamah'}${iN>0&&!pvDone?` · ${pv.p.n} not marked yet`:''}</div>`;
+    <div class="sm">${nx.tom?'Tomorrow ':''}${fmt((nx.at-base)/3600000 - (nx.tom?24:0))} · ${SIS() ? (hh===0&&mm<15?'⏰ Prayer time is near — make wudu':'Pray at the start of its time') : (hh===0&&mm<15?'⏰ Leave for the Masjid now!':'Be in the Masjid before the iqamah')}${iN>0&&!pvDone?` · ${pv.p.n} not marked yet`:''}</div>`;
 }
+
+/* ---------------- Brother / Sister ---------------- */
+function renderGender(){
+  const sis=SIS();
+  $('#banner').innerHTML = sis ? '<b>🌸 Pray every prayer at the start of its time.</b>"The most beloved deed to Allah is prayer at its proper time." — Sahih al-Bukhari 527 · For sisters, prayer at home is better (Abu Dawud 570).'
+                               : '<b>🕌 Namaz must be prayed in the Masjid, not at home.</b>"Prayer in congregation is 27 times better than prayer alone." — Sahih al-Bukhari 645';
+  $('#pledge1').innerHTML = sis ? 'Pray all <b>5 Fard prayers at the start of their time</b>. Never skip, never delay without reason.'
+                                : "Pray all <b>5 Fard prayers on time, in the Masjid with jama'ah</b> — not at home. Never skip, never delay without reason.";
+  $('#ppHint').textContent = sis ? 'green = on time' : 'dark = Masjid · light = home';
+}
+function maybeWelcome(){
+  if(S.gender) return;
+  $('#wName').value=S.name||''; $('#welcome').hidden=false;
+  const pick=g=>{ S.gender=g; const n=$('#wName').value.trim(); if(n) S.name=n; save(); $('#welcome').hidden=true;
+    loadSettings(); renderGender(); renderAll(); if(window.AndroidBridge) syncReminders();
+    toast(S.lat ? 'Bismillah — your 100 days start today 🌙' : 'Bismillah! Next: set your location in Pledge → Settings for prayer times 📍'); };
+  $('#wBro').onclick=()=>pick('b'); $('#wSis').onclick=()=>pick('s');
+}
+$('#sGender').addEventListener('change',()=>setTimeout(()=>{ renderGender(); renderAll(); },30));
 
 /* ---------------- In-page confirm ---------------- */
 function ask(msg, yes){
@@ -1543,8 +1579,9 @@ document.addEventListener('click',e=>{
     save(); renderToday();
     const nb=document.querySelector(`.seg[data-p="${p}"] button[data-v="${v}"]`);
     if(nb && (v==='sunnah' ? d.s[p] : d.p[p]===v)) celebrateBtn(nb, v, d);
+    if(SIS() && onTime(d.p[p]) && allMasjid(d)) bigCelebrate('All 5 prayers on time today 🌸');
     if(v==='masjid' && d.p[p]==='masjid'){ if(allMasjid(d)) bigCelebrate('All 5 prayers in the Masjid today 🕌'); else toast('Alhamdulillah — '+PRAYERS.find(x=>x.id===p).n+' in jama\'ah: 27× the reward 🕌'); }
-    if(v==='ok' && d.p[p]==='ok'){ toast('Prayed at home. Try to reach the Masjid for the next prayer, in sha Allah 🕌'); }
+    if(v==='ok' && d.p[p]==='ok' && !SIS()){ toast('Prayed at home. Try to reach the Masjid for the next prayer, in sha Allah 🕌'); }
     if(v==='miss' && d.p[p]==='miss') toast('Make it up (qada) as soon as you can, and make tawbah. Don\'t give up.');
     return; }
   const chk=e.target.closest('.check[data-b]');
@@ -1649,14 +1686,14 @@ function show(v){
   if(v==='tools') renderTools();
   window.scrollTo(0,0);
 }
-function renderAll(){ renderNumbers(); renderCalendar(); renderDuas(); renderToday(); renderJourney(); renderTools(); }
+function renderAll(){ renderGender(); renderNumbers(); renderCalendar(); renderDuas(); renderToday(); renderJourney(); renderTools(); }
 
 // Refresh "today" + next-prayer highlight when the app comes back to the foreground or the minute changes
 let lastToday=todayStr();
 setInterval(()=>{ const t=todayStr(); if(t!==lastToday){ if(cur===lastToday) cur=t; lastToday=t; } if($('#v-today').classList.contains('on')) renderToday(); }, 60000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ syncReminders(); const t=todayStr(); if(t!==lastToday){ if(cur===lastToday) cur=t; lastToday=t; } renderToday(); }});
 
-applyTheme(); loadSettings(); renderAll(); newQuiz(); cloudInit();
+applyTheme(); loadSettings(); renderGender(); renderAll(); newQuiz(); cloudInit(); maybeWelcome();
 startSky(); tickNext(); setInterval(tickNext,1000); setInterval(setPhase,60000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) startSky(); });
 ['sLat','sLng','sMethod','sAsr'].forEach(id=>$('#'+id).addEventListener('change',()=>setTimeout(()=>{setPhase();tickNext();},60)));
@@ -1671,8 +1708,10 @@ function syncReminders(){
       const base=parse(ds).getTime();
       PRAYERS.forEach(p=>{ const h=pt[p.id]; if(!isFinite(h)) return;
         const at=base+Math.round(h*3600000)-mins*60000; if(at<=Date.now()) return;
-        list.push({t:at, title: mins? `🕌 ${p.n} in ${mins} min — ${fmt(h)}` : `🕌 It's ${p.n} time — ${fmt(h)}`,
-          body: mins? 'Leave now for the Masjid. Prayer in jama\'ah is 27× better (Bukhari 645).' : 'Go to the Masjid for jama\'ah. Namaz must be prayed in the Masjid, not at home.'}); });
+        const sis=SIS(), ic=sis?'🌸':'🕌';
+        list.push({t:at, title: mins? `${ic} ${p.n} in ${mins} min — ${fmt(h)}` : `${ic} It's ${p.n} time — ${fmt(h)}`,
+          body: sis ? (mins? 'Make wudu and get ready to pray on time.' : 'Pray on time — the most beloved deed to Allah (Bukhari 527).')
+                    : (mins? 'Leave now for the Masjid. Prayer in jama\'ah is 27× better (Bukhari 645).' : 'Go to the Masjid for jama\'ah. Namaz must be prayed in the Masjid, not at home.')}); });
     }
   }
   try{ AndroidBridge.setReminders(JSON.stringify(list)); }catch(e){}

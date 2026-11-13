@@ -5,14 +5,14 @@ set -euo pipefail
 unset JAVA_TOOL_OPTIONS  # proxy settings not needed for building
 cd "$(dirname "$0")"
 SDK=/usr/lib/android-sdk/platforms/android-23/android.jar
-rm -rf build && mkdir -p build/gen build/classes build/assets
+rm -rf build gen-assets && mkdir -p build/gen build/classes
 
 python3 prepare_assets.py
 aapt package -f -m -J build/gen -M AndroidManifest.xml -S res -I "$SDK"
 javac -nowarn -Xlint:-options -source 8 -target 8 -bootclasspath "$SDK" -d build/classes \
   src/com/namaz100/app/*.java build/gen/com/namaz100/app/R.java
 dalvik-exchange --dex --min-sdk-version=24 --output=build/classes.dex build/classes
-aapt package -f -M AndroidManifest.xml -S res -A build/assets -I "$SDK" -F build/unsigned.apk
+aapt package -f -M AndroidManifest.xml -S res -A gen-assets -I "$SDK" -F build/unsigned.apk
 (cd build && aapt add -f unsigned.apk classes.dex >/dev/null)
 zipalign -f -p 4 build/unsigned.apk build/aligned.apk
 

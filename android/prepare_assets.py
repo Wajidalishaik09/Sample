@@ -1,7 +1,7 @@
 """Copy the tracker into assets/www and bundle Google Fonts so the app works offline."""
 import os, re, shutil, urllib.request, hashlib, sys
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
-OUT = os.path.join(HERE, 'build', 'assets', 'www'); FONTS = os.path.join(OUT, 'fonts')
+OUT = os.path.join(HERE, 'gen-assets', 'www'); FONTS = os.path.join(OUT, 'fonts')
 CACHE = os.path.join(HERE, 'fonts-cache')
 os.makedirs(FONTS, exist_ok=True); os.makedirs(CACHE, exist_ok=True)
 UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36'

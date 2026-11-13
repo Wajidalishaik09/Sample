@@ -4,6 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.view.View;
+import android.view.WindowInsets;
+import android.widget.FrameLayout;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -79,7 +83,7 @@ public class MainActivity extends Activity {
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback cb) {
                 if (hasLocation()) { cb.invoke(origin, true, false); return; }
                 geoOrigin = origin; geoCallback = cb;
-                requestPermissions(new String[]{"android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION"}, REQ_LOCATION);
+                requestPermissions(new String[]{"android.permission.ACCESS_COARSE_LOCATION"}, REQ_LOCATION);
             }
 
             @Override
@@ -98,7 +102,23 @@ public class MainActivity extends Activity {
         web.addJavascriptInterface(new Bridge(), "AndroidBridge");
         if (saved != null) web.restoreState(saved);
         else web.loadUrl(START);
-        setContentView(web);
+
+        // Android 15+ draws apps edge to edge: keep the page clear of the system bars,
+        // and paint the bar areas gold (top, like the banner) and green (bottom, like the tabs).
+        FrameLayout root = new FrameLayout(this);
+        root.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+            new int[]{Color.parseColor("#B88A2E"), Color.parseColor("#B88A2E"), Color.parseColor("#0F3D2E"), Color.parseColor("#0F3D2E")}));
+        root.addView(web, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        root.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsets onApplyWindowInsets(View v, WindowInsets in) {
+                v.setPadding(in.getSystemWindowInsetLeft(), in.getSystemWindowInsetTop(),
+                             in.getSystemWindowInsetRight(), in.getSystemWindowInsetBottom());
+                return in;
+            }
+        });
+        setContentView(root);
+        root.requestApplyInsets();
     }
 
     static String mime(String p) {
@@ -114,8 +134,7 @@ public class MainActivity extends Activity {
     }
 
     boolean hasLocation() {
-        return checkSelfPermission("android.permission.ACCESS_COARSE_LOCATION") == PackageManager.PERMISSION_GRANTED
-            || checkSelfPermission("android.permission.ACCESS_FINE_LOCATION") == PackageManager.PERMISSION_GRANTED;
+        return checkSelfPermission("android.permission.ACCESS_COARSE_LOCATION") == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
