@@ -5,18 +5,21 @@ Copy each part into Play Console. Text limits are already checked.
 ## App details
 - **App name (max 30):** Namaz 100: Salah Tracker
 - **Default language:** English (United States) – en-US
-- **App or game:** App · **Free or paid:** Paid
+- **App or game:** App · **Free or paid:** **Free** (with an in-app purchase)
 - **Category:** Lifestyle · **Tags:** Religion, Habit tracker, Productivity
 - **Contact email:** your support email (shown publicly on the store page)
 - **Privacy policy URL:** the public link of the privacy policy page (see README)
 
 ## Short description (max 80)
-100-day Salah habit: Masjid tracker, prayer times, reminders, duas & Witr guide
+Prayer times, reminders & duas free. Unlock the 100-day Salah challenge tracker.
 
 ## Full description (max 4000)
 Build the habit of praying all 5 prayers on time — in 100 days.
 
-Namaz 100 is a calm, beautiful prayer tracker made for students and young Muslims who want to leave bad habits, stay away from haram and make Salah the centre of their day. No account, no ads, no internet — everything stays on your phone.
+FREE: prayer times, live countdown, prayer reminders, the Night Order (Isha → Hajah → Istikhara → Witr), step-by-step guides, 25+ duas, Hijri calendar, tasbih and study tools.
+100-DAY CHALLENGE (one-time unlock): write WHY you are starting, set your targets, and track every prayer, streak and good deed for 100 days.
+
+Namaz 100 is a calm, beautiful prayer tracker made for students and young Muslims who want to leave bad habits, stay away from haram and make Salah the centre of their day. No account, no ads, works offline — everything stays on your phone.
 
 🕌 FOR BROTHERS AND SISTERS
 • Brothers: mark each prayer as Masjid, Home, Late or Missed. Masjid scores highest — "Prayer in congregation is 27 times better" (Bukhari 645).
@@ -43,8 +46,11 @@ Namaz 100 is a calm, beautiful prayer tracker made for students and young Muslim
 ✅ AUTHENTIC, NOT VIRAL MYTHS
 Learn what the Qur'an and Sahih Hadith really say about each prayer — and why the viral "Fajr for beauty, Dhuhr for money" lists are not authentic.
 
+🎯 YOUR WHY & YOUR TARGETS
+When you start, you write the reason you are taking the challenge and choose your targets (Masjid prayers per day, streak goal, Tahajjud nights, daily Qur'an, a habit to quit). Your reason is shown every day with live progress on each target. Salat al-Hajah and Istikhara are optional but strongly recommended.
+
 🔒 PRIVATE BY DESIGN
-No sign-up, no ads, no tracking, no internet permission. Export a backup file whenever you like.
+No sign-up, no ads, no tracking, works offline. The 100-Day Challenge is a one-time purchase through Google Play — no subscription. Export a backup file whenever you like.
 
 May Allah make it easy for you and accept your prayers. 🤲
 
@@ -55,7 +61,7 @@ First release: 100-day Salah tracker for brothers and sisters, prayer times and 
 - **Privacy policy:** paste the public privacy policy URL.
 - **Ads:** No, my app does not contain ads.
 - **App access:** All functionality is available without special access.
-- **Content rating (IARC questionnaire):** Category "All other app types". Answer **No** to violence, sexuality, language, controlled substances, gambling, user interaction/sharing, location sharing with others, digital purchases. Expected rating: Everyone / PEGI 3 / IARC 3+.
+- **Content rating (IARC questionnaire):** Category "All other app types". Answer **No** to violence, sexuality, language, controlled substances, gambling, user interaction/sharing and location sharing with others. Answer **Yes** to "digital purchases" (the in-app unlock). Expected rating: Everyone / PEGI 3 / IARC 3+.
 - **Target audience and content:** 13–15, 16–17, 18 and over. (Do **not** include under-13 — that brings the stricter Families policy.) Not designed to appeal to children.
 - **Data safety:**
   - Does your app collect or share any of the required user data types? **No.**
@@ -65,10 +71,12 @@ First release: 100-day Salah tracker for brothers and sisters, prayer times and 
 - **Government app:** No · **Financial features:** None · **Health:** None · **News app:** No.
 - **Exact alarm:** the app uses SCHEDULE_EXACT_ALARM (user-granted). It does **not** use the restricted USE_EXACT_ALARM, so no declaration form is needed. Without the permission, reminders still arrive (possibly a few minutes late).
 
-## Pricing ideas
-- India: ₹99 to ₹149 · Pakistan: about Rs 300 · USA: $1.99 · UK: £1.79 · Gulf: about 7 AED/SAR.
-- Google keeps a 15% service fee (on your first $1M per year); you receive 85%.
-- Play Console converts one price to all countries; adjust key countries by hand.
+## In-app product (Monetize with Play → Products → One-time products)
+- **Product ID:** `challenge_100`  ← must be exactly this; the app asks Play for this ID
+- **Name:** 100-Day Namaz Challenge
+- **Description:** Unlock the 100-day prayer tracker: your why and targets, Masjid/on-time tracking, streaks, checklists, stats and milestones.
+- **Price:** ₹199 (India) / $3.99 (USA). Play suggests prices for other countries; check Pakistan, UK and the Gulf by hand.
+- Google keeps a 15% service fee (on your first $1M per year); you receive 85% (about ₹169 per sale in India before tax).
 
 ## Graphics (files in this folder)
 - App icon: `icon-512.png` (512 × 512)

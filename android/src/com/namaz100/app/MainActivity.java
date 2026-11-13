@@ -32,6 +32,7 @@ public class MainActivity extends Activity {
     static final int REQ_SAVE = 1, REQ_OPEN = 2, REQ_LOCATION = 3, REQ_NOTIFY = 4;
 
     private WebView web;
+    private Store store;
     private String pendingSave;
     private ValueCallback<Uri[]> fileCallback;
     private GeolocationPermissions.Callback geoCallback;
@@ -99,6 +100,9 @@ public class MainActivity extends Activity {
             }
         });
 
+        try {
+            store = (Store) Class.forName("com.namaz100.app.PlayStore").getConstructor(MainActivity.class).newInstance(this);
+        } catch (Throwable t) { store = null; }  // not a Play build: everything unlocked
         web.addJavascriptInterface(new Bridge(), "AndroidBridge");
         if (saved != null) web.restoreState(saved);
         else web.loadUrl(START);
@@ -176,8 +180,35 @@ public class MainActivity extends Activity {
         }
     }
 
+    /** Sends the purchase state to the page: window.onStoreState({...}). */
+    void sendStoreState(final String json) {
+        runOnUiThread(new Runnable() { public void run() {
+            web.evaluateJavascript("window.onStoreState && window.onStoreState(" + json + ")", null);
+        }});
+    }
+
+    static String jsonStr(String v) {
+        if (v == null) return "\"\"";
+        StringBuilder b = new StringBuilder("\"");
+        for (char c : v.toCharArray()) {
+            if (c == '"' || c == '\\') b.append('\\').append(c);
+            else if (c < 0x20) b.append(String.format("\\u%04x", (int) c));
+            else b.append(c);
+        }
+        return b.append('"').toString();
+    }
+
     /** Methods callable from the page as window.AndroidBridge.* */
     class Bridge {
+        @JavascriptInterface
+        public boolean isPlayBuild() { return store != null; }
+
+        @JavascriptInterface
+        public void storeRefresh() { if (store != null) store.refresh(); else sendStoreState("{\"play\":false,\"owned\":true}"); }
+
+        @JavascriptInterface
+        public void storeBuy() { if (store != null) store.buy(); }
+
         @JavascriptInterface
         public void saveFile(final String name, final String text) {
             runOnUiThread(new Runnable() { public void run() {

@@ -216,6 +216,38 @@ nav.tabs button.on{color:var(--brand)}
 .qrow:last-child{border-bottom:0}
 .qrow b.c{font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
 .intent{width:100%;font-weight:600}
+#welcome{overflow-y:auto;place-items:start center;padding-block:max(24px,env(safe-area-inset-top,0px)) 24px}
+#welcome .cbox{text-align:left}
+#welcome .cbox>b,#welcome .cbox>.big,#welcome .cbox .center{text-align:center;display:block}
+#welcome label.f{color:#cfe3d8}
+#welcome input,#welcome select,#welcome textarea{background:rgba(255,255,255,.95);color:#1b2a24;border-color:transparent}
+.steps-dots{display:flex;gap:6px;justify-content:center;margin:8px 0 4px}
+.steps-dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3)}
+.steps-dots i.on{background:#f6dc96;width:22px;border-radius:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chips button{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:6px 10px;font:inherit;font-size:12.5px;cursor:pointer}
+.chips button:active{background:rgba(246,220,150,.35)}
+.wcheck{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:14px}
+.wcheck input{width:22px;height:22px;flex:none;margin-top:1px}
+.wcheck .tag{margin-left:0}
+.werr{color:#ffd1c9;font-size:13px;min-height:18px;margin-top:6px}
+.why{font-style:italic;color:var(--gold);font-size:15px;margin:0 0 10px}
+.tgt{margin:10px 0}
+.tgt .l{display:flex;justify-content:space-between;font-size:13.5px;gap:8px}
+.tgt .l b{font-variant-numeric:tabular-nums}
+.tgt .pbar{height:8px;background:var(--chip);border-radius:8px;overflow:hidden;margin-top:5px}
+.tgt .pbar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,var(--brand),#3fa57a);transition:width .6s}
+.tgt.opt .pbar i{background:linear-gradient(90deg,var(--gold),#f6dc96)}
+.paywall{border:2px solid var(--gold);background:linear-gradient(160deg,var(--gold-soft),var(--card));text-align:center}
+.paywall .lock{font-size:44px}
+.paywall h3{font-family:'Reem Kufi',Outfit,sans-serif;margin:4px 0 6px;font-size:20px}
+.paywall ul{text-align:left;margin:10px auto;padding-left:20px;max-width:330px;font-size:14px}
+.paywall .buy{width:100%;min-height:52px;font-size:16px;margin-top:6px}
+.paywall .perr{color:var(--miss);font-size:13px;min-height:16px;margin-top:6px}
+.paywall{display:none}
+body.locked .paywall{display:block}
+body.locked [data-lock]{display:none!important}
+body.locked .seg{display:none}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:30;padding:16px}
 .modal[hidden]{display:none}
 .modal .box2{background:var(--card);color:var(--ink);border-radius:16px;padding:18px;max-width:360px;width:100%;box-shadow:0 10px 30px rgba(0,0,0,.3)}
@@ -323,8 +355,13 @@ nav.tabs button.on{color:var(--brand)}
       <button class="btn" id="nextDay" aria-label="Next day">›</button>
     </div>
 
-    <h2>🎯 Today's Intention</h2>
-    <div class="card"><input id="goal" class="intent" maxlength="90" placeholder="e.g. Pray Fajr on time & study 2 hours with focus"></div>
+    <div class="card paywall" id="paywall"></div>
+
+    <h2 data-lock>🎯 My Why &amp; Targets <span class="hint"><button class="btn" id="editTargets" style="min-height:30px;padding:4px 10px;font-size:12px">Edit</button></span></h2>
+    <div class="card" data-lock id="targets"></div>
+
+    <h2 data-lock>🎯 Today's Intention</h2>
+    <div class="card" data-lock><input id="goal" class="intent" maxlength="90" placeholder="e.g. Pray Fajr on time & study 2 hours with focus"></div>
 
     <h2>5 Daily Prayers <span class="hint" id="timesHint">17 Fard rak'ahs</span></h2>
     <div class="card" id="prayers"></div>
@@ -376,6 +413,8 @@ nav.tabs button.on{color:var(--brand)}
 
   <!-- JOURNEY -->
   <section class="view" id="v-journey">
+    <div class="card paywall" id="paywall2"></div>
+
     <h2>📅 Calendar <span class="hint">English · Hijri (Islamic)</span></h2>
     <div class="card">
       <div class="cal-head">
@@ -828,13 +867,49 @@ nav.tabs button.on{color:var(--brand)}
 
 <div class="toast" id="toast"></div>
 <div id="fx" aria-hidden="true"></div>
-<div class="celebrate" id="welcome" hidden role="dialog" aria-label="Welcome"><div class="cbox" style="max-width:360px;width:100%">
-  <div class="big" style="font-size:72px">🌙</div><b>Assalamu Alaikum!</b>
-  <div class="t">Welcome to <b style="display:inline;font-size:inherit;color:inherit">Namaz 100</b> — 100 days to build the habit of praying on time.</div>
-  <input id="wName" placeholder="Your name (optional)" maxlength="30" style="margin-top:16px;text-align:center">
-  <div class="t" style="margin-top:14px">I am a…</div>
-  <div class="row" style="margin-top:8px"><button class="btn primary" id="wBro" style="min-height:64px;font-size:16px">🧔 Brother</button><button class="btn primary" id="wSis" style="min-height:64px;font-size:16px">🧕 Sister</button></div>
-  <small>Brothers track prayers in the Masjid. Sisters track prayers on time at home, with an "Excused" option. You can change this later in Pledge → Settings.</small>
+<div class="celebrate" id="welcome" hidden role="dialog" aria-label="Welcome"><div class="cbox" style="max-width:380px;width:100%">
+  <div class="steps-dots" id="wDots"><i class="on"></i><i></i><i></i></div>
+  <section id="wStep1">
+    <div class="big" style="font-size:66px">🌙</div><b>Assalamu Alaikum!</b>
+    <div class="t center">Welcome to <b style="display:inline;font-size:inherit;color:inherit">Namaz 100</b> — the 100-day challenge to pray every prayer on time.</div>
+    <label class="f" for="wName">Your name (optional)</label>
+    <input id="wName" maxlength="30" placeholder="e.g. Ahmed">
+    <label class="f">I am a…</label>
+    <div class="row"><button class="btn primary" id="wBro" style="min-height:60px;font-size:16px">🧔 Brother</button><button class="btn primary" id="wSis" style="min-height:60px;font-size:16px">🧕 Sister</button></div>
+    <small class="center" style="margin-top:12px">Brothers track prayers in the Masjid. Sisters track prayers on time at home, with an "Excused" option.</small>
+  </section>
+  <section id="wStep2" hidden>
+    <div class="big" style="font-size:56px">🤲</div><b>Why are you accepting this challenge?</b>
+    <div class="t center">Write it in your own words. You will see it every day — it keeps you going when it gets hard.</div>
+    <label class="f" for="wWhy">My reason (required)</label>
+    <textarea id="wWhy" maxlength="300" placeholder="e.g. I want to please Allah, never miss Fajr again and leave my bad habits before my exams."></textarea>
+    <div class="chips" id="wChips">
+      <button type="button">To please Allah 🤍</button><button type="button">To never miss a prayer</button><button type="button">To leave a bad habit</button><button type="button">For barakah in my studies</button><button type="button">To be closer to the Masjid</button><button type="button">For my parents' du'a and pride</button>
+    </div>
+    <div class="werr" id="wWhyErr"></div>
+    <div class="row" style="margin-top:6px"><button class="btn" id="wBack2">‹ Back</button><button class="btn primary" id="wNext2">Next ›</button></div>
+  </section>
+  <section id="wStep3" hidden>
+    <div class="big" style="font-size:56px">🎯</div><b>Set your targets</b>
+    <div class="t center">You can change them later from the 🎯 card on Today.</div>
+    <div id="wMasjidBox">
+      <label class="f" for="wMasjid">🕌 Prayers in the Masjid every day</label>
+      <select id="wMasjid"><option value="5">All 5 prayers</option><option value="4">4 prayers</option><option value="3">3 prayers</option><option value="2">2 prayers</option><option value="1">1 prayer (start small)</option></select>
+    </div>
+    <div id="wSisBox" class="t" style="font-size:14px" hidden>🌸 All 5 prayers at the start of their time, every day.</div>
+    <div class="row">
+      <div><label class="f" for="wStreak">🔥 Streak goal</label>
+        <select id="wStreak"><option value="7">7 days</option><option value="21">21 days</option><option value="40" selected>40 days</option><option value="100">100 days</option></select></div>
+      <div><label class="f" for="wTah">✨ Tahajjud / week</label>
+        <select id="wTah"><option value="0">0 nights</option><option value="1">1 night</option><option value="2" selected>2 nights</option><option value="3">3 nights</option><option value="5">5 nights</option><option value="7">Every night</option></select></div>
+    </div>
+    <label class="f" for="wHabit">🚫 One bad habit I will quit (optional)</label>
+    <input id="wHabit" maxlength="60" placeholder="e.g. Late night scrolling">
+    <label class="wcheck"><input type="checkbox" id="wQuran" checked><span>📖 Read Qur'an every day (even 1 page)</span></label>
+    <label class="wcheck"><input type="checkbox" id="wNafl" checked><span>🤲 Salat al-Hajah &amp; 🧭 Istikhara after Isha every day<br><span class="tag">Optional · strongly recommended</span></span></label>
+    <div class="row" style="margin-top:16px"><button class="btn" id="wBack3">‹ Back</button><button class="btn primary" id="wStart" style="flex:2">Bismillah — start my 100 days</button></div>
+    <small class="center" id="wPriceNote" style="margin-top:10px"></small>
+  </section>
 </div></div>
 <div class="celebrate" id="celebrate" hidden role="dialog" aria-label="Celebration"><div class="cbox"><div class="big">🕌</div><b>MashaAllah!</b><div class="t" id="celebrateTxt">All 5 prayers in the Masjid today</div><div class="t">"Prayer in congregation is 27 times better" — Bukhari 645</div><small>Tap anywhere to continue</small></div></div>
 <div class="modal" id="modal" hidden role="dialog" aria-modal="true"><div class="box2"><p id="modalMsg"></p><div class="row"><button class="btn" id="modalNo">Cancel</button><button class="btn primary" id="modalYes">Yes</button></div></div></div>
@@ -959,8 +1034,8 @@ const HAJ_DUAS = [
 
 const NAFL = [
   {id:'tahajjud', t:'Tahajjud — night prayer (min. 2 rak\'ahs)', d:'Best prayer after the Fard — Muslim 1163'},
-  {id:'hajah', t:'Salat al-Hajah — 2 rak\'ahs (daily)', d:'For my needs: studies, success, family, rizq'},
-  {id:'istikhara', t:'Salat al-Istikhara — 2 rak\'ahs (daily)', d:'For my current decision — write it in the box below'}
+  {id:'hajah', t:'Salat al-Hajah — 2 rak\'ahs after Isha', d:'Optional · strongly recommended — for my needs: studies, success, family, rizq'},
+  {id:'istikhara', t:'Salat al-Istikhara — 2 rak\'ahs after Hajah', d:'Optional · strongly recommended — for my current decision (write it below)'}
 ];
 
 const DUAS = [
@@ -1249,11 +1324,12 @@ function renderToday(){
       </div></div>`;
   }).join('');
 
+  renderTargets();
   checkList($('#adhkar'), ADHKAR, 'a');
   checkList($('#haram'), HARAM, 'h');
   { const a=prayerTimes(cur), b=prayerTimes(addDays(cur,1)), l3=lastThird(cur);
     const T=(x)=>a?' <b>'+fmt(x)+'</b>':'';
-    $('#sched').innerHTML = `<b class="h">📅 When to pray Hajah &amp; Istikhara — every day</b>
+    $('#sched').innerHTML = `<b class="h">📅 Hajah &amp; Istikhara — optional, but strongly recommended every day</b>
       <div>✅ <b>Option 1 — right AFTER Isha</b>${a?' (Isha from'+T(a.isha)+')':''}: Isha Fard → 2 Sunnah → <b>Hajah</b> → <b>Istikhara</b> → <b>Witr</b> → sleep.</div>
       <div>🌙 <b>Option 2 — best, in the last third of the night</b>${l3?' (from <b>'+l3+'</b> until Fajr'+T(b.fajr)+')':''}: after Isha pray Fard + Sunnah only, sleep, then wake: Tahajjud → <b>Hajah</b> → <b>Istikhara</b> → <b>Witr</b>.</div>
       <div>☀️ <b>Missed both?</b> Pray them in the morning${a?' between'+T(a.sunrise+15/60)+' and'+T(a.dhuhr-10/60):' (after sunrise until before Dhuhr)'}.</div>
@@ -1262,8 +1338,8 @@ function renderToday(){
     $('#nightOrder').innerHTML =
       li(SIS()?'🌸':'🕌', SIS()?'Isha — 4 Fard, on time':'Isha — 4 Fard in the Masjid', SIS()?'At the start of its time. (Many Hanafis also pray 4 optional Sunnah before it.)':'With jama\'ah. (Many Hanafis also pray 4 optional Sunnah before it.)', a?fmt(a.isha):'', true)+
       li('2️⃣','2 Sunnah after Isha','Sunnah mu\'akkadah — prayed after the Fard.','')+
-      li('🤲','Salat al-Hajah — 2 rak\'ahs','AFTER Isha\'s Fard &amp; Sunnah. Then ask Allah for your need.','')+
-      li('🧭','Salat al-Istikhara — 2 rak\'ahs','Right after Hajah. Then read the Istikhara dua for your decision.','')+
+      li('🤲','Salat al-Hajah — 2 rak\'ahs <span class="tag">optional · strongly recommended</span>','AFTER Isha\'s Fard &amp; Sunnah. Then ask Allah for your need.','')+
+      li('🧭','Salat al-Istikhara — 2 rak\'ahs <span class="tag">optional · strongly recommended</span>','Right after Hajah. Then read the Istikhara dua for your decision.','')+
       li('🌟','Witr — 3 rak\'ahs (last prayer)','Qunut in the 3rd rak\'ah. If you will wake for Tahajjud, move Witr to the end of Tahajjud.','',true)+
       li('😴','Sleep early, in wudu','With the intention to wake for Tahajjud or Fajr.','')+
       li('✨','Tahajjud (optional, best)','Last third of the night — 2 to 8 rak\'ahs, then Witr if you delayed it.', l3?('from '+l3):'')+
@@ -1292,7 +1368,7 @@ function streak(){
 function renderHeader(){
   const dn=Math.min(100,Math.max(0,diffDays(S.start,todayStr())+1));
   $('#hello').textContent = S.name ? `Assalamu Alaikum, ${S.name}` : 'Namaz 100 Days';
-  $('#dayNum').innerHTML = `Day ${dn||0} <small>/ 100</small>` + (S.nums!=='en' ? `<span class="daynums"><span class="arn">${toAr(dn||0)}</span> · <span class="ur" lang="ur">${toUr(dn||0)}</span></span>` : '');
+  $('#dayNum').innerHTML = isLocked() ? `Day 0 <small>/ 100 · 🔒 not started</small>` : `Day ${dn||0} <small>/ 100</small>` + (S.nums!=='en' ? `<span class="daynums"><span class="arn">${toAr(dn||0)}</span> · <span class="ur" lang="ur">${toUr(dn||0)}</span></span>` : '');
   renderDates();
   const st=streak(); $('#streakLine').textContent = `🔥 Streak: ${st} day${st===1?'':'s'} all 5 prayed`;
   $('#journeyBar').style.width = dn+'%';
@@ -1499,14 +1575,81 @@ function renderGender(){
                                 : "Pray all <b>5 Fard prayers on time, in the Masjid with jama'ah</b> — not at home. Never skip, never delay without reason.";
   $('#ppHint').textContent = sis ? 'green = on time' : 'dark = Masjid · light = home';
 }
-function maybeWelcome(){
-  if(S.gender) return;
-  $('#wName').value=S.name||''; $('#welcome').hidden=false;
-  const pick=g=>{ S.gender=g; const n=$('#wName').value.trim(); if(n) S.name=n; save(); $('#welcome').hidden=true;
-    loadSettings(); renderGender(); renderAll(); if(window.AndroidBridge) syncReminders();
-    toast(S.lat ? 'Bismillah — your 100 days start today 🌙' : 'Bismillah! Next: set your location in Pledge → Settings for prayer times 📍'); };
-  $('#wBro').onclick=()=>pick('b'); $('#wSis').onclick=()=>pick('s');
+/* Welcome: 1) brother/sister  2) why (required)  3) targets */
+function wShow(n){ [1,2,3].forEach(i=>{ $('#wStep'+i).hidden=i!==n; }); [...$('#wDots').children].forEach((d,i)=>d.classList.toggle('on',i===n-1)); $('#welcome').scrollTop=0; }
+function openWelcome(step){
+  $('#wName').value=S.name||''; $('#wWhy').value=S.why||'';
+  const T=S.targets||{}; $('#wMasjid').value=String(T.masjid||5); $('#wStreak').value=String(T.streak||40); $('#wTah').value=String(T.tahajjud ?? 2);
+  $('#wQuran').checked=T.quran!==false; $('#wNafl').checked=T.nafl!==false; $('#wHabit').value='';
+  $('#welcome').hidden=false; wShow(step);
 }
+function maybeWelcome(){ if(!S.gender) openWelcome(1); else if(!S.why || !S.targets) openWelcome(2); }
+function pickGender(g){ S.gender=g; const n=$('#wName').value.trim(); if(n) S.name=n; save(); renderGender(); wPrep3(); wShow(2); $('#wWhy').focus(); }
+$('#wBro').onclick=()=>pickGender('b'); $('#wSis').onclick=()=>pickGender('s');
+$('#wChips').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; const t=$('#wWhy');
+  const add=b.textContent.replace(/ 🤍$/,''); t.value = t.value.trim() ? t.value.trim().replace(/[.,]?$/,', ') + add.replace(/^To /,'to ') : add; t.focus(); });
+$('#wBack2').onclick=()=>wShow(1);
+$('#wNext2').onclick=()=>{ const v=$('#wWhy').value.trim(); if(v.length<10){ $('#wWhyErr').textContent='Please write your reason (at least a few words). It matters.'; $('#wWhy').focus(); return; }
+  $('#wWhyErr').textContent=''; S.why=v; save(); wPrep3(); wShow(3); };
+$('#wBack3').onclick=()=>wShow(2);
+function wPrep3(){ const sis=SIS(); $('#wMasjidBox').hidden=sis; $('#wSisBox').hidden=!sis;
+  $('#wPriceNote').textContent = (STORE.play && !STORE.owned) ? `The 100-Day Challenge is a one-time purchase${STORE.price?' of '+STORE.price:''}. Prayer times, reminders, duas and guides stay free.` : ''; }
+$('#wStart').onclick=()=>{
+  S.targets={masjid:+$('#wMasjid').value, streak:+$('#wStreak').value, tahajjud:+$('#wTah').value, quran:$('#wQuran').checked, nafl:$('#wNafl').checked};
+  const h=$('#wHabit').value.trim(); if(h && !S.bad.includes(h)) S.bad.push(h);
+  if(!S.started){ S.start=todayStr(); }
+  save(); $('#welcome').hidden=true; loadSettings(); renderGender(); applyLock(); renderAll(); if(window.AndroidBridge) syncReminders();
+  if(isLocked()){ toast('Unlock the 100-Day Challenge to start tracking 🔒'); buyChallenge(); }
+  else { if(!S.started){ S.started=true; S.start=todayStr(); save(); renderAll(); }
+    bigCelebrate('Your 100-day challenge starts today. Bismillah! 🌙');
+    if(!S.lat) setTimeout(()=>toast('Next: set your location in Pledge → Settings for prayer times 📍'),2600); }
+};
+$('#editTargets').addEventListener('click',()=>openWelcome(2));
+
+/* My Why & Targets card */
+function renderTargets(){
+  const T=S.targets; if(!T){ $('#targets').innerHTML='<p class="note" style="margin:0">Set your reason and targets to begin.</p>'; return; }
+  const t=todayStr(), d=peek(t)||{p:{},g:{},n:{}}, sis=SIS();
+  const done = PRAYERS.filter(p=> sis ? onTime(d.p[p.id]) : d.p[p.id]==='masjid').length, goal = sis?5:T.masjid;
+  let thj=0; for(let i=0;i<7;i++){ const x=peek(addDays(t,-i)); if(x&&x.n&&x.n.tahajjud) thj++; }
+  const st=streak();
+  const bar=(label,val,max,opt)=>`<div class="tgt${opt?' opt':''}"><div class="l"><span>${label}</span><b>${val} / ${max}${val>=max?' ✓':''}</b></div><div class="pbar"><i style="width:${max?Math.min(100,val/max*100):100}%"></i></div></div>`;
+  let h = S.why ? `<p class="why">“${esc(S.why)}”</p>` : '';
+  h += bar(sis?'🌸 On-time prayers today':'🕌 Masjid prayers today', done, goal);
+  h += bar('🔥 Streak (all 5 prayed)', Math.min(st,T.streak), T.streak) ;
+  if(T.tahajjud) h += bar('✨ Tahajjud nights (last 7 days)', Math.min(thj,T.tahajjud), T.tahajjud);
+  if(T.quran) h += bar('📖 Qur\'an today', (d.g&&d.g.quran)?1:0, 1);
+  if(T.nafl){ const n=d.n||{}; h += bar('🤲 Hajah + 🧭 Istikhara today <span class="tag">optional · strongly recommended</span>', (n.hajah?1:0)+(n.istikhara?1:0), 2, true); }
+  $('#targets').innerHTML=h;
+}
+
+/* ---------------- 100-Day Challenge purchase (Google Play build only) ---------------- */
+const STORE={play:false, owned:true, price:'', pending:false, error:''};
+try{ if(window.AndroidBridge && AndroidBridge.isPlayBuild && AndroidBridge.isPlayBuild()){ STORE.play=true; STORE.owned=!!S.owned; } }catch(e){}
+function isLocked(){ return STORE.play && !STORE.owned; }
+function buyChallenge(){ STORE.error=''; renderPaywall(); try{ AndroidBridge.storeBuy(); }catch(e){} }
+function renderPaywall(){
+  const price=STORE.price||'', html=`<div class="lock">🔒</div><h3>100-Day Namaz Challenge</h3>
+    <p class="note" style="margin:0">${S.why?`Your reason: <i>“${esc(S.why)}”</i>`:'Build the habit of praying every prayer on time.'}</p>
+    <ul><li>${SIS()?'🌸 Track all 5 prayers on time':'🕌 Track all 5 prayers in the Masjid'}, every day</li><li>🎯 Your targets, daily score &amp; 🔥 streaks</li><li>✅ Haram guard, adhkar, good deeds &amp; bad-habit checklists</li><li>📊 100-day progress map, stats &amp; milestones</li></ul>
+    <button class="btn primary buy" data-buy ${STORE.pending?'disabled':''}>${STORE.pending?'⏳ Payment pending…':`Unlock for ${price||'a one-time price'}`}</button>
+    <div class="note" style="margin-top:6px">One-time purchase — yours forever. Prayer times, reminders, duas, guides and tools stay free.</div>
+    <div class="perr">${esc(STORE.error||'')}</div>`;
+  $('#paywall').innerHTML=html; $('#paywall2').innerHTML=html;
+}
+function applyLock(){ document.body.classList.toggle('locked', isLocked()); renderPaywall(); }
+window.onStoreState = st => {
+  const was=isLocked();
+  Object.assign(STORE, {play:st.play!==false, owned:!!st.owned, pending:!!st.pending, price:st.price||STORE.price, error:st.error||''});
+  if(S.owned!==STORE.owned){ S.owned=STORE.owned; save(); }
+  applyLock(); wPrep3();
+  if(was && !isLocked()){
+    if(!S.started){ S.started=true; S.start=todayStr(); save(); }
+    renderAll(); bigCelebrate('Challenge unlocked! Your 100 days start today. Bismillah 🌙');
+  } else renderAll();
+};
+document.addEventListener('click',e=>{ if(e.target.closest('[data-buy]')) buyChallenge(); });
+
 $('#sGender').addEventListener('change',()=>setTimeout(()=>{ renderGender(); renderAll(); },30));
 
 /* ---------------- In-page confirm ---------------- */
@@ -1686,14 +1829,20 @@ function show(v){
   if(v==='tools') renderTools();
   window.scrollTo(0,0);
 }
-function renderAll(){ renderGender(); renderNumbers(); renderCalendar(); renderDuas(); renderToday(); renderJourney(); renderTools(); }
+function renderAll(){ renderGender(); renderTargets(); renderNumbers(); renderCalendar(); renderDuas(); renderToday(); renderJourney(); renderTools(); }
 
 // Refresh "today" + next-prayer highlight when the app comes back to the foreground or the minute changes
 let lastToday=todayStr();
 setInterval(()=>{ const t=todayStr(); if(t!==lastToday){ if(cur===lastToday) cur=t; lastToday=t; } if($('#v-today').classList.contains('on')) renderToday(); }, 60000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ syncReminders(); const t=todayStr(); if(t!==lastToday){ if(cur===lastToday) cur=t; lastToday=t; } renderToday(); }});
 
-applyTheme(); loadSettings(); renderGender(); renderAll(); newQuiz(); cloudInit(); maybeWelcome();
+// Mark the challenge parts that unlock with the purchase
+['#adhkar','#haram','#good','#nafl','#bad','#note','#stats','#grid','#perPrayer','#milestones'].forEach(sel=>{ const c=$(sel).closest('.card')||$(sel); c.setAttribute('data-lock',''); const h=c.previousElementSibling; if(h&&h.tagName==='H2') h.setAttribute('data-lock',''); });
+document.querySelector('.ring').setAttribute('data-lock',''); $('#streakLine').setAttribute('data-lock','');
+{ const h=[...document.querySelectorAll('#v-journey h2')].find(x=>/100-Day Journey/.test(x.textContent)); if(h) h.setAttribute('data-lock',''); }
+if(!S.started && ((S.why && S.targets) || Object.keys(S.days).length)){ S.started=true; }  // existing users keep their Day 1
+applyTheme(); loadSettings(); applyLock(); renderGender(); renderAll(); newQuiz(); cloudInit(); maybeWelcome();
+if(STORE.play){ try{ AndroidBridge.storeRefresh(); }catch(e){} }
 startSky(); tickNext(); setInterval(tickNext,1000); setInterval(setPhase,60000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) startSky(); });
 ['sLat','sLng','sMethod','sAsr'].forEach(id=>$('#'+id).addEventListener('change',()=>setTimeout(()=>{setPhase();tickNext();},60)));
