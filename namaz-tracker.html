@@ -216,6 +216,8 @@ nav.tabs button.on{color:var(--brand)}
 .qrow:last-child{border-bottom:0}
 .qrow b.c{font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
 .intent{width:100%;font-weight:600}
+.photo-btn{width:100%;min-height:50px;font-size:15px;margin-bottom:8px;background:linear-gradient(135deg,#b88a2e,#e0b65a);border:0;color:#2a1d04;font-weight:700}
+.proofimg{width:100%;max-height:52vh;object-fit:contain;border-radius:14px;background:#000;margin:10px 0}
 .mission{position:relative;overflow:hidden;border:2px solid var(--gold);background:linear-gradient(160deg,var(--gold-soft),var(--card) 70%)}
 .mission .phase{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--gold);background:none;border:0;padding:0;margin:0}
 .mission .mt{font-family:'Reem Kufi',Outfit,sans-serif;font-size:19px;line-height:1.35;margin:4px 0 6px}
@@ -963,6 +965,13 @@ body.locked .seg{display:none}
 
 <div class="toast" id="toast"></div>
 <div id="fx" aria-hidden="true"></div>
+<input type="file" id="camIn" accept="image/*" capture="environment" hidden>
+<div class="modal" id="proofModal" hidden role="dialog" aria-modal="true"><div class="box2" style="max-width:420px">
+  <b style="font-size:17px">📸 Your Masjid photo</b>
+  <img class="proofimg" id="proofImg" alt="Photo you just took">
+  <p class="note" style="margin:0 0 12px">Is this inside the Masjid, taken just now? The photo is only shown here — it is <b>not saved and not uploaded</b>. Only the time is kept.</p>
+  <div class="row"><button class="btn" id="proofRetake">↻ Retake</button><button class="btn primary" id="proofOk">✅ Yes, I'm in the Masjid</button></div>
+</div></div>
 <div class="celebrate" id="welcome" hidden role="dialog" aria-label="Welcome"><div class="cbox" style="max-width:380px;width:100%">
   <div class="steps-dots" id="wDots"><i class="on"></i><i></i><i></i></div>
   <section id="wStep1">
@@ -1963,7 +1972,7 @@ function needLabel(tok){
   const TS=Object.fromEntries(TASBIH.map(x=>[x.id,x.n]));
   return ({ALLP:'All 5 prayed', ALL:'All 5 on time', ALLM:SIS()?'All 5 on time':'All 5 in Masjid', P:`${PN(a)} ${at}`, SP:`Sunnah of ${PN(a)}`, S:`${a} Sunnah prayers`,
     A: a==='all'?'All adhkar ticked':(AD[a]||a).split(' (')[0], G:(GD[a]||a).split(' (')[0], N:({tahajjud:'Tahajjud',hajah:'Salat al-Hajah',istikhara:'Istikhara'})[a]||a,
-    H: a==='all'?'Full Haram Guard':(HR[a]||a), B:'Bad habits avoided', T:`${TS[a]||a} ×${b}`, STUDY:`Study ${a} min`, URGE:'1 urge defeated', NOTE:'Reflection written', SELF:'I did it — honestly'})[k]||tok;
+    H: a==='all'?'Full Haram Guard':(HR[a]||a), B:'Bad habits avoided', T:`${TS[a]||a} ×${b}`, STUDY:`Study ${a} min`, URGE:'1 urge defeated', NOTE:'Reflection written', SELF:'I did it — honestly', PHOTO: '📸 Photo inside the Masjid'})[k]||tok;
 }
 function needMet(tok, d){
   d=d||{p:{},s:{},a:{},h:{},g:{},b:{},t:{},n:{}}; const [k,a='',b='']=tok.split(':');
@@ -1978,15 +1987,17 @@ function needMet(tok, d){
     case 'T': return ((d.t||{})[a]||0) >= +b; case 'STUDY': return (d.study||0) >= +a;
     case 'URGE': return (d.urge||0)>=1; case 'NOTE': return (d.note||'').trim().length>=10;
     case 'SELF': return !!(d.mself);
+    case 'PHOTO': return !!(d.proof);
   } return false;
 }
+function missionNeeds(str){ const n=str.split(' '); if(!SIS() && n.some(t=>t==='ALLM'||t.startsWith('P:'))) n.push('PHOTO'); return n; }
 function renderMission(){
   const el=$('#mission'); if(!el) return;
   const t=todayStr(), n=challengeDay(cur), isToday=cur===t;
   S.missions ||= {};
   if(n<1||n>100){ el.innerHTML = n<1 ? '<p style="margin:0">Your missions start on Day 1 of your challenge.</p>' : '<p style="margin:0"><b>🏆 You completed the 100-day journey!</b> Keep praying on time for life — and start a new round from Pledge → Day 1.</p>'; $('#missionHint').textContent=''; return; }
-  const [txt,tip,needStr]=MISSIONS[n-1], needs=needStr.split(' '), d=peek(cur), rec=S.missions[n];
-  const met=needs.map(tk=>needMet(tk,d)), autoNeeds=needs.filter(x=>x!=='SELF'), allMet=met.every(Boolean);
+  const [txt,tip,needStr]=MISSIONS[n-1], needs=missionNeeds(needStr), d=peek(cur), rec=S.missions[n];
+  const met=needs.map(tk=>needMet(tk,d)), autoNeeds=needs.filter(x=>x!=='SELF'&&x!=='PHOTO'), allMet=met.every(Boolean);
   const done=Object.keys(S.missions).length;
   $('#missionHint').textContent=`${done} / 100 completed`;
   let h=`<span class="phase">Day ${n} of 100 · ${PHASES[Math.floor((n-1)/10)]}</span>
@@ -1999,6 +2010,8 @@ function renderMission(){
       <div style="font-weight:600;margin-top:6px">${esc(r.t)}</div><div class="ar" lang="ar">${r.ar}</div><div class="tr">${esc(r.tr)}</div><div style="margin-top:6px">"${esc(r.en)}"</div><div class="src">${esc(r.src)}</div>
       <button class="ameen${rec.ameen?' done':''}" data-ameen="${n}" ${rec.ameen?'disabled':''}>${rec.ameen?'✓ Ameen — said':'🤲 Ameen'}</button></div>`;
   } else if(isToday){
+    if(needs.includes('PHOTO') && !(d&&d.proof)) h+=`<button class="btn photo-btn" data-photo>📸 Open camera — take a photo inside the Masjid</button><div class="note" style="text-align:center;margin:-2px 0 10px">Camera only — no gallery. The photo is not saved or uploaded.</div>`;
+    else if(needs.includes('PHOTO')) h+=`<div class="note" style="text-align:center;margin-bottom:8px">📸 Masjid photo taken at ${esc(d.proof)} ✓</div>`;
     const selfOnly = needs.includes('SELF') && autoNeeds.every(tk=>needMet(tk,d));
     if(needs.includes('SELF') && !(d&&d.mself)) h+=`<button class="btn primary claim" data-mself ${autoNeeds.every(tk=>needMet(tk,d))?'':'disabled'}>✅ I completed this mission — honestly</button><div class="note" style="text-align:center;margin-top:6px">Only tap if you truly did it. Allah sees everything 🤍</div>`;
     else h+=`<button class="btn primary claim" data-claim="${n}" ${allMet?'':'disabled'}>${allMet?'🎁 Claim my reward dua':'🔒 Complete the mission to unlock your dua'}</button>`;
@@ -2008,6 +2021,32 @@ function renderMission(){
   }
   el.innerHTML=h;
 }
+/* 📸 Masjid proof photo: camera only, shown once, never stored */
+let proofURL=null;
+function openCamera(){
+  if(window.AndroidBridge && AndroidBridge.takePhoto){ try{ AndroidBridge.takePhoto(); return; }catch(e){} }
+  const i=$('#camIn'); i.value=''; i.click();
+}
+function showProof(url){ proofURL=url; $('#proofImg').src=url; $('#proofModal').hidden=false; }
+window.onNativePhoto = url => {
+  if(url==='nocamera') return toast('No camera app found on this phone');
+  if(!url) return toast('No photo taken');
+  showProof(url);
+};
+$('#camIn').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  if(!f.type.startsWith('image/')) return toast('Please take a photo');
+  if(Date.now()-f.lastModified > 10*60*1000) return toast('That is an old photo. Please take a new one now, inside the Masjid 📸');
+  const r=new FileReader(); r.onload=()=>showProof(r.result); r.readAsDataURL(f);
+});
+$('#proofRetake').addEventListener('click',()=>{ $('#proofModal').hidden=true; $('#proofImg').src=''; proofURL=null; openCamera(); });
+$('#proofOk').addEventListener('click',()=>{
+  const d=day(todayStr()); const n=new Date(); d.proof=fmt(n.getHours()+n.getMinutes()/60); save();
+  $('#proofModal').hidden=true; $('#proofImg').src=''; proofURL=null;   // discard the photo
+  renderMission(); toast('📸 Masjid proof recorded at '+d.proof+'. MashaAllah!');
+  const b=document.querySelector('[data-claim]'); if(b && !b.disabled) burst(b,['🕌','✨'],8);
+});
+
 function renderMissionDuas(){
   const M=S.missions||{}, days=Object.keys(M).map(Number).sort((a,b)=>a-b);
   $('#mdHint').textContent = days.length ? `${days.length} collected · ${days.filter(n=>M[n].ameen).length} Ameen` : '';
@@ -2015,6 +2054,7 @@ function renderMissionDuas(){
     : '<p class="note" style="margin:0">Complete your daily mission on the Today tab to collect a reward dua here.</p>';
 }
 document.addEventListener('click',e=>{
+  if(e.target.closest('[data-photo]')){ openCamera(); return; }
   const ms=e.target.closest('[data-mself]');
   if(ms){ const d=day(todayStr()); d.mself=true; save(); renderMission(); const b=document.querySelector('[data-claim]'); if(b&&!b.disabled) b.click(); return; }
   const c=e.target.closest('[data-claim]');
@@ -2030,7 +2070,7 @@ document.addEventListener('click',e=>{
 
 /* My Why & Targets card */
 function renderTargets(){
-  const T=S.targets; if(!T){ $('#targets').innerHTML='<p class="note" style="margin:0">Set your reason and targets to begin.</p>'; return; }
+  const T=S.targets ? Object.assign({masjid:5,streak:40,tahajjud:2,quran:true,nafl:true},S.targets) : null; if(!T){ $('#targets').innerHTML='<p class="note" style="margin:0">Set your reason and targets to begin.</p>'; return; }
   const t=todayStr(), d=peek(t)||{p:{},g:{},n:{}}, sis=SIS();
   const done = PRAYERS.filter(p=> sis ? onTime(d.p[p.id]) : d.p[p.id]==='masjid').length, goal = sis?5:T.masjid;
   let thj=0; for(let i=0;i<7;i++){ const x=peek(addDays(t,-i)); if(x&&x.n&&x.n.tahajjud) thj++; }

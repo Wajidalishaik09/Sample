@@ -3,7 +3,11 @@ package com.namaz100.app;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.provider.MediaStore;
+import android.util.Base64;
+import java.io.ByteArrayOutputStream;
 import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 import android.view.WindowInsets;
@@ -29,7 +33,7 @@ import java.io.OutputStream;
 public class MainActivity extends Activity {
     static final String HOST = "appassets.namaz100.local";
     static final String START = "https://" + HOST + "/namaz-tracker.html";
-    static final int REQ_SAVE = 1, REQ_OPEN = 2, REQ_LOCATION = 3, REQ_NOTIFY = 4;
+    static final int REQ_SAVE = 1, REQ_OPEN = 2, REQ_LOCATION = 3, REQ_NOTIFY = 4, REQ_PHOTO = 5;
 
     private WebView web;
     private Store store;
@@ -174,6 +178,21 @@ public class MainActivity extends Activity {
                 }
             }
             pendingSave = null;
+        } else if (code == REQ_PHOTO) {
+            // Camera-only proof photo: the small preview is shown in the page once and never saved.
+            String url = null;
+            try {
+                if (result == RESULT_OK && data != null && data.getExtras() != null) {
+                    Bitmap bmp = (Bitmap) data.getExtras().get("data");
+                    if (bmp != null) {
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        bmp.compress(Bitmap.CompressFormat.JPEG, 75, out);
+                        url = "data:image/jpeg;base64," + Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP);
+                    }
+                }
+            } catch (Exception ignored) { }
+            final String js = "window.onNativePhoto && window.onNativePhoto(" + (url == null ? "null" : "'" + url + "'") + ")";
+            web.evaluateJavascript(js, null);
         } else if (code == REQ_OPEN && fileCallback != null) {
             fileCallback.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result, data));
             fileCallback = null;
@@ -202,6 +221,15 @@ public class MainActivity extends Activity {
     class Bridge {
         @JavascriptInterface
         public boolean isPlayBuild() { return store != null; }
+
+        /** Opens the camera app directly (no gallery) for the Masjid proof photo. */
+        @JavascriptInterface
+        public void takePhoto() {
+            runOnUiThread(new Runnable() { public void run() {
+                try { startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQ_PHOTO); }
+                catch (Exception e) { web.evaluateJavascript("window.onNativePhoto && window.onNativePhoto('nocamera')", null); }
+            }});
+        }
 
         @JavascriptInterface
         public void storeRefresh() { if (store != null) store.refresh(); else sendStoreState("{\"play\":false,\"owned\":true}"); }

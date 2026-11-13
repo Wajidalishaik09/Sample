@@ -49,7 +49,7 @@ Namaz 100 is a calm, beautiful prayer tracker made for students and young Muslim
 Learn what the Qur'an and Sahih Hadith really say about each prayer — and why the viral "Fajr for beauty, Dhuhr for money" lists are not authentic.
 
 🗺️ 100 DAILY MISSIONS, 100 REWARD DUAS
-Every day brings a new mission — from "Pray Fajr in the Masjid" to "Istighfar ×100", "A haram-free day" and "Tahajjud tonight" — in 10 stages from Foundation to Finish Strong. Complete it and unlock an authentic reward dua from the Qur'an and Sunnah: read it and say Ameen. Every dua you earn is saved in your collection.
+Every day brings a new mission — from "Pray Fajr in the Masjid" to "Istighfar ×100", "A haram-free day" and "Tahajjud tonight" — in 10 stages from Foundation to Finish Strong. Complete it and unlock an authentic reward dua from the Qur'an and Sunnah: read it and say Ameen. Brothers prove Masjid missions with a live photo taken inside the Masjid (camera only — the photo is never saved or uploaded). Every dua you earn is saved in your collection.
 
 🎯 YOUR WHY & YOUR TARGETS
 When you start, you write the reason you are taking the challenge and choose your targets (Masjid prayers per day, streak goal, Tahajjud nights, daily Qur'an, a habit to quit). Your reason is shown every day with live progress on each target. Salat al-Hajah and Istikhara are optional but strongly recommended.
@@ -71,6 +71,7 @@ First release: 100-day Salah tracker for brothers and sisters, prayer times and 
 - **Data safety:**
   - Does your app collect or share any of the required user data types? **No.**
   - (Location is used on the device only and never transmitted, so under Play's definitions it is not "collected".)
+  - (The Masjid proof photo is shown once on screen and discarded — never stored or transmitted — so Photos are not "collected" either.)
   - Is all of the user data encrypted in transit? Not applicable (no data leaves the device).
   - Do you provide a way for users to request that their data is deleted? Data is deleted by "Reset everything" or uninstalling.
 - **Government app:** No · **Financial features:** None · **Health:** None · **News app:** No.

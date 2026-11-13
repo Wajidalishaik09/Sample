@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 30
     env:
       VERSION_CODE: ${{ github.run_number }}
-      VERSION_NAME: 1.6.${{ github.run_number }}
+      VERSION_NAME: 1.7.${{ github.run_number }}
     steps:
       - uses: actions/checkout@v4
 
