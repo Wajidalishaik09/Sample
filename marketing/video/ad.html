@@ -1,0 +1,88 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@600;700&family=Outfit:wght@400;500;600;700&family=Amiri:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#06140f}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:Outfit,sans-serif;color:#fff}
+#bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 25%,#14563f 0%,#0b2a20 55%,#06140f 100%)}
+#pat{position:absolute;inset:-200px;opacity:.07;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.2'%3E%3Cpath d='M42 10l8.5 21.5L72 42l-21.5 8.5L42 74l-8.5-23.5L12 42l21.5-10.5z'/%3E%3Crect x='24' y='24' width='36' height='36'/%3E%3Crect x='24' y='24' width='36' height='36' transform='rotate(45 42 42)'/%3E%3C/g%3E%3C/svg%3E")}
+#stars{position:absolute;inset:0}
+.cap{position:absolute;left:70px;right:70px;top:110px;text-align:center}
+.cap h1{font-family:'Reem Kufi',sans-serif;font-size:76px;line-height:1.12;text-shadow:0 4px 24px rgba(0,0,0,.45)}
+.cap p{font-size:40px;color:#f6dc96;margin-top:18px;font-weight:600}
+.phone{position:absolute;left:50%;top:420px;width:640px;height:1386px;margin-left:-320px;border-radius:72px;background:#111;padding:18px;box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 3px rgba(224,182,90,.55)}
+.phone .scr{position:relative;width:100%;height:100%;border-radius:56px;overflow:hidden;background:#000}
+.phone img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.alarm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.alarm .t{font-size:230px;font-weight:600;letter-spacing:4px}
+.alarm .l{font-size:52px;color:#f6dc96;margin-top:-10px}
+.alarm .btns{display:flex;gap:60px;margin-top:120px}
+.alarm .btns div{width:300px;height:120px;border-radius:60px;display:grid;place-items:center;font-size:46px;font-weight:600;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25)}
+.alarm .btns .sn{background:#c0392b;border-color:#c0392b}
+#tap{position:absolute;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.55);border:4px solid #fff;opacity:0}
+.end{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 80px}
+.end img.ic{width:330px;height:330px;border-radius:76px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.end h2{font-family:'Reem Kufi',sans-serif;font-size:120px;margin-top:50px}
+.end .b{font-family:Amiri,serif;font-size:72px;color:#f6dc96;direction:rtl;margin-top:10px}
+.end p{font-size:44px;margin-top:20px;opacity:.92}
+.end .gp{margin-top:60px;background:#fff;color:#111;border-radius:28px;padding:26px 50px;font-size:46px;font-weight:700;display:flex;align-items:center;gap:20px}
+.end .gp span.tri{width:0;height:0;border-left:44px solid #0f9d58;border-top:26px solid transparent;border-bottom:26px solid transparent}
+.end .mrs{display:flex;align-items:center;gap:18px;margin-top:70px;font-size:34px;letter-spacing:6px;opacity:.9}
+.end .mrs img{width:90px;height:90px}
+.layer{position:absolute;inset:0;opacity:0}
+</style></head><body>
+<div id="stage">
+  <div id="bg"></div><div id="pat"></div><canvas id="stars" width="1080" height="1920"></canvas>
+  <div class="layer" id="L0"><div class="alarm"><div class="t" id="clk">5:02</div><div class="l">⏰ Fajr alarm</div><div class="btns"><div class="sn" id="snz">Snooze</div><div>Stop</div></div></div><div id="tap"></div></div>
+  <div class="layer" id="LP"><div class="phone" id="phone"><div class="scr"><img id="imA"><img id="imB"></div></div></div>
+  <div class="layer" id="LE"><div class="end">
+    <img class="ic" src="shots/icon.png"><h2>Namaz 100</h2>
+    <div class="b">بِسْمِ اللَّهِ</div>
+    <p>Your 100 days start today.</p>
+    <div class="gp"><span class="tri"></span>Free on Google Play</div>
+    <div class="mrs"><img src="shots/mrs.png">BUILT BY MRS</div></div></div>
+  <div class="cap" id="cap"><h1 id="capH"></h1><p id="capP"></p></div>
+</div>
+<script>
+const SC=[ // [start,end, captionH, captionP, kind, images...]
+ [0,3,'How many Fajr did you miss this month?','','alarm'],
+ [3,7,'This time, start with Bismillah 🤲','Start your 100-day Namaz challenge','phone',['01-splash.png']],
+ [7,11,'Write WHY you\'re doing it','…and set your targets 🎯','phone',['02-why.png']],
+ [11,16,'Track every prayer — in the Masjid 🕌','Prayer in jama\'ah is 27× better','phone',['04-masjid.png']],
+ [16,20.4,'A new mission every day','Complete it · unlock a dua · say Ameen 🤲','phone',['05-mission.png','06-reward.png','07-ameen.png']],
+ [20.4,24,'Prayer times, reminders & Qibla','⏰ Never late again · 🧭 anywhere','phone',['08-qibla.png','03-header.png']],
+ [24,27,'Day by day, it becomes who you are','🔥 Streaks · 🏅 Badges · 📤 Share','phone',['09-badges.png','10-sharecard.png']],
+ [27,30,'','','end']];
+const $=id=>document.getElementById(id), ease=x=>x<0?0:x>1?1:x*x*(3-2*x);
+const stars=Array.from({length:160},()=>({x:Math.random()*1080,y:Math.random()*1920,r:Math.random()*2.4+.6,p:Math.random()*6.3,g:Math.random()<.2}));
+function drawStars(t){ const g=$('stars').getContext('2d'); g.clearRect(0,0,1080,1920);
+  for(const s of stars){ g.globalAlpha=.25+.6*Math.abs(Math.sin(s.p+t*1.3)); g.fillStyle=s.g?'#f6dc96':'#fff'; g.beginPath(); g.arc(s.x,s.y,s.r,0,6.3); g.fill(); } }
+let curA='', curB='';
+function setImg(el,src){ if(el.dataset.s!==src){ el.src='shots/'+src; el.dataset.s=src; el.style.objectFit = src.includes('sharecard') ? 'contain' : 'cover'; el.style.background = src.includes('sharecard') ? '#0b2a20' : '#000'; } }
+function render(t){
+  drawStars(t); $('pat').style.transform=`translate(${-t*6}px,${-t*10}px)`;
+  const s=SC.find(x=>t>=x[0]&&t<x[1])||SC[SC.length-1], k=(t-s[0])/(s[1]-s[0]), fin=ease((t-s[0])/0.45), fout=ease((s[1]-t)/0.35);
+  const vis=Math.min(fin, s[4]==='end'?1:fout);
+  ['L0','LP','LE'].forEach(id=>$(id).style.opacity=0);
+  // caption
+  $('capH').textContent=s[2]; $('capP').textContent=s[3];
+  const cin=ease((t-s[0]-0.15)/0.45); $('cap').style.opacity=s[2]?Math.min(cin,fout):0; $('cap').style.transform=`translateY(${(1-cin)*40}px)`;
+  if(s[4]==='alarm'){
+    $('L0').style.opacity=Math.min(1,fout*1.0);
+    const shake = t<1.8 ? Math.sin(t*60)*8 : 0; $('clk').style.transform=`translateX(${shake}px)`;
+    const tp=$('tap'), snz=$('snz').getBoundingClientRect();
+    tp.style.left=(snz.left+snz.width/2-45)+'px'; tp.style.top=(snz.top+snz.height/2-45)+'px';
+    tp.style.opacity = t>1.6&&t<2.3 ? 1-(t-1.6)/0.7 : 0; tp.style.transform=`scale(${t>1.6?1+(t-1.6):1})`;
+    $('snz').style.filter = t>1.6&&t<2.0 ? 'brightness(1.4)' : '';
+  } else if(s[4]==='phone'){
+    $('LP').style.opacity=vis;
+    const imgs=s[5], seg=1/imgs.length, idx=Math.min(imgs.length-1,Math.floor(k/seg)), within=(k-idx*seg)/seg;
+    setImg($('imA'),imgs[idx]); const nxt=imgs[idx+1];
+    if(nxt && within>0.82){ setImg($('imB'),nxt); $('imB').style.opacity=ease((within-0.82)/0.18); } else { $('imB').style.opacity=0; }
+    const z=1+0.035*k; $('phone').style.transform=`translateY(${(1-fin)*120}px) scale(${z})`;
+  } else {
+    $('LE').style.opacity=fin; const z=ease((t-s[0])/0.8); document.querySelector('.end').style.transform=`scale(${0.92+0.08*z})`;
+  }
+}
+window.render=render; render(0);
+</script></body></html>
