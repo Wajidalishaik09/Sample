@@ -3,6 +3,8 @@
 ## 1. Create your developer account (1–3 days)
 1. Go to play.google.com/console and sign in with the Google account you want to own the app.
 2. Choose **Yourself** (personal account), pay the **$25 one-time fee**, and complete **identity verification** (government ID, and phone/address checks).
+   For the **developer name** shown on Google Play, enter **MRS**. Upload `brand/mrs-logo-1024.png` as your developer page icon.
+   (A personal account must still be verified with your own legal name; to publish as a registered company, choose an **Organization** account instead, which needs a D-U-N-S number.)
 3. Because you sell an in-app purchase, open **Settings → Payments profile** and create a merchant/payments profile (bank account for payouts).
 
 ## 2. Add the upload key to GitHub (5 minutes, one time)

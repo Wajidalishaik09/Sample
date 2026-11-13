@@ -7,6 +7,7 @@ Copy each part into Play Console. Text limits are already checked.
 - **Default language:** English (United States) – en-US
 - **App or game:** App · **Free or paid:** **Free** (with an in-app purchase)
 - **Category:** Lifestyle · **Tags:** Religion, Habit tracker, Productivity
+- **Developer name (Play Console account):** MRS
 - **Contact email:** your support email (shown publicly on the store page)
 - **Privacy policy URL:** the public link of the privacy policy page (see README)
 
@@ -19,7 +20,7 @@ Build the habit of praying all 5 prayers on time — in 100 days.
 FREE: prayer times, Qibla compass, live countdown, prayer reminders, the Night Order (Isha → Hajah → Istikhara → Witr), step-by-step guides, 25+ duas, Hijri calendar, tasbih and study tools.
 100-DAY CHALLENGE (one-time unlock): write WHY you are starting, set your targets, and track every prayer, streak and good deed for 100 days.
 
-Namaz 100 is a calm, beautiful prayer tracker made for students and young Muslims who want to leave bad habits, stay away from haram and make Salah the centre of their day. No account, no ads, works offline — everything stays on your phone.
+A calm, beautiful prayer tracker for students and young Muslims who want to leave bad habits, avoid haram and make Salah the centre of their day. No account, no ads, works offline — everything stays on your phone.
 
 🕌 FOR BROTHERS AND SISTERS
 • Brothers: mark each prayer as Masjid, Home, Late or Missed. Masjid scores highest — "Prayer in congregation is 27 times better" (Bukhari 645).
@@ -46,16 +47,19 @@ Namaz 100 is a calm, beautiful prayer tracker made for students and young Muslim
 • Numbers in English, Arabic and Urdu, with a practice quiz.
 
 ✅ AUTHENTIC, NOT VIRAL MYTHS
-Learn what the Qur'an and Sahih Hadith really say about each prayer — and why the viral "Fajr for beauty, Dhuhr for money" lists are not authentic.
+Learn what the Qur'an and Sahih Hadith really say about each prayer — not the viral "Fajr for beauty" myths.
 
 🗺️ 100 DAILY MISSIONS, 100 REWARD DUAS
 Every day brings a new mission — from "Pray Fajr in the Masjid" to "Istighfar ×100", "A haram-free day" and "Tahajjud tonight" — in 10 stages from Foundation to Finish Strong. Complete it and unlock an authentic reward dua from the Qur'an and Sunnah: read it and say Ameen. Brothers prove Masjid missions with a live photo taken inside the Masjid (camera only — the photo is never saved or uploaded). Every dua you earn is saved in your collection.
 
-⭐ LEVELS, XP & 16 BADGES
+🧠 DAILY ISLAMIC QUIZ (free)
+3 new questions every day about Salah, duas, the Qur'an and the Seerah — each answer explained with its source.
+
+⭐ LEVELS, XP & 17 BADGES
 Every prayer, Sunnah, Tahajjud, mission and Ameen earns XP. Level up from 🌱 Starter to 🏆 100-Day Champion and unlock badges like 🌅 Fajr Warrior, 🌙 Night Worshipper and 📿 Dhikr 1,000.
 
 📤 SHARE YOUR PROGRESS
-Create a beautiful progress card — day, streak, Masjid %, level and badges — and post it on WhatsApp Status or Instagram to invite your friends.
+Post a beautiful progress card on WhatsApp Status or Instagram and invite your friends.
 
 🎯 YOUR WHY & YOUR TARGETS
 When you start, you write the reason you are taking the challenge and choose your targets (Masjid prayers per day, streak goal, Tahajjud nights, daily Qur'an, a habit to quit). Your reason is shown every day with live progress on each target. Salat al-Hajah and Istikhara are optional but strongly recommended.
@@ -91,6 +95,7 @@ First release: 100-day Salah tracker for brothers and sisters, prayer times and 
 - Google keeps a 15% service fee (on your first $1M per year); you receive 85% (about ₹169 per sale in India before tax).
 
 ## Graphics (files in this folder)
+- Developer / company logo: `../../brand/mrs-logo-1024.png` (use it for your Play developer page icon)
 - App icon: `icon-512.png` (512 × 512)
 - Feature graphic: `feature-graphic.png` (1024 × 500)
 - Phone screenshots: `screenshot-1.png` … `screenshot-6.png` (1080 × 2160)

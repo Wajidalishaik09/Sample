@@ -216,6 +216,33 @@ nav.tabs button.on{color:var(--brand)}
 .qrow:last-child{border-bottom:0}
 .qrow b.c{font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
 .intent{width:100%;font-weight:600}
+#splash{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;padding:24px 20px calc(24px + env(safe-area-inset-bottom));
+  background:radial-gradient(ellipse at 50% 30%,#14563f 0%,#0b2a20 55%,#06140f 100%);transition:opacity .6s}
+#splash.hide{opacity:0;pointer-events:none}
+#splash[hidden]{display:none}
+#splash::before{content:"";position:absolute;inset:0;background:radial-gradient(1.5px 1.5px at 12% 18%,#fff,transparent),radial-gradient(1.2px 1.2px at 78% 12%,#f6dc96,transparent),radial-gradient(1.4px 1.4px at 30% 72%,#fff,transparent),radial-gradient(1px 1px at 88% 64%,#fff,transparent),radial-gradient(1.6px 1.6px at 55% 40%,#f6dc96,transparent),radial-gradient(1px 1px at 20% 45%,#fff,transparent),radial-gradient(1.3px 1.3px at 66% 86%,#fff,transparent);opacity:.8;animation:twk 3s ease-in-out infinite alternate}
+@keyframes twk{to{opacity:.35}}
+.sp-bism{font-family:Amiri,serif;font-weight:700;font-size:clamp(34px,10vw,54px);line-height:1.6;direction:rtl;background:linear-gradient(90deg,#a87a22,#f8e3a6 40%,#e0b65a 60%,#a87a22);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:reveal 1.6s ease-out both, shine 3.5s linear 1.6s infinite;filter:drop-shadow(0 0 18px rgba(246,220,150,.35))}
+@keyframes reveal{from{clip-path:inset(0 0 0 100%);opacity:.2}to{clip-path:inset(0 0 0 0);opacity:1}}
+@keyframes shine{to{background-position:-200% 0}}
+.sp-tr{font-size:15px;opacity:.85;margin-top:6px;animation:rise .8s .9s both}
+.sp-line{font-family:'Reem Kufi',Outfit,sans-serif;font-size:22px;color:#f6dc96;margin-top:22px;animation:rise .8s 1.3s both;max-width:360px}
+.sp-btn{margin-top:22px;min-height:58px;padding:0 22px;font-size:17px;border:0;border-radius:16px;background:linear-gradient(135deg,#e0b65a,#f6dc96);color:#2a1d04;font-weight:700;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(224,182,90,.35);animation:rise .8s 1.7s both;cursor:pointer}
+.sp-by{position:absolute;bottom:calc(22px + env(safe-area-inset-bottom));left:0;right:0;display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;letter-spacing:2px;opacity:.9;animation:rise .8s 1.1s both}
+.sp-by svg{width:38px;height:38px}
+.sp-skip{font-size:12px;opacity:.6;margin-top:16px;animation:rise .8s 2s both}
+.about{display:flex;gap:14px;align-items:center}
+.about svg{width:72px;height:72px;flex:none}
+.dq-q{font-weight:600;margin:12px 0 8px}
+.dq-opts{display:grid;gap:6px}
+.dq-opts button{text-align:left;min-height:44px;padding:8px 12px;font-weight:500}
+.dq-opts button.good{background:var(--ok);border-color:var(--ok);color:#fff}
+.dq-opts button.bad{background:var(--miss);border-color:var(--miss);color:#fff}
+.dq-exp{font-size:12.5px;color:var(--muted);margin-top:6px}
+.dq-dots{display:flex;gap:6px}
+.dq-dots i{width:10px;height:10px;border-radius:50%;background:var(--chip);border:1px solid var(--line)}
+.dq-dots i.g{background:var(--ok);border-color:var(--ok)}.dq-dots i.b{background:var(--miss);border-color:var(--miss)}
 .lvchip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;background:linear-gradient(135deg,#e0b65a,#f6dc96);color:#2a1d04;padding:3px 10px;border-radius:20px;margin:8px 0 0 6px}
 .lvl{display:flex;align-items:center;gap:12px}
 .lvl .ic{font-size:44px;line-height:1}
@@ -407,6 +434,9 @@ body.locked .seg{display:none}
 
     <h2 data-lock>🗺️ Today's Mission <span class="hint" id="missionHint"></span></h2>
     <div class="card mission" data-lock id="mission"></div>
+
+    <h2>🧠 Daily Quiz <span class="hint" id="dqHint"></span></h2>
+    <div class="card" id="dailyQuiz"></div>
 
     <h2 data-lock>🎯 Today's Intention</h2>
     <div class="card" data-lock><input id="goal" class="intent" maxlength="90" placeholder="e.g. Pray Fajr on time & study 2 hours with focus"></div>
@@ -951,6 +981,11 @@ body.locked .seg{display:none}
     <h2>💳 100-Day Challenge</h2>
     <div class="card" id="buyCard"></div>
 
+    <h2>ℹ️ About</h2>
+    <div class="card"><div class="about"><span id="aboutLogo"></span><div><b style="font-family:'Reem Kufi',Outfit,sans-serif;font-size:18px">Namaz 100</b>
+      <div class="note" style="margin:2px 0">Built by <b>MRS</b> · with the intention of helping every Muslim pray on time.</div>
+      <div class="note" style="margin:0">All content is from the Qur'an and authentic Hadith, with sources. If you find a mistake, please tell us.</div></div></div></div>
+
     <h2>Backup</h2>
     <div class="card">
       <div class="sync" id="syncLine">💾 Saved on this device</div>
@@ -981,6 +1016,14 @@ body.locked .seg{display:none}
 </nav>
 
 <div class="toast" id="toast"></div>
+<div id="splash" role="dialog" aria-label="Bismillah">
+  <div class="sp-bism" lang="ar">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+  <div class="sp-tr">In the name of Allah, the Most Gracious, the Most Merciful</div>
+  <div class="sp-line" id="spLine">I begin this 100-day challenge in the name of Allah</div>
+  <button class="sp-btn" id="spBtn" hidden>🤲 Bismillah — I begin</button>
+  <div class="sp-skip" id="spSkip" hidden>Tap anywhere to continue</div>
+  <div class="sp-by" id="spBy"></div>
+</div>
 <div id="fx" aria-hidden="true"></div>
 <div class="modal" id="shareModal" hidden role="dialog" aria-modal="true"><div class="box2" style="max-width:420px;max-height:92vh;overflow:auto">
   <b style="font-size:17px">📤 Share my progress</b>
@@ -1105,7 +1148,7 @@ function goodFor(ds){ const w=parse(ds).getDay(); const hx=[]; const h=hijri(ds)
 const TASBIH = [
   {id:'subhan', n:'SubhanAllah', ar:'سُبْحَانَ اللَّهِ', tr:'Glory be to Allah', target:33},
   {id:'hamd', n:'Alhamdulillah', ar:'الْحَمْدُ لِلَّهِ', tr:'All praise is for Allah', target:33},
-  {id:'akbar', n:'Allahu Akbar', ar:'اللَّهُ أَكْبَرُ', tr:'Allah is the Greatest (34 after prayer — Muslim 597)', target:34},
+  {id:'akbar', n:'Allahu Akbar', ar:'اللَّهُ أَكْبَرُ', tr:'Allah is the Greatest (34 after prayer — Muslim 596)', target:34},
   {id:'istighfar', n:'Astaghfirullah', ar:'أَسْتَغْفِرُ اللَّهَ', tr:'I seek Allah\'s forgiveness', target:100},
   {id:'salawat', n:'Durood', ar:'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ', tr:'O Allah, send blessings upon Muhammad ﷺ', target:100},
   {id:'tahlil', n:'La ilaha illallah', ar:'لَا إِلَٰهَ إِلَّا اللَّهُ', tr:'None has the right to be worshipped but Allah', target:100}
@@ -1184,7 +1227,7 @@ const MISSIONS = [
  // 11–20 Sunnah & dhikr
  ['Pray the 2 Sunnah before Fajr.','The Prophet ﷺ kept them up more regularly than any other voluntary prayer — Bukhari 1169.','SP:fajr'],
  ['Pray the 4 Sunnah before Dhuhr.','Whoever keeps 4 before Dhuhr and 4 after, Allah forbids the Fire for him — Abu Dawud 1269.','SP:dhuhr'],
- ['After prayer: SubhanAllah 33, Alhamdulillah 33, Allahu Akbar 34 (use the Tasbih counter).','His sins are forgiven even if like the foam of the sea — Muslim 597.','T:akbar:34'],
+ ['After prayer: SubhanAllah 33, Alhamdulillah 33, Allahu Akbar 34 (use the Tasbih counter).','After-prayer dhikr whose sayer is never disappointed — Muslim 596.','T:akbar:34'],
  ['Say Astaghfirullah 100 times (Tasbih counter).','The Prophet ﷺ sought forgiveness 100 times a day — Muslim 2702.','T:istighfar:100'],
  ['Send Durood on the Prophet ﷺ 100 times.','Whoever sends one blessing on me, Allah sends ten on him — Muslim 408.','T:salawat:100'],
  ['Pray at least 3 Sunnah prayers today.','12 Sunnah rak\'ahs a day build you a house in Jannah — Muslim 728.','S:3'],
@@ -1702,7 +1745,7 @@ function renderToday(){
       </div></div>`;
   }).join('');
 
-  renderTargets(); renderMission(); renderLevel(); checkBadges();
+  renderTargets(); renderMission(); renderDailyQuiz(); renderLevel(); checkBadges();
   checkList($('#adhkar'), ADHKAR, 'a');
   checkList($('#haram'), HARAM, 'h');
   { const a=prayerTimes(cur), b=prayerTimes(addDays(cur,1)), l3=lastThird(cur);
@@ -2084,8 +2127,9 @@ function stats(){
     run = allPrayed(d) ? (cont?run:0)+1 : 0; st.maxStreak=Math.max(st.maxStreak,run);
     const fj = SIS()? onTime(p.fajr) : p.fajr==='masjid'; frun = fj ? (cont?frun:0)+1 : 0; st.fajrRun=Math.max(st.fajrRun,frun);
   });
+  st.quiz=Object.values(S.quizOk||{}).reduce((x,y)=>x+y,0);
   const M=S.missions||{}; st.missions=Object.keys(M).length; st.ameen=Object.values(M).filter(x=>x.ameen).length;
-  st.xp = st.masjid*10 + Math.max(0,st.ontime-st.masjid)*7 + st.late*3 + st.sunnah*2 + st.tah*15 + st.quran*5 + st.haram*5 + st.missions*20 + st.ameen*5 + Math.floor(st.tasbih/33) + Math.floor(st.study/25)*5 + st.urge*5;
+  st.xp = st.masjid*10 + Math.max(0,st.ontime-st.masjid)*7 + st.late*3 + st.sunnah*2 + st.tah*15 + st.quran*5 + st.haram*5 + st.missions*20 + st.ameen*5 + Math.floor(st.tasbih/33) + Math.floor(st.study/25)*5 + st.urge*5 + st.quiz*5;
   return st;
 }
 function levelOf(xp){ let i=0; while(i+1<LEVELS.length && xp>=LEVELS[i+1][0]) i++; const next=LEVELS[i+1]; return {n:i+1, ic:LEVELS[i][1], name:LEVELS[i][2], from:LEVELS[i][0], to:next?next[0]:null}; }
@@ -2106,6 +2150,7 @@ const BADGES=[
   ['miss10','🗺️','Stage Clear','10 daily missions done',st=>st.missions>=10],
   ['urge10','💪','Urge Defeater','10 urges defeated',st=>st.urge>=10],
   ['study','📚','Focused Student','10 hours of focused study',st=>st.study>=600],
+  ['quiz50','🧠','Quiz Master','50 correct quiz answers',st=>st.quiz>=50],
 ];
 const bTxt=t=>t.replace('{at}', SIS()?'on time':'in the Masjid');
 function checkBadges(){
@@ -2125,7 +2170,7 @@ function renderLevel(){
   $('#levelCard').innerHTML=`<div class="lvl"><div class="ic">${lv.ic}</div><div><div class="nm">Level ${lv.n} · ${lv.name}</div>
     <div class="xp">${st.xp.toLocaleString()} XP${lv.to?` · ${(lv.to-st.xp).toLocaleString()} XP to Level ${lv.n+1}`:' · Highest level!'}</div></div></div>
     <div class="lvbar"><i style="width:${pct}%"></i></div>
-    <div class="note">Earn XP: 🕌 Masjid prayer 10 · on time 7 · Sunnah 2 · Tahajjud 15 · mission 20 · Ameen 5 · Qur'an day 5 · haram-free day 5</div>
+    <div class="note">Earn XP: 🕌 Masjid prayer 10 · on time 7 · Sunnah 2 · Tahajjud 15 · mission 20 · Ameen 5 · Qur'an day 5 · haram-free day 5 · quiz answer 5</div>
     <div class="badges">${BADGES.map(b=>{ const on=b[4](st); return `<div class="badge ${on?'on':'off'}" title="${esc(bTxt(b[3]))}" data-badge="${b[0]}"><span class="b">${b[1]}</span>${esc(b[2])}</div>`; }).join('')}</div>
     <div class="note" style="text-align:center;margin-top:8px">🏅 ${got} / ${BADGES.length} badges · tap a badge to see how to earn it</div>
     <button class="btn primary sharebtn" id="shareBtn">📤 Share my progress</button>`;
@@ -2162,6 +2207,7 @@ async function makeShareCard(){
   box(90,860,lv.ic,`Lv ${lv.n}`,lv.name); box(560,860,'🏅',`${got}`,'badges earned');
   T('Join me — pray every prayer on time for 100 days',540,1170,"500 34px Outfit, sans-serif",'#fff','center');
   T('Namaz 100 · Google Play',540,1230,"700 40px 'Reem Kufi', sans-serif",'#f6dc96','center');
+  T('Built by MRS',540,1290,"500 26px Outfit, sans-serif",'rgba(255,255,255,.7)','center');
   const url=c.toDataURL('image/png');
   const text=`${sis?'🌸':'🕌'} Day ${dn}/100 of my Namaz Challenge!\n🔥 ${sk}-day streak · ${lv.ic} Level ${lv.n} · 🏅 ${got} badges\n${sis?'🌸':'🕌'} ${pct}% of my prayers ${sis?'on time':'in the Masjid'}\nJoin me on Namaz 100: ${PLAY_URL}`;
   return {url,text};
@@ -2363,6 +2409,112 @@ $('#qStart').addEventListener('click', startCompass);
 $('#qLoc').addEventListener('click', ()=>$('#locBtn').click());
 ['sLat','sLng'].forEach(id=>$('#'+id).addEventListener('change',()=>setTimeout(renderQibla,50)));
 
+/* ---------------- 🧠 Daily quiz bank: [question, [options], correctIndex, explanation] ---------------- */
+const QUIZ = [
+ ['How many Fard rak\'ahs are prayed in a day?',['15','17','19','21'],1,'Fajr 2 + Dhuhr 4 + Asr 4 + Maghrib 3 + Isha 4 = 17.'],
+ ['How many Fard rak\'ahs does Maghrib have?',['2','3','4','5'],1,'Maghrib is the only Fard prayer with 3 rak\'ahs.'],
+ ['How many Fard rak\'ahs does Fajr have?',['2','3','4','6'],0,'Fajr has 2 Fard rak\'ahs.'],
+ ['"Whoever prays ___ is under the protection of Allah."',['Dhuhr','Asr','Fajr','Isha'],2,'Sahih Muslim 657.'],
+ ['Missing which prayer is like losing your family and wealth?',['Fajr','Asr','Maghrib','Isha'],1,'Sahih al-Bukhari 552.'],
+ ['Prayer in congregation is how many times better than praying alone?',['7','10','27','70'],2,'Sahih al-Bukhari 645.'],
+ ['Praying Isha in congregation is like praying…',['one hour','half the night','the whole night','one day'],1,'Sahih Muslim 656. With Fajr in congregation too, it is like the whole night.'],
+ ['Which prayer should be the last prayer of your night?',['Isha','Tahajjud','Witr','Sunnah of Isha'],2,'"Make Witr the last of your night prayer" — Bukhari 998.'],
+ ['What is the best prayer after the obligatory prayers?',['Duha','The night prayer','Eid prayer','Sunnah of Fajr'],1,'Sahih Muslim 1163.'],
+ ['When is a servant closest to his Lord?',['In ruku','In sujood','Standing','Sitting'],1,'"The closest a servant is to his Lord is in sujood" — Muslim 482.'],
+ ['Which surah must be recited in every rak\'ah?',['Al-Ikhlas','Al-Fatihah','Al-Kawthar','An-Nas'],1,'"There is no prayer without Al-Fatihah" — Bukhari 756.'],
+ ['What do we say in ruku?',['Subhana Rabbiyal-A\'la','Subhana Rabbiyal-\'Adhim','Rabbana wa lakal-hamd','Allahu Akbar'],1,'In ruku: Subhana Rabbiyal-\'Adhim. In sujood: Subhana Rabbiyal-A\'la.'],
+ ['What do we say in sujood?',['Subhana Rabbiyal-A\'la','Sami\'Allahu liman hamidah','Subhana Rabbiyal-\'Adhim','Astaghfirullah'],0,'Subhana Rabbiyal-A\'la — "Glory be to my Lord, the Most High".'],
+ ['Salat al-Istikhara is prayed to…',['ask for rain','seek guidance in a decision','make up a missed prayer','thank Allah'],1,'Sahih al-Bukhari 1162.'],
+ ['The 2 Sunnah rak\'ahs of Fajr are better than…',['a day of fasting','the world and all it contains','100 rak\'ahs','sadaqah'],1,'Sahih Muslim 725.'],
+ ['Which direction do Muslims face in prayer?',['Al-Aqsa','The Kaaba in Makkah','The Prophet\'s Masjid','East'],1,'The Qibla is the Kaaba in Makkah — Qur\'an 2:144.'],
+ ['"Indeed, prayer prohibits immorality and wrongdoing" is in which surah?',['Al-Baqarah','Al-Ankabut','Yasin','Al-Mulk'],1,'Qur\'an 29:45 (Al-Ankabut).'],
+ ['How many times a day did the Prophet ﷺ seek Allah\'s forgiveness (Sahih Muslim 2702)?',['10','33','100','1,000'],2,'Sahih Muslim 2702.'],
+ ['Which surah is recommended to read on Friday?',['Yasin','Al-Kahf','Al-Mulk','Ar-Rahman'],1,'Reading Al-Kahf on Friday gives light until the next Friday — al-Hakim.'],
+ ['When should Laylat al-Qadr be sought?',['First night of Ramadan','Odd nights of the last 10 of Ramadan','15th of Sha\'ban','Eid night'],1,'Sahih al-Bukhari 2017.'],
+ ['Fasting the Day of Arafah expiates the sins of…',['one month','one year','two years','a lifetime'],2,'The past and the coming year — Muslim 1162.'],
+ ['Fasting on Ashura expiates the sins of…',['the past year','two years','one month','one week'],0,'Sahih Muslim 1162.'],
+ ['On which dates are the "White Days" fasts each Hijri month?',['1, 2, 3','10, 11, 12','13, 14, 15','27, 28, 29'],2,'Ayyam al-Beed: the 13th, 14th and 15th — Nasa\'i 2420.'],
+ ['"La ilaha illa Anta, subhanaka inni kuntu minaz-zalimin" is the dua of…',['Musa (AS)','Yunus (AS)','Ibrahim (AS)','Ayyub (AS)'],1,'Qur\'an 21:87 — said by Yunus (AS) in the belly of the whale.'],
+ ['"Rabbish-rah li sadri" was the dua of…',['Musa (AS)','Isa (AS)','Nuh (AS)','Yusuf (AS)'],0,'Qur\'an 20:25.'],
+ ['What does "Rabbi zidni \'ilma" mean?',['My Lord, forgive me','My Lord, increase me in knowledge','My Lord, have mercy','My Lord, guide me'],1,'Qur\'an 20:114.'],
+ ['In wudu, how many times is the head wiped?',['Once','Twice','3 times','4 times'],0,'The head is wiped once — Bukhari 185.'],
+ ['Which of these is NOT part of wudu?',['Washing the face','Wiping the head','Washing the feet','Washing the back'],3,'Qur\'an 5:6 lists face, arms, head and feet.'],
+ ['What deed will a person be asked about first on the Day of Judgement?',['Fasting','Zakat','Prayer','Hajj'],2,'Jami\' at-Tirmidhi 413.'],
+ ['Which two prayers are called "the two cool prayers" that lead to Jannah?',['Fajr and Asr','Dhuhr and Asr','Maghrib and Isha','Fajr and Isha'],0,'Sahih al-Bukhari 574.'],
+ ['Which prayers are the heaviest on the hypocrites?',['Dhuhr and Asr','Isha and Fajr','Maghrib and Isha','Jumu\'ah and Eid'],1,'Sahih al-Bukhari 657.'],
+ ['How many rak\'ahs did the Prophet ﷺ usually pray at night, including Witr?',['5','8','11','20'],2,'Sahih al-Bukhari 1147.'],
+ ['Praying how many Sunnah rak\'ahs a day builds you a house in Jannah?',['4','8','12','20'],2,'Sahih Muslim 728.'],
+ ['What does the word "Witr" mean?',['Night','Odd (number)','Last','Prayer'],1,'"Allah is Witr (One) and loves Witr" — Bukhari 6410.'],
+ ['In which month is fasting obligatory?',['Sha\'ban','Rajab','Ramadan','Muharram'],2,'Qur\'an 2:185.'],
+ ['In which Hijri month is Eid al-Adha?',['Shawwal','Dhul Qa\'dah','Dhul Hijjah','Muharram'],2,'On the 10th of Dhul Hijjah.'],
+ ['How many sacred months are there in the year?',['2','3','4','6'],2,'Qur\'an 9:36 — Muharram, Rajab, Dhul Qa\'dah and Dhul Hijjah.'],
+ ['Which is the first month of the Hijri calendar?',['Ramadan','Muharram','Safar','Rajab'],1,'Muharram.'],
+ ['What is called just before the congregation starts the prayer?',['Adhan','Iqamah','Takbir','Tasbih'],1,'The Iqamah is called right before the Fard prayer begins.'],
+ ['What does "SubhanAllah" mean?',['All praise is for Allah','Glory be to Allah','Allah is the Greatest','I seek Allah\'s forgiveness'],1,'SubhanAllah — "Glory be to Allah".'],
+ ['What does "Alhamdulillah" mean?',['All praise is for Allah','Allah willing','Glory be to Allah','In the name of Allah'],0,'"Alhamdulillah fills the scale" — Muslim 223.'],
+ ['In which city was the Prophet ﷺ born?',['Madinah','Makkah','Ta\'if','Jerusalem'],1,'He ﷺ was born in Makkah.'],
+ ['Before the Kaaba, which direction did Muslims face in prayer?',['Madinah','Masjid al-Aqsa (Jerusalem)','Damascus','Yemen'],1,'The Qibla was changed to the Kaaba — Qur\'an 2:142–144.'],
+ ['What is the blessing on the Prophet ﷺ recited after the Tashahhud called?',['Thana','Qunut','Durood Ibrahim','Istikhara'],2,'Durood Ibrahim (as-Salat al-Ibrahimiyyah) — Bukhari 3370.'],
+ ['Which was the first masjid built by the Prophet ﷺ?',['Masjid an-Nabawi','Masjid Quba','Masjid al-Haram','Masjid al-Aqsa'],1,'Masjid Quba, on the way to Madinah during the Hijrah.'],
+ ['How many times is Al-Fatihah recited in the 4 Fard rak\'ahs of Dhuhr?',['2','3','4','8'],2,'Once in every rak\'ah.'],
+ ['According to the Prophet ﷺ, your smile for your brother is…',['a sunnah','charity','a prayer','a dua'],1,'Jami\' at-Tirmidhi 1956.'],
+ ['Ayat al-Kursi is in which surah?',['Al-Imran','Al-Baqarah','An-Nisa','Al-Kahf'],1,'Qur\'an 2:255 — the greatest verse in the Qur\'an (Muslim 810).'],
+ ['Which dua is said when waking up?',['Bismillah','Alhamdu lillahil-ladhi ahyana…','Subhanal-Malikil-Quddus','Hasbunallah'],1,'Sahih al-Bukhari 6312.'],
+ ['What is said 3 times after Witr?',['Astaghfirullah','Subhanal-Malikil-Quddus','Allahu Akbar','La hawla wa la quwwata illa billah'],1,'Sunan Abi Dawud 1430.'],
+];
+
+/* MRS logo (inline SVG, unique gradient ids per use) */
+let mrsN=0;
+function mrsLogo(){ const k='m'+(++mrsN);
+  return `<svg viewBox="0 0 200 200" role="img" aria-label="MRS logo"><defs><linearGradient id="${k}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8e3a6"/><stop offset=".5" stop-color="#e0b65a"/><stop offset="1" stop-color="#a87a22"/></linearGradient><radialGradient id="${k}b" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#1c7a57"/><stop offset="1" stop-color="#0a2a1f"/></radialGradient></defs>
+  <circle cx="100" cy="100" r="97" fill="url(#${k}b)" stroke="url(#${k}g)" stroke-width="3"/><circle cx="100" cy="100" r="88" fill="none" stroke="url(#${k}g)" stroke-width=".8" stroke-dasharray="1.5 4" opacity=".8"/>
+  <g fill="none" stroke="url(#${k}g)" stroke-width="3" stroke-linejoin="round"><rect x="42" y="42" width="116" height="116" rx="3"/><rect x="42" y="42" width="116" height="116" rx="3" transform="rotate(45 100 100)"/></g>
+  <circle cx="100" cy="100" r="50" fill="#0b2a20" stroke="url(#${k}g)" stroke-width="1.6"/>
+  <text x="100" y="114" text-anchor="middle" font-family="'Reem Kufi', Outfit, sans-serif" font-weight="700" font-size="40" letter-spacing="1.5" fill="url(#${k}g)">MRS</text>
+  <g fill="#f6dc96"><circle cx="100" cy="24" r="3"/><circle cx="100" cy="176" r="3"/><circle cx="24" cy="100" r="3"/><circle cx="176" cy="100" r="3"/></g></svg>`; }
+
+/* 🤲 Bismillah opening screen */
+function showSplash(){
+  const sp=$('#splash'); $('#spBy').innerHTML=mrsLogo()+'<span>BUILT BY MRS</span>'; $('#aboutLogo').innerHTML=mrsLogo();
+  const first=!S.bismillah, dn=challengeDay(todayStr());
+  const done=()=>{ if(sp.classList.contains('hide')) return; sp.classList.add('hide'); setTimeout(()=>{ sp.hidden=true; },650); maybeWelcome(); };
+  if(first){
+    $('#spLine').textContent = 'I begin this 100-day Namaz challenge in the name of Allah';
+    $('#spBtn').hidden=false;
+    $('#spBtn').onclick=()=>{ S.bismillah=todayStr(); save(); vib([20,40,20]); burst($('#spBtn'),['🤲','✨','🌙','💚'],14); setTimeout(done,700); };
+  } else {
+    $('#spLine').textContent = (S.started && dn>=1 && dn<=100) ? `Day ${dn} of 100 — I continue in the name of Allah` : 'I begin today in the name of Allah';
+    $('#spSkip').hidden=false; sp.onclick=done; setTimeout(done, RM?1200:2800);
+  }
+}
+
+/* 🧠 Daily quiz (free): 3 questions a day */
+function seedRand(seed){ let x=seed>>>0||1; return ()=>((x=(x*1664525+1013904223)>>>0)/4294967296); }
+function dqToday(){
+  const t=todayStr(), dayNo=Math.floor(parse(t).getTime()/86400000), r=seedRand(dayNo*7919);
+  const idx=[]; let i=(dayNo*3)%QUIZ.length; while(idx.length<3){ if(!idx.includes(i)) idx.push(i); i=(i+1)%QUIZ.length; }
+  return idx.map(q=>{ const [qq,opts,ci,ex]=QUIZ[q]; const order=opts.map((_,k)=>k).sort(()=>r()-.5); return {q:qq, opts:order.map(k=>opts[k]), ci:order.indexOf(ci), ex}; });
+}
+function renderDailyQuiz(){
+  const el=$('#dailyQuiz'); if(!el) return; const t=todayStr(); S.quiz ||= {}; const ans=S.quiz[t]||[], Q=dqToday();
+  const correct=ans.filter((a,i)=>a===Q[i].ci).length, k=ans.length;
+  $('#dqHint').textContent = k>=3 ? `${correct}/3 today` : `${k}/3 answered`;
+  const dots=`<div class="dq-dots">${Q.map((q,i)=>`<i class="${i<k?(ans[i]===q.ci?'g':'b'):''}"></i>`).join('')}</div>`;
+  if(k>=3){ el.innerHTML=`${dots}<p style="margin:10px 0 0"><b>${correct===3?'🌟 MashaAllah — 3 out of 3!':correct===2?'👏 2 out of 3 — well done!':'📖 Keep learning — new questions tomorrow!'}</b></p>
+      <div class="note">${Q.map((q,i)=>`${i+1}. ${esc(q.q)} → <b>${esc(q.opts[q.ci])}</b> <span style="opacity:.8">(${esc(q.ex)})</span>`).join('<br>')}</div>`; return; }
+  const q=Q[k];
+  el.innerHTML=`${dots}<div class="dq-q">${k+1}. ${esc(q.q)}</div><div class="dq-opts">${q.opts.map((o,i)=>`<button class="btn" data-dq="${i}">${esc(o)}</button>`).join('')}</div><div class="dq-exp" id="dqExp"></div>`;
+}
+let dqLock=false;
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-dq]'); if(!b||dqLock) return; dqLock=true;
+  const t=todayStr(), Q=dqToday(); S.quiz ||= {}; const ans=S.quiz[t] ||= []; const q=Q[ans.length], pick=+b.dataset.dq, ok=pick===q.ci;
+  b.classList.add(ok?'good':'bad'); if(!ok) document.querySelector(`[data-dq="${q.ci}"]`).classList.add('good');
+  $('#dqExp').textContent=(ok?'✅ Correct! ':'❌ ')+q.ex; ans.push(pick); S.quizOk ||= {}; if(ok) S.quizOk[t]=(S.quizOk[t]||0)+1; save();
+  if(ok){ burst(b,['🧠','✨','⭐'],8,'+5 XP'); vib(15); } else vib([40,30,40]);
+  setTimeout(()=>{ dqLock=false; renderDailyQuiz(); renderLevel(); checkBadges(); }, ok?1400:2600);
+});
+
 /* ---------------- In-page confirm ---------------- */
 function ask(msg, yes){
   return new Promise(res=>{
@@ -2555,7 +2707,7 @@ document.querySelector('.ring').setAttribute('data-lock',''); $('#streakLine').s
 { const h=[...document.querySelectorAll('#v-journey h2')].find(x=>/100-Day Journey/.test(x.textContent)); if(h) h.setAttribute('data-lock',''); }
 if(!S.started && ((S.why && S.targets) || Object.keys(S.days).length)){ S.started=true; }
 if(S.lat && !S.place){ S.methodManual = S.methodManual ?? true; placeFromCoords(); }  // keep an existing user's chosen method  // existing users keep their Day 1
-applyTheme(); loadSettings(); applyLock(); renderGender(); renderAll(); newQuiz(); cloudInit(); maybeWelcome();
+applyTheme(); loadSettings(); applyLock(); renderGender(); renderAll(); newQuiz(); cloudInit(); showSplash();
 if(STORE.play){ try{ AndroidBridge.storeRefresh(); }catch(e){} }
 startSky(); tickNext(); setInterval(tickNext,1000); setInterval(setPhase,60000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) startSky(); });
