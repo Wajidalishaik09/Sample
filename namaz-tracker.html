@@ -2268,8 +2268,13 @@ function renderTargets(){
 /* ---------------- 100-Day Challenge purchase (Google Play build only) ---------------- */
 const STORE={play:false, owned:true, price:'', pending:false, error:''};
 try{ if(window.AndroidBridge && AndroidBridge.isPlayBuild && AndroidBridge.isPlayBuild()){ STORE.play=true; STORE.owned=!!S.owned; } }catch(e){}
+// "Buyer Preview" builds behave like the Play Store version, with a simulated purchase
+const BUYER_PREVIEW = !!window.__BUYER_PREVIEW;
+if(BUYER_PREVIEW){ STORE.play=true; STORE.owned=!!S.owned; STORE.price='₹199'; }
 function isLocked(){ return STORE.play && !STORE.owned; }
-function buyChallenge(){ if(PREVIEW){ toast('Preview only — on Google Play this opens the ₹199 payment screen'); return; } STORE.error=''; renderPaywall(); try{ AndroidBridge.storeBuy(); }catch(e){} }
+function buyChallenge(){
+  if(BUYER_PREVIEW){ ask('Preview app: on Google Play this opens the ₹199 payment screen. Simulate a successful purchase now?','Simulate purchase').then(ok=>{ if(ok) window.onStoreState({play:true,owned:true,price:'₹199'}); }); return; }
+  if(PREVIEW){ toast('Preview only — on Google Play this opens the ₹199 payment screen'); return; } STORE.error=''; renderPaywall(); try{ AndroidBridge.storeBuy(); }catch(e){} }
 function renderPaywall(){
   const price=STORE.price||'', html=`<div class="lock">🔒</div><h3>100-Day Namaz Challenge</h3>
     <p class="note" style="margin:0">${S.why?`Your reason: <i>“${esc(S.why)}”</i>`:'Build the habit of praying every prayer on time.'}</p>
@@ -2350,7 +2355,7 @@ function renderBuyCard(){
   $('#buyCard').innerHTML=h;
 }
 document.addEventListener('click',e=>{
-  if(e.target.closest('#restoreBtn')){ try{ AndroidBridge.storeRefresh(); toast('Checking your purchases…'); }catch(err){} }
+  if(e.target.closest('#restoreBtn')){ if(BUYER_PREVIEW){ toast('Preview app: Restore checks your Google Play purchases'); return; } try{ AndroidBridge.storeRefresh(); toast('Checking your purchases…'); }catch(err){} }
   if(e.target.closest('#previewBtn')){
     PREVIEW=!PREVIEW;
     if(PREVIEW){ STORE._saved={...STORE}; Object.assign(STORE,{play:true,owned:false,price:'₹199',pending:false,error:''}); }
@@ -2708,7 +2713,7 @@ document.querySelector('.ring').setAttribute('data-lock',''); $('#streakLine').s
 if(!S.started && ((S.why && S.targets) || Object.keys(S.days).length)){ S.started=true; }
 if(S.lat && !S.place){ S.methodManual = S.methodManual ?? true; placeFromCoords(); }  // keep an existing user's chosen method  // existing users keep their Day 1
 applyTheme(); loadSettings(); applyLock(); renderGender(); renderAll(); newQuiz(); cloudInit(); showSplash();
-if(STORE.play){ try{ AndroidBridge.storeRefresh(); }catch(e){} }
+if(STORE.play && !BUYER_PREVIEW){ try{ AndroidBridge.storeRefresh(); }catch(e){} }
 startSky(); tickNext(); setInterval(tickNext,1000); setInterval(setPhase,60000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) startSky(); });
 ['sLat','sLng','sMethod','sAsr'].forEach(id=>$('#'+id).addEventListener('change',()=>setTimeout(()=>{setPhase();tickNext();},60)));
