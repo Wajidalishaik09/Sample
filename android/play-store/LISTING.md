@@ -51,6 +51,12 @@ Learn what the Qur'an and Sahih Hadith really say about each prayer — and why 
 🗺️ 100 DAILY MISSIONS, 100 REWARD DUAS
 Every day brings a new mission — from "Pray Fajr in the Masjid" to "Istighfar ×100", "A haram-free day" and "Tahajjud tonight" — in 10 stages from Foundation to Finish Strong. Complete it and unlock an authentic reward dua from the Qur'an and Sunnah: read it and say Ameen. Brothers prove Masjid missions with a live photo taken inside the Masjid (camera only — the photo is never saved or uploaded). Every dua you earn is saved in your collection.
 
+⭐ LEVELS, XP & 16 BADGES
+Every prayer, Sunnah, Tahajjud, mission and Ameen earns XP. Level up from 🌱 Starter to 🏆 100-Day Champion and unlock badges like 🌅 Fajr Warrior, 🌙 Night Worshipper and 📿 Dhikr 1,000.
+
+📤 SHARE YOUR PROGRESS
+Create a beautiful progress card — day, streak, Masjid %, level and badges — and post it on WhatsApp Status or Instagram to invite your friends.
+
 🎯 YOUR WHY & YOUR TARGETS
 When you start, you write the reason you are taking the challenge and choose your targets (Masjid prayers per day, streak goal, Tahajjud nights, daily Qur'an, a habit to quit). Your reason is shown every day with live progress on each target. Salat al-Hajah and Istikhara are optional but strongly recommended.
 

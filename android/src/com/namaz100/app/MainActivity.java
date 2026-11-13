@@ -38,6 +38,7 @@ public class MainActivity extends Activity {
     private WebView web;
     private Store store;
     private String pendingSave;
+    private byte[] pendingBytes;
     private ValueCallback<Uri[]> fileCallback;
     private GeolocationPermissions.Callback geoCallback;
     private String geoOrigin;
@@ -167,17 +168,17 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int code, int result, Intent data) {
         if (code == REQ_SAVE) {
-            if (result == RESULT_OK && data != null && data.getData() != null && pendingSave != null) {
+            if (result == RESULT_OK && data != null && data.getData() != null && (pendingSave != null || pendingBytes != null)) {
                 try {
                     OutputStream os = getContentResolver().openOutputStream(data.getData(), "wt");
-                    os.write(pendingSave.getBytes("UTF-8"));
+                    os.write(pendingBytes != null ? pendingBytes : pendingSave.getBytes("UTF-8"));
                     os.close();
-                    Toast.makeText(this, "Backup saved", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, pendingBytes != null ? "Image saved" : "Backup saved", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(this, "Could not save the backup", Toast.LENGTH_LONG).show();
                 }
             }
-            pendingSave = null;
+            pendingSave = null; pendingBytes = null;
         } else if (code == REQ_PHOTO) {
             // Camera-only proof photo: the small preview is shown in the page once and never saved.
             String url = null;
@@ -221,6 +222,32 @@ public class MainActivity extends Activity {
     class Bridge {
         @JavascriptInterface
         public boolean isPlayBuild() { return store != null; }
+
+        /** Saves a PNG (base64, no data: prefix) where the user chooses. */
+        @JavascriptInterface
+        public void saveImage(final String name, final String base64) {
+            runOnUiThread(new Runnable() { public void run() {
+                try { pendingBytes = Base64.decode(base64, Base64.DEFAULT); } catch (Exception e) { pendingBytes = null; return; }
+                pendingSave = null;
+                Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                i.addCategory(Intent.CATEGORY_OPENABLE);
+                i.setType("image/png");
+                i.putExtra(Intent.EXTRA_TITLE, name);
+                try { startActivityForResult(i, REQ_SAVE); }
+                catch (Exception e) { Toast.makeText(MainActivity.this, "No file app found", Toast.LENGTH_LONG).show(); }
+            }});
+        }
+
+        /** Opens Android's share sheet with a text message (WhatsApp, Instagram, etc.). */
+        @JavascriptInterface
+        public void shareText(final String text) {
+            runOnUiThread(new Runnable() { public void run() {
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType("text/plain");
+                i.putExtra(Intent.EXTRA_TEXT, text);
+                try { startActivity(Intent.createChooser(i, "Share your progress")); } catch (Exception ignored) { }
+            }});
+        }
 
         /** Opens the camera app directly (no gallery) for the Masjid proof photo. */
         @JavascriptInterface

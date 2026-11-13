@@ -216,6 +216,20 @@ nav.tabs button.on{color:var(--brand)}
 .qrow:last-child{border-bottom:0}
 .qrow b.c{font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
 .intent{width:100%;font-weight:600}
+.lvchip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;background:linear-gradient(135deg,#e0b65a,#f6dc96);color:#2a1d04;padding:3px 10px;border-radius:20px;margin:8px 0 0 6px}
+.lvl{display:flex;align-items:center;gap:12px}
+.lvl .ic{font-size:44px;line-height:1}
+.lvl .nm{font-family:'Reem Kufi',Outfit,sans-serif;font-size:20px}
+.lvl .xp{font-size:12.5px;color:var(--muted)}
+.lvbar{height:10px;background:var(--chip);border-radius:10px;overflow:hidden;margin:10px 0 4px}
+.lvbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#f6dc96);border-radius:10px;transition:width .8s}
+.badges{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.badge{text-align:center;padding:8px 4px;border-radius:12px;border:1px solid var(--line);background:var(--chip);font-size:10.5px;line-height:1.25;cursor:pointer}
+.badge .b{font-size:28px;display:block;margin-bottom:3px}
+.badge.off{opacity:.45;filter:grayscale(1)}
+.badge.on{background:linear-gradient(160deg,var(--gold-soft),var(--card));border-color:var(--gold)}
+.sharebtn{width:100%;min-height:50px;font-size:16px;margin-top:12px}
+#shareImg{width:100%;border-radius:14px;margin:10px 0;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .photo-btn{width:100%;min-height:50px;font-size:15px;margin-bottom:8px;background:linear-gradient(135deg,#b88a2e,#e0b65a);border:0;color:#2a1d04;font-weight:700}
 .proofimg{width:100%;max-height:52vh;object-fit:contain;border-radius:14px;background:#000;margin:10px 0}
 .mission{position:relative;overflow:hidden;border:2px solid var(--gold);background:linear-gradient(160deg,var(--gold-soft),var(--card) 70%)}
@@ -368,7 +382,7 @@ body.locked .seg{display:none}
         <text id="ringTxt" x="18" y="21" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">0%</text>
       </svg>
     </div>
-    <div class="phase" id="phase">🌙 Night</div>
+    <div class="phase" id="phase">🌙 Night</div><span class="lvchip" id="lvChip" data-lock></span>
     <div class="next" id="next" hidden></div>
     <div class="dates" id="dates"></div>
     <div class="bar"><i id="journeyBar" style="width:0%"></i></div>
@@ -448,6 +462,9 @@ body.locked .seg{display:none}
   <!-- JOURNEY -->
   <section class="view" id="v-journey">
     <div class="card paywall" id="paywall2"></div>
+
+    <h2 data-lock>⭐ My Level &amp; 🏅 Badges</h2>
+    <div class="card" data-lock id="levelCard"></div>
 
     <h2>📅 Calendar <span class="hint">English · Hijri (Islamic)</span></h2>
     <div class="card">
@@ -965,6 +982,13 @@ body.locked .seg{display:none}
 
 <div class="toast" id="toast"></div>
 <div id="fx" aria-hidden="true"></div>
+<div class="modal" id="shareModal" hidden role="dialog" aria-modal="true"><div class="box2" style="max-width:420px;max-height:92vh;overflow:auto">
+  <b style="font-size:17px">📤 Share my progress</b>
+  <img id="shareImg" alt="Your progress card">
+  <p class="note" id="shareNote" style="margin:0 0 10px">Save the image and post it on your WhatsApp Status or Instagram — invite your friends to the challenge.</p>
+  <div class="row"><button class="btn primary" id="shareSave">💾 Save image</button><button class="btn primary" id="shareSend">📤 Share</button></div>
+  <button class="btn" id="shareClose" style="width:100%;margin-top:8px">Close</button>
+</div></div>
 <input type="file" id="camIn" accept="image/*" capture="environment" hidden>
 <div class="modal" id="proofModal" hidden role="dialog" aria-modal="true"><div class="box2" style="max-width:420px">
   <b style="font-size:17px">📸 Your Masjid photo</b>
@@ -1678,7 +1702,7 @@ function renderToday(){
       </div></div>`;
   }).join('');
 
-  renderTargets(); renderMission();
+  renderTargets(); renderMission(); renderLevel(); checkBadges();
   checkList($('#adhkar'), ADHKAR, 'a');
   checkList($('#haram'), HARAM, 'h');
   { const a=prayerTimes(cur), b=prayerTimes(addDays(cur,1)), l3=lastThird(cur);
@@ -2045,6 +2069,116 @@ $('#proofOk').addEventListener('click',()=>{
   $('#proofModal').hidden=true; $('#proofImg').src=''; proofURL=null;   // discard the photo
   renderMission(); toast('📸 Masjid proof recorded at '+d.proof+'. MashaAllah!');
   const b=document.querySelector('[data-claim]'); if(b && !b.disabled) burst(b,['🕌','✨'],8);
+});
+
+/* ---------------- ⭐ Levels, XP & 🏅 Badges ---------------- */
+const LEVELS=[[0,'🌱','Starter'],[100,'🌿','Sprout'],[300,'🌙','Rising'],[600,'⭐','Committed'],[1000,'💪','Strong'],[1600,'🌟','Steadfast'],[2400,'💎','Shining'],[3400,'🕌','Inspiring'],[4600,'🏅','Champion'],[6000,'🏆','100-Day Champion']];
+function stats(){
+  const st={masjid:0,ontime:0,late:0,prayed:0,sunnah:0,tah:0,quran:0,haram:0,family:0,tasbih:0,study:0,urge:0,maxStreak:0,fajrRun:0};
+  const keys=Object.keys(S.days).sort(); let run=0, frun=0, prev=null;
+  keys.forEach(k=>{ const d=S.days[k]||{}, p=d.p||{};
+    PRAYERS.forEach(x=>{ const v=p[x.id]; if(v==='masjid') st.masjid++; if(onTime(v)) st.ontime++; if(v==='late') st.late++; if(v&&v!=='miss') st.prayed++; });
+    st.sunnah+=Object.values(d.s||{}).filter(Boolean).length; if(d.n&&d.n.tahajjud) st.tah++; if(d.g&&d.g.quran) st.quran++; if(d.g&&d.g.helpParents) st.family++;
+    if(HARAM.every(h=>d.h&&d.h[h.id])) st.haram++; st.tasbih+=Object.values(d.t||{}).reduce((a,b)=>a+b,0); st.study+=d.study||0; st.urge+=d.urge||0;
+    const cont = prev && diffDays(prev,k)===1; prev=k;
+    run = allPrayed(d) ? (cont?run:0)+1 : 0; st.maxStreak=Math.max(st.maxStreak,run);
+    const fj = SIS()? onTime(p.fajr) : p.fajr==='masjid'; frun = fj ? (cont?frun:0)+1 : 0; st.fajrRun=Math.max(st.fajrRun,frun);
+  });
+  const M=S.missions||{}; st.missions=Object.keys(M).length; st.ameen=Object.values(M).filter(x=>x.ameen).length;
+  st.xp = st.masjid*10 + Math.max(0,st.ontime-st.masjid)*7 + st.late*3 + st.sunnah*2 + st.tah*15 + st.quran*5 + st.haram*5 + st.missions*20 + st.ameen*5 + Math.floor(st.tasbih/33) + Math.floor(st.study/25)*5 + st.urge*5;
+  return st;
+}
+function levelOf(xp){ let i=0; while(i+1<LEVELS.length && xp>=LEVELS[i+1][0]) i++; const next=LEVELS[i+1]; return {n:i+1, ic:LEVELS[i][1], name:LEVELS[i][2], from:LEVELS[i][0], to:next?next[0]:null}; }
+const BADGES=[
+  ['first','🌱','First Step','Mark your first prayer',st=>st.prayed>=1],
+  ['s7','🔥','7-Day Streak','All 5 prayed 7 days in a row',st=>st.maxStreak>=7],
+  ['s21','🔥','21-Day Streak','All 5 prayed 21 days in a row',st=>st.maxStreak>=21],
+  ['s40','💎','40-Day Streak','All 5 prayed 40 days in a row',st=>st.maxStreak>=40],
+  ['s100','🏆','100-Day Streak','All 5 prayed 100 days in a row',st=>st.maxStreak>=100],
+  ['fajr7','🌅','Fajr Warrior','Fajr {at} 7 days in a row',st=>st.fajrRun>=7],
+  ['m50','🕌','Masjid Lover','50 prayers {at}',st=>(SIS()?st.ontime:st.masjid)>=50],
+  ['night10','🌙','Night Worshipper','10 nights of Tahajjud',st=>st.tah>=10],
+  ['dhikr','📿','Dhikr 1,000','1,000 dhikr on the counter',st=>st.tasbih>=1000],
+  ['haram7','🛡️','Guarded Week','7 fully haram-free days',st=>st.haram>=7],
+  ['quran30','📖','Qur\'an Companion','Qur\'an read on 30 days',st=>st.quran>=30],
+  ['sunnah100','⭐','Sunnah Keeper','100 Sunnah prayers',st=>st.sunnah>=100],
+  ['ameen10','🤲','Ameen ×10','Ameen to 10 reward duas',st=>st.ameen>=10],
+  ['miss10','🗺️','Stage Clear','10 daily missions done',st=>st.missions>=10],
+  ['urge10','💪','Urge Defeater','10 urges defeated',st=>st.urge>=10],
+  ['study','📚','Focused Student','10 hours of focused study',st=>st.study>=600],
+];
+const bTxt=t=>t.replace('{at}', SIS()?'on time':'in the Masjid');
+function checkBadges(){
+  if(isLocked()) return; const st=stats(), now=BADGES.filter(b=>b[4](st)).map(b=>b[0]);
+  if(!S.badges){ S.badges={}; now.forEach(id=>S.badges[id]=todayStr()); save(); return; }   // first run: no fireworks for old progress
+  const fresh=now.filter(id=>!S.badges[id]); if(!fresh.length) return;
+  fresh.forEach(id=>S.badges[id]=todayStr()); save();
+  const b=BADGES.find(x=>x[0]===fresh[0]); setTimeout(()=>bigCelebrate(`🏅 Badge unlocked: ${b[1]} ${b[2]}`),700);
+  const lv=levelOf(st.xp); if(lv.n>(S.lastLevel||1)){ S.lastLevel=lv.n; save(); }
+}
+function renderLevel(){
+  const st=stats(), lv=levelOf(st.xp), got=BADGES.filter(b=>b[4](st)).length;
+  if(S.lastLevel==null){ S.lastLevel=lv.n; save(); }
+  if(lv.n>(S.lastLevel||1)){ S.lastLevel=lv.n; save(); if(!isLocked()) setTimeout(()=>bigCelebrate(`⭐ Level up! Level ${lv.n}: ${lv.ic} ${lv.name}`),900); }
+  $('#lvChip').textContent=`${lv.ic} Lv ${lv.n} · ${st.xp.toLocaleString()} XP`;
+  const pct = lv.to ? Math.round((st.xp-lv.from)/(lv.to-lv.from)*100) : 100;
+  $('#levelCard').innerHTML=`<div class="lvl"><div class="ic">${lv.ic}</div><div><div class="nm">Level ${lv.n} · ${lv.name}</div>
+    <div class="xp">${st.xp.toLocaleString()} XP${lv.to?` · ${(lv.to-st.xp).toLocaleString()} XP to Level ${lv.n+1}`:' · Highest level!'}</div></div></div>
+    <div class="lvbar"><i style="width:${pct}%"></i></div>
+    <div class="note">Earn XP: 🕌 Masjid prayer 10 · on time 7 · Sunnah 2 · Tahajjud 15 · mission 20 · Ameen 5 · Qur'an day 5 · haram-free day 5</div>
+    <div class="badges">${BADGES.map(b=>{ const on=b[4](st); return `<div class="badge ${on?'on':'off'}" title="${esc(bTxt(b[3]))}" data-badge="${b[0]}"><span class="b">${b[1]}</span>${esc(b[2])}</div>`; }).join('')}</div>
+    <div class="note" style="text-align:center;margin-top:8px">🏅 ${got} / ${BADGES.length} badges · tap a badge to see how to earn it</div>
+    <button class="btn primary sharebtn" id="shareBtn">📤 Share my progress</button>`;
+}
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-badge]'); if(b){ const x=BADGES.find(y=>y[0]===b.dataset.badge); toast(`${x[1]} ${x[2]} — ${bTxt(x[3])}${b.classList.contains('on')?' ✓ unlocked':''}`); } });
+
+/* 📤 Share card (1080×1350 image) */
+const PLAY_URL='https://play.google.com/store/apps/details?id=com.namaz100.app';
+let shareData=null;
+async function makeShareCard(){
+  try{ await document.fonts.ready; }catch(e){}
+  const st=stats(), lv=levelOf(st.xp), dn=Math.max(1,Math.min(100,challengeDay(todayStr()))), sk=streak(), sis=SIS();
+  const total=st.prayed||0, pct= total? Math.round((sis?st.ontime:st.masjid)/total*100):0, got=BADGES.filter(b=>b[4](st)).length;
+  const c=document.createElement('canvas'); c.width=1080; c.height=1350; const g=c.getContext('2d');
+  const bg=g.createLinearGradient(0,0,1080,1350); bg.addColorStop(0,'#0b1f3a'); bg.addColorStop(.55,'#0f3d2e'); bg.addColorStop(1,'#0f5a40'); g.fillStyle=bg; g.fillRect(0,0,1080,1350);
+  for(let i=0;i<140;i++){ g.globalAlpha=.25+Math.random()*.7; g.fillStyle=Math.random()<.2?'#f6dc96':'#fff'; g.beginPath(); g.arc(Math.random()*1080,Math.random()*700,Math.random()*2.4+.6,0,6.3); g.fill(); }
+  g.globalAlpha=.07; g.strokeStyle='#fff'; g.lineWidth=2;
+  for(let x=0;x<1080;x+=120) for(let y=760;y<1350;y+=120){ g.save(); g.translate(x+60,y+60); g.strokeRect(-30,-30,60,60); g.rotate(Math.PI/4); g.strokeRect(-30,-30,60,60); g.restore(); }
+  g.globalAlpha=1;
+  { const m=document.createElement('canvas'); m.width=m.height=200; const mg=m.getContext('2d');
+    mg.fillStyle='#f6dc96'; mg.beginPath(); mg.arc(100,100,70,0,6.3); mg.fill();
+    mg.globalCompositeOperation='destination-out'; mg.beginPath(); mg.arc(135,80,64,0,6.3); mg.fill();
+    g.save(); g.shadowColor='rgba(246,220,150,.7)'; g.shadowBlur=40; g.drawImage(m,800,70); g.restore(); }
+  const T=(t,x,y,font,col,al)=>{ g.font=font; g.fillStyle=col; g.textAlign=al||'left'; g.fillText(t,x,y); };
+  T('Namaz 100',90,170,"700 64px 'Reem Kufi', sans-serif",'#fff');
+  T('My 100-Day Salah Challenge',90,230,"500 36px Outfit, sans-serif",'#f6dc96');
+  T(`Day ${dn}`,90,430,"700 190px 'Reem Kufi', sans-serif",'#fff');
+  T('of 100',90,500,"500 44px Outfit, sans-serif",'rgba(255,255,255,.8)');
+  g.fillStyle='rgba(255,255,255,.18)'; g.fillRect(90,540,900,22); g.fillStyle='#e0b65a'; g.fillRect(90,540,9*dn,22);
+  const box=(x,y,ic,big,small)=>{ g.fillStyle='rgba(255,255,255,.10)'; g.strokeStyle='rgba(255,255,255,.18)'; g.lineWidth=2;
+    g.beginPath(); g.roundRect ? g.roundRect(x,y,430,210,28) : g.rect(x,y,430,210); g.fill(); g.stroke();
+    T(ic,x+36,y+92,"64px sans-serif",'#fff'); T(big,x+130,y+100,"700 64px 'Reem Kufi', sans-serif",'#fff'); T(small,x+36,y+170,"500 32px Outfit, sans-serif",'#f6dc96'); };
+  box(90,620,'🔥',`${sk}`,'day streak'); box(560,620,sis?'🌸':'🕌',`${pct}%`,sis?'prayers on time':'prayers in the Masjid');
+  box(90,860,lv.ic,`Lv ${lv.n}`,lv.name); box(560,860,'🏅',`${got}`,'badges earned');
+  T('Join me — pray every prayer on time for 100 days',540,1170,"500 34px Outfit, sans-serif",'#fff','center');
+  T('Namaz 100 · Google Play',540,1230,"700 40px 'Reem Kufi', sans-serif",'#f6dc96','center');
+  const url=c.toDataURL('image/png');
+  const text=`${sis?'🌸':'🕌'} Day ${dn}/100 of my Namaz Challenge!\n🔥 ${sk}-day streak · ${lv.ic} Level ${lv.n} · 🏅 ${got} badges\n${sis?'🌸':'🕌'} ${pct}% of my prayers ${sis?'on time':'in the Masjid'}\nJoin me on Namaz 100: ${PLAY_URL}`;
+  return {url,text};
+}
+document.addEventListener('click',async e=>{
+  if(e.target.closest('#shareBtn')){ shareData=await makeShareCard(); $('#shareImg').src=shareData.url; $('#shareModal').hidden=false;
+    if(!window.AndroidBridge) $('#shareNote').textContent='Long-press the image to save it, then post it on your WhatsApp Status or Instagram. Tap Share to send the message.'; }
+  if(e.target.closest('#shareClose')){ $('#shareModal').hidden=true; }
+  if(e.target.closest('#shareSave') && shareData){
+    if(window.AndroidBridge && AndroidBridge.saveImage){ AndroidBridge.saveImage('namaz100-day.png', shareData.url.split(',')[1]); }
+    else toast('Long-press the image to save it 📲');
+  }
+  if(e.target.closest('#shareSend') && shareData){
+    if(window.AndroidBridge && AndroidBridge.shareText){ AndroidBridge.shareText(shareData.text); return; }
+    try{ if(navigator.share){ await navigator.share({text:shareData.text}); return; } }catch(err){ return; }
+    try{ await navigator.clipboard.writeText(shareData.text); toast('Message copied — paste it into WhatsApp 📋'); }catch(err){ toast('Long-press the image to save and share it'); }
+  }
 });
 
 function renderMissionDuas(){
