@@ -847,12 +847,20 @@ body.locked .seg{display:none}
       <input id="sName" placeholder="Name (optional)">
       <label class="f" for="sStart">Day 1 of my 100 days</label>
       <input id="sStart" type="date">
-      <label class="f">Prayer times (calculated on your phone)</label>
-      <button class="btn" id="locBtn" style="width:100%">📍 Use my location</button>
+      <label class="f">📍 My location (for prayer times &amp; Qibla)</label>
+      <div class="sync" id="placeNow">Not set yet</div>
+      <button class="btn primary" id="locBtn" style="width:100%">📍 Use my location (GPS)</button>
       <div class="row" style="margin-top:8px">
-        <input id="sLat" placeholder="Latitude" inputmode="decimal">
-        <input id="sLng" placeholder="Longitude" inputmode="decimal">
+        <div><label class="f" for="sCountry">Country</label><select id="sCountry"></select></div>
+        <div><label class="f" for="sCity">State / City</label><select id="sCity"></select></div>
       </div>
+      <details style="border:0;padding:6px 0 0"><summary style="font-size:13px;font-weight:600">Enter exact coordinates instead</summary>
+        <div class="row" style="margin-top:8px">
+          <input id="sLat" placeholder="Latitude" inputmode="decimal">
+          <input id="sLng" placeholder="Longitude" inputmode="decimal">
+        </div>
+      </details>
+      <p class="note" style="margin:6px 0 0">The calculation method and Asr setting below are chosen automatically for your country. Change them if your local masjid follows a different timetable.</p>
       <div class="row">
         <div>
           <label class="f" for="sMethod">Method</label>
@@ -862,6 +870,11 @@ body.locked .seg{display:none}
             <option value="ISNA">ISNA (North America)</option>
             <option value="Egypt">Egyptian Authority</option>
             <option value="Makkah">Umm al-Qura (Makkah)</option>
+            <option value="Dubai">Dubai (UAE)</option>
+            <option value="Kuwait">Kuwait</option>
+            <option value="Qatar">Qatar</option>
+            <option value="Singapore">Singapore / Malaysia / Indonesia</option>
+            <option value="Turkey">Diyanet (Turkey)</option>
           </select>
         </div>
         <div>
@@ -892,6 +905,9 @@ body.locked .seg{display:none}
       <label class="f">Theme</label>
       <select id="sTheme"><option value="">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
     </div>
+
+    <h2>💳 100-Day Challenge</h2>
+    <div class="card" id="buyCard"></div>
 
     <h2>Backup</h2>
     <div class="card">
@@ -949,6 +965,10 @@ body.locked .seg{display:none}
   <section id="wStep3" hidden>
     <div class="big" style="font-size:56px">🎯</div><b>Set your targets</b>
     <div class="t center">You can change them later from the 🎯 card on Today.</div>
+    <label class="f">📍 Where do you live? (for prayer times)</label>
+    <div class="sync" id="wPlace" style="background:rgba(255,255,255,.12);color:#fff">Not set yet</div>
+    <button class="btn" id="wGps" style="width:100%">📍 Use my location (GPS)</button>
+    <div class="row" style="margin-top:8px"><select id="wCountry" aria-label="Country"></select><select id="wCity" aria-label="State / City"></select></div>
     <div id="wMasjidBox">
       <label class="f" for="wMasjid">🕌 Prayers in the Masjid every day</label>
       <select id="wMasjid"><option value="5">All 5 prayers</option><option value="4">4 prayers</option><option value="3">3 prayers</option><option value="2">2 prayers</option><option value="1">1 prayer (start small)</option></select>
@@ -1199,7 +1219,112 @@ const allMasjid = d => d && PRAYERS.every(p => SIS() ? onTime(d.p[p.id]) : d.p[p
 const allPrayed = d => d && PRAYERS.every(p => ['ok','late','masjid','exc'].includes(d.p[p.id]));
 
 /* ---------------- Prayer times (PrayTimes-style) ---------------- */
-const METHODS = { MWL:{f:18,i:17}, ISNA:{f:15,i:15}, Karachi:{f:18,i:18}, Egypt:{f:19.5,i:17.5}, Makkah:{f:18.5,iMin:90} };
+const METHODS = { MWL:{f:18,i:17}, ISNA:{f:15,i:15}, Karachi:{f:18,i:18}, Egypt:{f:19.5,i:17.5}, Makkah:{f:18.5,iMin:90},
+  Dubai:{f:18.2,i:18.2}, Kuwait:{f:18,i:17.5}, Qatar:{f:18,iMin:90}, Singapore:{f:20,i:18}, Turkey:{f:18,i:17} };
+const PLACES = [
+ // [code, country, method, asr(1 Shafi'i / 2 Hanafi), [[state/region, city, lat, lng], ...]]
+ ['IN','India','Karachi',2,[
+  ['Andhra Pradesh','Visakhapatnam',17.6868,83.2185],['Andhra Pradesh','Vijayawada',16.5062,80.648],['Andhra Pradesh','Tirupati',13.6288,79.4192],['Andhra Pradesh','Kurnool',15.8281,78.0373],
+  ['Assam','Guwahati',26.1445,91.7362],['Bihar','Patna',25.5941,85.1376],['Bihar','Gaya',24.7914,85.0002],['Bihar','Kishanganj',26.1052,87.9501],
+  ['Chandigarh','Chandigarh',30.7333,76.7794],['Chhattisgarh','Raipur',21.2514,81.6296],['Delhi','New Delhi',28.6139,77.209],['Goa','Panaji',15.4909,73.8278],
+  ['Gujarat','Ahmedabad',23.0225,72.5714],['Gujarat','Surat',21.1702,72.8311],['Gujarat','Vadodara',22.3072,73.1812],['Gujarat','Rajkot',22.3039,70.8022],
+  ['Haryana','Gurugram',28.4595,77.0266],['Haryana','Faridabad',28.4089,77.3178],['Himachal Pradesh','Shimla',31.1048,77.1734],
+  ['Jammu & Kashmir','Srinagar',34.0837,74.7973],['Jammu & Kashmir','Jammu',32.7266,74.857],['Jharkhand','Ranchi',23.3441,85.3096],['Jharkhand','Jamshedpur',22.8046,86.2029],
+  ['Karnataka','Bengaluru',12.9716,77.5946],['Karnataka','Mysuru',12.2958,76.6394],['Karnataka','Mangaluru',12.9141,74.856],['Karnataka','Hubballi',15.3647,75.124],['Karnataka','Kalaburagi',17.3297,76.8343],['Karnataka','Bidar',17.9104,77.5199],
+  ['Kerala','Thiruvananthapuram',8.5241,76.9366],['Kerala','Kochi',9.9312,76.2673],['Kerala','Kozhikode',11.2588,75.7804],['Kerala','Malappuram',11.051,76.0711],
+  ['Ladakh','Leh',34.1526,77.5771],['Lakshadweep','Kavaratti',10.5669,72.642],
+  ['Madhya Pradesh','Bhopal',23.2599,77.4126],['Madhya Pradesh','Indore',22.7196,75.8577],['Madhya Pradesh','Jabalpur',23.1815,79.9864],['Madhya Pradesh','Gwalior',26.2183,78.1828],
+  ['Maharashtra','Mumbai',19.076,72.8777],['Maharashtra','Pune',18.5204,73.8567],['Maharashtra','Nagpur',21.1458,79.0882],['Maharashtra','Chhatrapati Sambhajinagar (Aurangabad)',19.8762,75.3433],['Maharashtra','Nashik',19.9975,73.7898],['Maharashtra','Malegaon',20.5579,74.5287],['Maharashtra','Bhiwandi',19.2813,73.0483],
+  ['Manipur','Imphal',24.817,93.9368],['Meghalaya','Shillong',25.5788,91.8933],['Odisha','Bhubaneswar',20.2961,85.8245],['Odisha','Cuttack',20.4625,85.883],['Puducherry','Puducherry',11.9416,79.8083],
+  ['Punjab','Ludhiana',30.901,75.8573],['Punjab','Amritsar',31.634,74.8723],['Punjab','Malerkotla',30.5309,75.8798],
+  ['Rajasthan','Jaipur',26.9124,75.7873],['Rajasthan','Jodhpur',26.2389,73.0243],['Rajasthan','Ajmer',26.4499,74.6399],['Rajasthan','Udaipur',24.5854,73.7125],['Rajasthan','Kota',25.2138,75.8648],
+  ['Tamil Nadu','Chennai',13.0827,80.2707],['Tamil Nadu','Coimbatore',11.0168,76.9558],['Tamil Nadu','Madurai',9.9252,78.1198],['Tamil Nadu','Tiruchirappalli',10.7905,78.7047],['Tamil Nadu','Vellore',12.9165,79.1325],
+  ['Telangana','Hyderabad',17.385,78.4867],['Telangana','Warangal',17.9689,79.5941],['Telangana','Nizamabad',18.6725,78.0941],['Tripura','Agartala',23.8315,91.2868],
+  ['Uttar Pradesh','Lucknow',26.8467,80.9462],['Uttar Pradesh','Kanpur',26.4499,80.3319],['Uttar Pradesh','Agra',27.1767,78.0081],['Uttar Pradesh','Varanasi',25.3176,82.9739],['Uttar Pradesh','Prayagraj',25.4358,81.8463],['Uttar Pradesh','Aligarh',27.8974,78.088],['Uttar Pradesh','Moradabad',28.8386,78.7733],['Uttar Pradesh','Bareilly',28.367,79.4304],['Uttar Pradesh','Meerut',28.9845,77.7064],['Uttar Pradesh','Saharanpur',29.968,77.5552],
+  ['Uttarakhand','Dehradun',30.3165,78.0322],['West Bengal','Kolkata',22.5726,88.3639],['West Bengal','Murshidabad',24.18,88.27],['West Bengal','Siliguri',26.7271,88.3953]]],
+ ['PK','Pakistan','Karachi',2,[['Sindh','Karachi',24.8607,67.0011],['Sindh','Hyderabad',25.396,68.3578],['Sindh','Sukkur',27.7052,68.8574],['Punjab','Lahore',31.5204,74.3587],['Punjab','Faisalabad',31.4504,73.135],['Punjab','Rawalpindi',33.5651,73.0169],['Punjab','Multan',30.1575,71.5249],['Punjab','Sialkot',32.4945,74.5229],['Punjab','Gujranwala',32.1877,74.1945],['Islamabad','Islamabad',33.6844,73.0479],['Khyber Pakhtunkhwa','Peshawar',34.0151,71.5249],['Balochistan','Quetta',30.1798,66.975],['Gilgit-Baltistan','Gilgit',35.9208,74.3144],['Azad Kashmir','Muzaffarabad',34.37,73.4711]]],
+ ['BD','Bangladesh','Karachi',2,[['Dhaka','Dhaka',23.8103,90.4125],['Chattogram','Chattogram',22.3569,91.7832],['Sylhet','Sylhet',24.8949,91.8687],['Rajshahi','Rajshahi',24.3745,88.6042],['Khulna','Khulna',22.8456,89.5403]]],
+ ['AF','Afghanistan','Karachi',2,[['Kabul','Kabul',34.5553,69.2075],['Kandahar','Kandahar',31.6289,65.7372],['Herat','Herat',34.3529,62.204]]],
+ ['LK','Sri Lanka','Karachi',1,[['Western','Colombo',6.9271,79.8612],['Central','Kandy',7.2906,80.6337]]],
+ ['NP','Nepal','Karachi',2,[['Bagmati','Kathmandu',27.7172,85.324]]],
+ ['MV','Maldives','Karachi',1,[['Malé','Malé',4.1755,73.5093]]],
+ ['SA','Saudi Arabia','Makkah',1,[['Makkah','Makkah',21.4225,39.8262],['Madinah','Madinah',24.5247,39.5692],['Riyadh','Riyadh',24.7136,46.6753],['Makkah','Jeddah',21.4858,39.1925],['Makkah','Taif',21.2703,40.4158],['Eastern Province','Dammam',26.4207,50.0888],['Asir','Abha',18.2164,42.5053],['Tabuk','Tabuk',28.3835,36.5662]]],
+ ['AE','United Arab Emirates','Dubai',1,[['Dubai','Dubai',25.2048,55.2708],['Abu Dhabi','Abu Dhabi',24.4539,54.3773],['Abu Dhabi','Al Ain',24.2075,55.7447],['Sharjah','Sharjah',25.3463,55.4209],['Ras Al Khaimah','Ras Al Khaimah',25.8007,55.9762]]],
+ ['QA','Qatar','Qatar',1,[['Doha','Doha',25.2854,51.531]]],
+ ['KW','Kuwait','Kuwait',1,[['Capital','Kuwait City',29.3759,47.9774]]],
+ ['BH','Bahrain','Makkah',1,[['Capital','Manama',26.2285,50.586]]],
+ ['OM','Oman','Makkah',1,[['Muscat','Muscat',23.588,58.3829],['Dhofar','Salalah',17.0151,54.0924]]],
+ ['YE','Yemen','Makkah',1,[["Sana'a","Sana'a",15.3694,44.191],['Aden','Aden',12.7855,45.0187]]],
+ ['JO','Jordan','Egypt',1,[['Amman','Amman',31.9454,35.9284]]],
+ ['PS','Palestine','Egypt',1,[['Jerusalem','Al-Quds (Jerusalem)',31.778,35.2354],['Gaza','Gaza',31.5017,34.4668],['West Bank','Hebron',31.5326,35.0998]]],
+ ['LB','Lebanon','Egypt',1,[['Beirut','Beirut',33.8938,35.5018]]],
+ ['SY','Syria','Egypt',1,[['Damascus','Damascus',33.5138,36.2765],['Aleppo','Aleppo',36.2021,37.1343]]],
+ ['IQ','Iraq','Egypt',1,[['Baghdad','Baghdad',33.3152,44.3661],['Basra','Basra',30.5085,47.7804],['Kurdistan','Erbil',36.1911,44.0092]]],
+ ['IR','Iran','MWL',1,[['Tehran','Tehran',35.6892,51.389],['Khorasan','Mashhad',36.2605,59.6168]]],
+ ['TR','Turkey','Turkey',2,[['Istanbul','Istanbul',41.0082,28.9784],['Ankara','Ankara',39.9334,32.8597],['Izmir','Izmir',38.4237,27.1428],['Konya','Konya',37.8746,32.4932],['Bursa','Bursa',40.1885,29.061]]],
+ ['EG','Egypt','Egypt',1,[['Cairo','Cairo',30.0444,31.2357],['Alexandria','Alexandria',31.2001,29.9187],['Aswan','Aswan',24.0889,32.8998]]],
+ ['SD','Sudan','Egypt',1,[['Khartoum','Khartoum',15.5007,32.5599]]],
+ ['LY','Libya','Egypt',1,[['Tripoli','Tripoli',32.8872,13.1913],['Benghazi','Benghazi',32.1194,20.0868]]],
+ ['TN','Tunisia','MWL',1,[['Tunis','Tunis',36.8065,10.1815]]],
+ ['DZ','Algeria','MWL',1,[['Algiers','Algiers',36.7538,3.0588],['Oran','Oran',35.6971,-0.6308]]],
+ ['MA','Morocco','MWL',1,[['Casablanca-Settat','Casablanca',33.5731,-7.5898],['Rabat-Salé','Rabat',34.0209,-6.8416],['Marrakesh-Safi','Marrakesh',31.6295,-7.9811],['Fès-Meknès','Fes',34.0181,-5.0078]]],
+ ['NG','Nigeria','MWL',1,[['Lagos','Lagos',6.5244,3.3792],['FCT','Abuja',9.0765,7.3986],['Kano','Kano',12.0022,8.592],['Kaduna','Kaduna',10.5105,7.4165],['Sokoto','Sokoto',13.0059,5.2476],['Borno','Maiduguri',11.8311,13.151]]],
+ ['GH','Ghana','MWL',1,[['Greater Accra','Accra',5.6037,-0.187],['Northern','Tamale',9.4034,-0.8424]]],
+ ['SN','Senegal','MWL',1,[['Dakar','Dakar',14.7167,-17.4677],['Diourbel','Touba',14.8667,-15.8833]]],
+ ['ML','Mali','MWL',1,[['Bamako','Bamako',12.6392,-8.0029]]],
+ ['NE','Niger','MWL',1,[['Niamey','Niamey',13.5116,2.1254]]],
+ ['CM','Cameroon','MWL',1,[['Centre','Yaoundé',3.848,11.5021]]],
+ ['KE','Kenya','MWL',1,[['Nairobi','Nairobi',-1.2921,36.8219],['Mombasa','Mombasa',-4.0435,39.6682]]],
+ ['TZ','Tanzania','MWL',1,[['Dar es Salaam','Dar es Salaam',-6.7924,39.2083],['Zanzibar','Zanzibar City',-6.1659,39.2026]]],
+ ['SO','Somalia','MWL',1,[['Banaadir','Mogadishu',2.0469,45.3182]]],
+ ['ET','Ethiopia','MWL',1,[['Addis Ababa','Addis Ababa',8.9806,38.7578],['Harari','Harar',9.3126,42.1227]]],
+ ['UG','Uganda','MWL',1,[['Central','Kampala',0.3476,32.5825]]],
+ ['ZA','South Africa','MWL',2,[['Gauteng','Johannesburg',-26.2041,28.0473],['Western Cape','Cape Town',-33.9249,18.4241],['KwaZulu-Natal','Durban',-29.8587,31.0218]]],
+ ['MU','Mauritius','MWL',2,[['Port Louis','Port Louis',-20.1609,57.5012]]],
+ ['MY','Malaysia','Singapore',1,[['Kuala Lumpur','Kuala Lumpur',3.139,101.6869],['Penang','George Town',5.4141,100.3288],['Johor','Johor Bahru',1.4927,103.7414],['Kelantan','Kota Bharu',6.1254,102.2381],['Sabah','Kota Kinabalu',5.9804,116.0735],['Sarawak','Kuching',1.5533,110.3592]]],
+ ['SG','Singapore','Singapore',1,[['Singapore','Singapore',1.3521,103.8198]]],
+ ['BN','Brunei','Singapore',1,[['Brunei-Muara','Bandar Seri Begawan',4.9031,114.9398]]],
+ ['ID','Indonesia','Singapore',1,[['Jakarta','Jakarta',-6.2088,106.8456],['East Java','Surabaya',-7.2575,112.7521],['West Java','Bandung',-6.9175,107.6191],['North Sumatra','Medan',3.5952,98.6722],['Aceh','Banda Aceh',5.5483,95.3238],['Yogyakarta','Yogyakarta',-7.7956,110.3695],['South Sulawesi','Makassar',-5.1477,119.4327]]],
+ ['PH','Philippines','MWL',1,[['Metro Manila','Manila',14.5995,120.9842],['Bangsamoro','Cotabato City',7.2236,124.2464],['Bangsamoro','Marawi',8.0034,124.2839]]],
+ ['TH','Thailand','MWL',1,[['Bangkok','Bangkok',13.7563,100.5018],['Pattani','Pattani',6.8691,101.255]]],
+ ['CN','China','MWL',2,[['Beijing','Beijing',39.9042,116.4074],['Xinjiang','Ürümqi',43.8256,87.6168],['Ningxia','Yinchuan',38.4872,106.2309]]],
+ ['HK','Hong Kong','MWL',1,[['Hong Kong','Hong Kong',22.3193,114.1694]]],
+ ['JP','Japan','MWL',1,[['Tokyo','Tokyo',35.6762,139.6503],['Osaka','Osaka',34.6937,135.5023]]],
+ ['KR','South Korea','MWL',1,[['Seoul','Seoul',37.5665,126.978]]],
+ ['UZ','Uzbekistan','MWL',2,[['Tashkent','Tashkent',41.2995,69.2401],['Samarkand','Samarkand',39.627,66.975],['Bukhara','Bukhara',39.7747,64.4286]]],
+ ['KZ','Kazakhstan','MWL',2,[['Almaty','Almaty',43.222,76.8512],['Astana','Astana',51.1694,71.4491]]],
+ ['TJ','Tajikistan','MWL',2,[['Dushanbe','Dushanbe',38.5598,68.787]]],
+ ['KG','Kyrgyzstan','MWL',2,[['Bishkek','Bishkek',42.8746,74.5698]]],
+ ['TM','Turkmenistan','MWL',2,[['Ashgabat','Ashgabat',37.9601,58.3261]]],
+ ['AZ','Azerbaijan','MWL',1,[['Baku','Baku',40.4093,49.8671]]],
+ ['RU','Russia','MWL',2,[['Moscow','Moscow',55.7558,37.6173],['Tatarstan','Kazan',55.7887,49.1221],['Chechnya','Grozny',43.3178,45.6949],['Dagestan','Makhachkala',42.9849,47.5047]]],
+ ['GB','United Kingdom','MWL',1,[['England','London',51.5074,-0.1278],['England','Birmingham',52.4862,-1.8904],['England','Manchester',53.4808,-2.2426],['England','Bradford',53.796,-1.7594],['England','Leeds',53.8008,-1.5491],['England','Leicester',52.6369,-1.1398],['England','Blackburn',53.748,-2.482],['England','Luton',51.8787,-0.42],['Scotland','Glasgow',55.8642,-4.2518],['Scotland','Edinburgh',55.9533,-3.1883],['Wales','Cardiff',51.4816,-3.1791],['Northern Ireland','Belfast',54.5973,-5.9301]]],
+ ['IE','Ireland','MWL',1,[['Leinster','Dublin',53.3498,-6.2603]]],
+ ['FR','France','MWL',1,[['Île-de-France','Paris',48.8566,2.3522],["Provence-Alpes-Côte d'Azur",'Marseille',43.2965,5.3698],['Auvergne-Rhône-Alpes','Lyon',45.764,4.8357]]],
+ ['DE','Germany','MWL',1,[['Berlin','Berlin',52.52,13.405],['Hamburg','Hamburg',53.5511,9.9937],['Bavaria','Munich',48.1351,11.582],['Hesse','Frankfurt',50.1109,8.6821],['North Rhine-Westphalia','Cologne',50.9375,6.9603]]],
+ ['NL','Netherlands','MWL',1,[['North Holland','Amsterdam',52.3676,4.9041],['South Holland','Rotterdam',51.9244,4.4777]]],
+ ['BE','Belgium','MWL',1,[['Brussels','Brussels',50.8503,4.3517]]],
+ ['ES','Spain','MWL',1,[['Madrid','Madrid',40.4168,-3.7038],['Catalonia','Barcelona',41.3874,2.1686]]],
+ ['IT','Italy','MWL',1,[['Lazio','Rome',41.9028,12.4964],['Lombardy','Milan',45.4642,9.19]]],
+ ['SE','Sweden','MWL',1,[['Stockholm','Stockholm',59.3293,18.0686]]],
+ ['NO','Norway','MWL',1,[['Oslo','Oslo',59.9139,10.7522]]],
+ ['DK','Denmark','MWL',1,[['Capital Region','Copenhagen',55.6761,12.5683]]],
+ ['CH','Switzerland','MWL',1,[['Zurich','Zurich',47.3769,8.5417]]],
+ ['AT','Austria','MWL',1,[['Vienna','Vienna',48.2082,16.3738]]],
+ ['BA','Bosnia & Herzegovina','MWL',2,[['Sarajevo','Sarajevo',43.8563,18.4131]]],
+ ['AL','Albania','MWL',2,[['Tirana','Tirana',41.3275,19.8187]]],
+ ['XK','Kosovo','MWL',2,[['Pristina','Pristina',42.6629,21.1655]]],
+ ['GR','Greece','MWL',1,[['Attica','Athens',37.9838,23.7275]]],
+ ['US','United States','ISNA',1,[['Alaska','Anchorage',61.2181,-149.9003],['Arizona','Phoenix',33.4484,-112.074],['California','Los Angeles',34.0522,-118.2437],['California','San Francisco',37.7749,-122.4194],['Colorado','Denver',39.7392,-104.9903],['District of Columbia','Washington, DC',38.9072,-77.0369],['Florida','Miami',25.7617,-80.1918],['Florida','Orlando',28.5383,-81.3792],['Georgia','Atlanta',33.749,-84.388],['Hawaii','Honolulu',21.3069,-157.8583],['Illinois','Chicago',41.8781,-87.6298],['Maryland','Baltimore',39.2904,-76.6122],['Massachusetts','Boston',42.3601,-71.0589],['Michigan','Dearborn',42.3223,-83.1763],['Michigan','Detroit',42.3314,-83.0458],['Minnesota','Minneapolis',44.9778,-93.265],['Nevada','Las Vegas',36.1699,-115.1398],['New Jersey','Paterson',40.9168,-74.1718],['New York','New York City',40.7128,-74.006],['North Carolina','Charlotte',35.2271,-80.8431],['Ohio','Columbus',39.9612,-82.9988],['Pennsylvania','Philadelphia',39.9526,-75.1652],['Tennessee','Nashville',36.1627,-86.7816],['Texas','Houston',29.7604,-95.3698],['Texas','Dallas',32.7767,-96.797],['Utah','Salt Lake City',40.7608,-111.891],['Virginia','Richmond',37.5407,-77.436],['Washington','Seattle',47.6062,-122.3321]]],
+ ['CA','Canada','ISNA',1,[['Alberta','Calgary',51.0447,-114.0719],['Alberta','Edmonton',53.5461,-113.4938],['British Columbia','Vancouver',49.2827,-123.1207],['Manitoba','Winnipeg',49.8951,-97.1384],['Nova Scotia','Halifax',44.6488,-63.5752],['Ontario','Toronto',43.6532,-79.3832],['Ontario','Mississauga',43.589,-79.6441],['Ontario','Ottawa',45.4215,-75.6972],['Quebec','Montreal',45.5017,-73.5673]]],
+ ['MX','Mexico','ISNA',1,[['Mexico City','Mexico City',19.4326,-99.1332]]],
+ ['BR','Brazil','MWL',1,[['São Paulo','São Paulo',-23.5505,-46.6333]]],
+ ['AR','Argentina','MWL',1,[['Buenos Aires','Buenos Aires',-34.6037,-58.3816]]],
+ ['TT','Trinidad & Tobago','ISNA',2,[['Port of Spain','Port of Spain',10.6603,-61.5086]]],
+ ['GY','Guyana','ISNA',2,[['Demerara-Mahaica','Georgetown',6.8013,-58.1551]]],
+ ['AU','Australia','MWL',1,[['Australian Capital Territory','Canberra',-35.2809,149.13],['New South Wales','Sydney',-33.8688,151.2093],['Queensland','Brisbane',-27.4698,153.0251],['South Australia','Adelaide',-34.9285,138.6007],['Victoria','Melbourne',-37.8136,144.9631],['Western Australia','Perth',-31.9505,115.8605]]],
+ ['NZ','New Zealand','MWL',1,[['Auckland','Auckland',-36.8485,174.7633],['Wellington','Wellington',-41.2865,174.7762]]],
+];
 const rad=d=>d*Math.PI/180, deg=r=>r*180/Math.PI;
 const fix=(a,b)=>{a=a-b*Math.floor(a/b);return a<0?a+b:a};
 function julian(y,m,d){ if(m<=2){y-=1;m+=12;} const A=Math.floor(y/100),B=2-A+Math.floor(A/4); return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5; }
@@ -1363,7 +1488,7 @@ function renderToday(){
   const pt=prayerTimes(cur);
   let nextId=null;
   if(pt && cur===todayStr()){ const n=new Date(), h=n.getHours()+n.getMinutes()/60; nextId=(PRAYERS.find(p=>pt[p.id]>h)||{}).id; }
-  $('#timesHint').textContent = pt ? `Sunrise ${fmt(pt.sunrise)}` : '17 Fard rak\'ahs';
+  $('#timesHint').textContent = pt ? `${S.place?'📍 '+S.place.split(',')[0]+' · ':''}Sunrise ${fmt(pt.sunrise)}` : '📍 Set location in Pledge';
   $('#prayers').innerHTML = PRAYERS.map(p=>{
     const v=d.p[p.id]; const s=d.s&&d.s[p.id];
     const sis=SIS();
@@ -1512,7 +1637,7 @@ $('#locBtn').addEventListener('click',()=>{
   if(!navigator.geolocation) return toast('Location not available on this device');
   toast('Getting location…');
   navigator.geolocation.getCurrentPosition(pos=>{
-    S.lat=pos.coords.latitude.toFixed(4); S.lng=pos.coords.longitude.toFixed(4); save(); loadSettings(); renderAll(); toast('Prayer times updated');
+    S.lat=pos.coords.latitude.toFixed(4); S.lng=pos.coords.longitude.toFixed(4); placeFromCoords(); save(); loadSettings(); renderAll(); renderQibla(); if(window.AndroidBridge) syncReminders(); toast('📍 '+(S.place||'Location')+' — prayer times updated');
   },()=>toast('Could not get location — enter it manually'),{timeout:15000});
 });
 $('#expBtn').addEventListener('click',async()=>{
@@ -1685,7 +1810,7 @@ function renderTargets(){
 const STORE={play:false, owned:true, price:'', pending:false, error:''};
 try{ if(window.AndroidBridge && AndroidBridge.isPlayBuild && AndroidBridge.isPlayBuild()){ STORE.play=true; STORE.owned=!!S.owned; } }catch(e){}
 function isLocked(){ return STORE.play && !STORE.owned; }
-function buyChallenge(){ STORE.error=''; renderPaywall(); try{ AndroidBridge.storeBuy(); }catch(e){} }
+function buyChallenge(){ if(PREVIEW){ toast('Preview only — on Google Play this opens the ₹199 payment screen'); return; } STORE.error=''; renderPaywall(); try{ AndroidBridge.storeBuy(); }catch(e){} }
 function renderPaywall(){
   const price=STORE.price||'', html=`<div class="lock">🔒</div><h3>100-Day Namaz Challenge</h3>
     <p class="note" style="margin:0">${S.why?`Your reason: <i>“${esc(S.why)}”</i>`:'Build the habit of praying every prayer on time.'}</p>
@@ -1709,6 +1834,71 @@ window.onStoreState = st => {
 document.addEventListener('click',e=>{ if(e.target.closest('[data-buy]')) buyChallenge(); });
 
 $('#sGender').addEventListener('change',()=>setTimeout(()=>{ renderGender(); renderAll(); },30));
+
+/* ---------------- Location: country / state / city ---------------- */
+const PL = {}; PLACES.forEach(([c,n,m,a,L])=>PL[c]={n,m,a,L});
+function countryOptions(sel){ return '<option value="">Choose country…</option>'+PLACES.slice().sort((x,y)=>x[1].localeCompare(y[1])).map(([c,n])=>`<option value="${c}"${c===sel?' selected':''}>${esc(n)}</option>`).join(''); }
+function cityOptions(code, selIdx){
+  const p=PL[code]; if(!p) return '<option value="">—</option>';
+  const by={}; p.L.forEach((r,i)=>(by[r[0]] ||= []).push([r,i]));
+  return '<option value="">Choose state / city…</option>'+Object.keys(by).sort().map(st=>`<optgroup label="${esc(st)}">${by[st].map(([r,i])=>`<option value="${i}"${i===selIdx?' selected':''}>${esc(r[1])}</option>`).join('')}</optgroup>`).join('');
+}
+function km(a1,o1,a2,o2){ const f1=rad(a1),f2=rad(a2),dl=rad(o2-o1),df=f2-f1; const h=Math.sin(df/2)**2+Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2; return 6371*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h)); }
+function nearest(lat,lng){ let best=null; PLACES.forEach(([c,n,m,a,L])=>L.forEach((r,i)=>{ const d=km(lat,lng,r[2],r[3]); if(!best||d<best.d) best={c,i,d,r}; })); return best; }
+function applyCountry(code){ const p=PL[code]; if(!p) return; S.country=code; if(!S.methodManual){ S.method=p.m; S.asr=String(p.a); } }
+function placeFromCoords(){
+  const lat=parseFloat(S.lat), lng=parseFloat(S.lng); if(!isFinite(lat)||!isFinite(lng)) return;
+  const b=nearest(lat,lng); if(!b) return;
+  applyCountry(b.c); S.cityIdx = b.d<60 ? b.i : null;
+  S.place = b.d<60 ? `${b.r[1]}, ${b.r[0]}, ${PL[b.c].n}` : `Near ${b.r[1]}, ${PL[b.c].n} (${Math.round(b.d)} km)`;
+}
+function pickCity(code, idx){
+  const p=PL[code]; const r=p&&p.L[idx]; if(!r) return;
+  S.lat=String(r[2]); S.lng=String(r[3]); S.cityIdx=idx; S.place=`${r[1]}, ${r[0]}, ${p.n}`; applyCountry(code);
+  save(); loadSettings(); renderAll(); renderQibla(); if(window.AndroidBridge) syncReminders();
+  // phone clock vs city time zone check (prayer times use the phone's clock)
+  const tzCity=Math.round(r[3]/15), tzPhone=-new Date().getTimezoneOffset()/60;
+  toast(Math.abs(tzCity-tzPhone)>2.5 ? `📍 ${r[1]} set. Your phone's time zone looks different — times follow your phone's clock.` : `📍 ${r[1]} — prayer times updated`);
+}
+function renderPlace(){
+  const txt = S.place ? '📍 '+S.place+` · ${({Karachi:'Karachi',MWL:'Muslim World League',ISNA:'ISNA',Egypt:'Egyptian',Makkah:'Umm al-Qura',Dubai:'Dubai',Kuwait:'Kuwait',Qatar:'Qatar',Singapore:'Singapore/Malaysia',Turkey:'Diyanet'})[S.method]||S.method} method` : (S.lat?`📍 ${S.lat}, ${S.lng}`:'Not set yet — use GPS or choose your country and city');
+  $('#placeNow').textContent=txt; $('#wPlace').textContent=txt;
+  const c=S.country||'', i=(S.cityIdx==null?-1:S.cityIdx);
+  $('#sCountry').innerHTML=countryOptions(c); $('#sCity').innerHTML=cityOptions(c,i);
+  $('#wCountry').innerHTML=countryOptions(c); $('#wCity').innerHTML=cityOptions(c,i);
+}
+[['#sCountry','#sCity'],['#wCountry','#wCity']].forEach(([co,ci])=>{
+  $(co).addEventListener('change',e=>{ $(ci).innerHTML=cityOptions(e.target.value,-1); });
+  $(ci).addEventListener('change',e=>{ const code=$(co).value; if(code && e.target.value!=='') pickCity(code,+e.target.value); });
+});
+$('#wGps').addEventListener('click',()=>$('#locBtn').click());
+['sMethod','sAsr'].forEach(id=>$('#'+id).addEventListener('change',()=>{ S.methodManual=true; save(); renderPlace(); }));
+['sLat','sLng'].forEach(id=>$('#'+id).addEventListener('change',()=>setTimeout(()=>{ placeFromCoords(); save(); loadSettings(); renderAll(); },60)));
+
+/* 💳 purchase card (Pledge tab) */
+let PREVIEW=false;
+function renderBuyCard(){
+  let h;
+  if(STORE.play && !PREVIEW){
+    h = STORE.owned ? `<p style="margin:0"><b>✅ Unlocked — JazakAllahu khayran!</b> Your 100-Day Challenge is yours forever.</p>`
+      : `<p style="margin:0">Unlock the full 100-Day Challenge tracker for a one-time <b>${esc(STORE.price||'price')}</b>.</p><button class="btn primary buy" data-buy style="width:100%;margin-top:10px;min-height:48px">Unlock for ${esc(STORE.price||'a one-time price')}</button>`;
+    h += `<button class="btn" id="restoreBtn" style="width:100%;margin-top:8px">↻ Restore purchase</button><p class="note" style="margin-bottom:0">Payment is handled securely by Google Play. Bought on another phone? Use the same Google account and tap Restore.</p>`;
+  } else {
+    h = `<p style="margin:0"><b>${PREVIEW?'👀 Preview mode':'✅ Everything is unlocked'}</b> — ${PREVIEW?'this is what new users see before they buy.':'this is your personal copy of the app, so you never pay.'}</p>
+      <p class="note">In the Google Play version, new users see a 🔒 screen and pay a one-time ₹199 / $3.99 to unlock the 100-Day Challenge. The payment is collected by Google Play and paid out to the developer's bank account.</p>
+      <button class="btn ${PREVIEW?'':'primary'}" id="previewBtn" style="width:100%">${PREVIEW?'✖ Exit preview':'👀 Preview what buyers see'}</button>`;
+  }
+  $('#buyCard').innerHTML=h;
+}
+document.addEventListener('click',e=>{
+  if(e.target.closest('#restoreBtn')){ try{ AndroidBridge.storeRefresh(); toast('Checking your purchases…'); }catch(err){} }
+  if(e.target.closest('#previewBtn')){
+    PREVIEW=!PREVIEW;
+    if(PREVIEW){ STORE._saved={...STORE}; Object.assign(STORE,{play:true,owned:false,price:'₹199',pending:false,error:''}); }
+    else if(STORE._saved){ Object.assign(STORE,STORE._saved); delete STORE._saved; }
+    applyLock(); renderAll(); renderBuyCard(); if(PREVIEW){ show('today'); toast('👀 Preview: this is what buyers see. Exit it from Pledge → 💳'); }
+  }
+});
 
 /* ---------------- Qibla compass ---------------- */
 const KAABA={lat:21.4225, lng:39.8262};
@@ -1938,7 +2128,7 @@ function show(v){
   if(v==='tools') renderTools();
   window.scrollTo(0,0);
 }
-function renderAll(){ renderGender(); renderTargets(); renderNumbers(); renderCalendar(); renderDuas(); renderToday(); renderJourney(); renderTools(); }
+function renderAll(){ renderPlace(); renderBuyCard(); renderGender(); renderTargets(); renderNumbers(); renderCalendar(); renderDuas(); renderToday(); renderJourney(); renderTools(); }
 
 // Refresh "today" + next-prayer highlight when the app comes back to the foreground or the minute changes
 let lastToday=todayStr();
@@ -1949,7 +2139,8 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ syncRem
 ['#adhkar','#haram','#good','#nafl','#bad','#note','#stats','#grid','#perPrayer','#milestones'].forEach(sel=>{ const c=$(sel).closest('.card')||$(sel); c.setAttribute('data-lock',''); const h=c.previousElementSibling; if(h&&h.tagName==='H2') h.setAttribute('data-lock',''); });
 document.querySelector('.ring').setAttribute('data-lock',''); $('#streakLine').setAttribute('data-lock','');
 { const h=[...document.querySelectorAll('#v-journey h2')].find(x=>/100-Day Journey/.test(x.textContent)); if(h) h.setAttribute('data-lock',''); }
-if(!S.started && ((S.why && S.targets) || Object.keys(S.days).length)){ S.started=true; }  // existing users keep their Day 1
+if(!S.started && ((S.why && S.targets) || Object.keys(S.days).length)){ S.started=true; }
+if(S.lat && !S.place){ S.methodManual = S.methodManual ?? true; placeFromCoords(); }  // keep an existing user's chosen method  // existing users keep their Day 1
 applyTheme(); loadSettings(); applyLock(); renderGender(); renderAll(); newQuiz(); cloudInit(); maybeWelcome();
 if(STORE.play){ try{ AndroidBridge.storeRefresh(); }catch(e){} }
 startSky(); tickNext(); setInterval(tickNext,1000); setInterval(setPhase,60000);

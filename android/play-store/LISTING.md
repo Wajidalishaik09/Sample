@@ -26,7 +26,7 @@ Namaz 100 is a calm, beautiful prayer tracker made for students and young Muslim
 • Sisters: mark prayers On time, Late or Missed, with an "Excused" option for the days you don't pray, so your streak is never broken.
 
 ⏰ PRAYER TIMES & REMINDERS
-• Prayer times calculated on your phone for your location (Karachi, MWL, ISNA, Egypt, Umm al-Qura; Hanafi or Shafi'i Asr).
+• Prayer times for your exact location: use GPS or choose your country and state/city (300+ cities in 80+ countries). The right calculation method for your country is chosen automatically (Karachi, Umm al-Qura, ISNA, MWL, Egypt, Dubai, Kuwait, Qatar, Singapore/Malaysia/Indonesia, Diyanet; Hanafi or Shafi'i Asr).
 • Live countdown to the next prayer and a reminder before each prayer (at prayer time, or 10–30 minutes before).
 • 🧭 Qibla compass: turn your phone until the Kaaba lines up; it vibrates when you face the Qibla. Works offline.
 • 💧 Step-by-step Wudu guide with the dua after wudu.
