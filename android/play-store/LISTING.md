@@ -48,6 +48,9 @@ Namaz 100 is a calm, beautiful prayer tracker made for students and young Muslim
 ✅ AUTHENTIC, NOT VIRAL MYTHS
 Learn what the Qur'an and Sahih Hadith really say about each prayer — and why the viral "Fajr for beauty, Dhuhr for money" lists are not authentic.
 
+🗺️ 100 DAILY MISSIONS, 100 REWARD DUAS
+Every day brings a new mission — from "Pray Fajr in the Masjid" to "Istighfar ×100", "A haram-free day" and "Tahajjud tonight" — in 10 stages from Foundation to Finish Strong. Complete it and unlock an authentic reward dua from the Qur'an and Sunnah: read it and say Ameen. Every dua you earn is saved in your collection.
+
 🎯 YOUR WHY & YOUR TARGETS
 When you start, you write the reason you are taking the challenge and choose your targets (Masjid prayers per day, streak goal, Tahajjud nights, daily Qur'an, a habit to quit). Your reason is shown every day with live progress on each target. Salat al-Hajah and Istikhara are optional but strongly recommended.
 

@@ -216,6 +216,23 @@ nav.tabs button.on{color:var(--brand)}
 .qrow:last-child{border-bottom:0}
 .qrow b.c{font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
 .intent{width:100%;font-weight:600}
+.mission{position:relative;overflow:hidden;border:2px solid var(--gold);background:linear-gradient(160deg,var(--gold-soft),var(--card) 70%)}
+.mission .phase{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--gold);background:none;border:0;padding:0;margin:0}
+.mission .mt{font-family:'Reem Kufi',Outfit,sans-serif;font-size:19px;line-height:1.35;margin:4px 0 6px}
+.mission .tip{font-size:12.5px;color:var(--muted);font-style:italic}
+.mission .needs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.mission .needs span{font-size:12px;padding:4px 9px;border-radius:20px;background:var(--chip);border:1px solid var(--line)}
+.mission .needs span.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.mission .claim{width:100%;min-height:50px;font-size:16px}
+.mission .claim:disabled{opacity:.55}
+.mission .mbar{height:6px;background:var(--chip);border-radius:6px;overflow:hidden;margin-top:10px}
+.mission .mbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#f6dc96)}
+.reward{margin-top:12px;padding:12px;border-radius:14px;background:var(--card);border:1px dashed var(--gold);animation:rise .5s both}
+.reward .ar{font-family:Amiri,serif;font-size:23px;line-height:1.9;direction:rtl;text-align:right}
+.reward .tr{font-style:italic;color:var(--muted);font-size:13.5px}
+.reward .src{font-size:11.5px;color:var(--gold);font-weight:600;margin-top:4px}
+.ameen{width:100%;min-height:56px;font-size:20px;margin-top:10px;font-family:'Reem Kufi',Outfit,sans-serif;background:linear-gradient(135deg,#0f5a40,#1c7a57);color:#fff;border:0;border-radius:14px;box-shadow:0 6px 18px rgba(15,90,64,.35)}
+.ameen.done{background:var(--chip);color:var(--ok);box-shadow:none}
 .qibla{text-align:center}
 .qdial{position:relative;width:min(270px,78vw);aspect-ratio:1;margin:8px auto 4px}
 .qdial svg{width:100%;height:100%;display:block}
@@ -372,6 +389,9 @@ body.locked .seg{display:none}
     <h2 data-lock>🎯 My Why &amp; Targets <span class="hint"><button class="btn" id="editTargets" style="min-height:30px;padding:4px 10px;font-size:12px">Edit</button></span></h2>
     <div class="card" data-lock id="targets"></div>
 
+    <h2 data-lock>🗺️ Today's Mission <span class="hint" id="missionHint"></span></h2>
+    <div class="card mission" data-lock id="mission"></div>
+
     <h2 data-lock>🎯 Today's Intention</h2>
     <div class="card" data-lock><input id="goal" class="intent" maxlength="90" placeholder="e.g. Pray Fajr on time & study 2 hours with focus"></div>
 
@@ -460,6 +480,9 @@ body.locked .seg{display:none}
 
   <!-- DUAS -->
   <section class="view" id="v-duas">
+    <h2 data-lock>🎁 My Mission Duas <span class="hint" id="mdHint"></span></h2>
+    <div class="card" data-lock id="missionDuas"></div>
+
     <h2>🤲 My Personal Dua List <span class="hint" id="myDuaHint"></span></h2>
     <div class="card">
       <p class="note" style="margin-top:0">Write everything you want to ask Allah for. Read this list in <b>Tahajjud</b>, in <b>sujood</b>, between adhan &amp; iqamah, and on Friday. Mark it when Allah answers — and say Alhamdulillah.</p>
@@ -1109,6 +1132,146 @@ const HAJ_DUAS = [
   D('Trust in Allah','When afraid','حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ',"Hasbunallahu wa ni'mal-wakil.",'Allah is sufficient for us, and He is the best Disposer of affairs.',"Qur'an 3:173")
 ];
 
+/* ---------------- 100 daily missions ---------------- */
+// need tokens: ALLP all prayed · ALL all on time · ALLM all in Masjid (sisters: on time) · P:x prayer x in Masjid (sisters: on time)
+// SP:x sunnah of x · S:n sunnah count · A:id/A:all adhkar · G:id good deed · N:id nafl · H:id/H:all haram guard · B:all bad habits
+// T:id:n tasbih count · STUDY:n minutes · URGE · NOTE reflection · SELF honest confirmation
+const MISSIONS = [
+ // 1–10 Foundation: never miss a Fard
+ ['Pray all 5 Fard prayers today — not one missed.','The first thing the servant will be asked about on the Day of Judgement is the prayer — Tirmidhi 413.','ALLP'],
+ ['Pray Fajr {at}.','Whoever prays Fajr is under the protection of Allah — Muslim 657.','P:fajr'],
+ ['Pray Dhuhr {at}.','The gates of heaven open at this hour — Tirmidhi 478.','P:dhuhr'],
+ ['Pray Asr {at}.','Whoever misses Asr, it is as if he lost his family and wealth — Bukhari 552.','P:asr'],
+ ['Pray Maghrib {at}, right at its start.','The five prayers wipe away the sins between them — Muslim 233.','P:maghrib'],
+ ['Pray Isha {at}, then Witr before you sleep.','Make Witr the last of your night prayer — Bukhari 998.','P:isha G:witr'],
+ ['Pray all 5 prayers on time today.','The most beloved deed to Allah is prayer at its proper time — Bukhari 527.','ALL'],
+ ['Say "Bismillahil-ladhi la yadurru…" 3 times in the morning and evening.','Nothing will harm the one who says it — Abu Dawud 5088.','A:protect'],
+ ['Recite the 3 Quls 3 times in the morning and evening.','They suffice you against everything — Abu Dawud 5082.','A:quls'],
+ ['All 5 on time — plus the 2 Sunnah before Fajr.','The 2 rak\'ahs of Fajr are better than the world and all it contains — Muslim 725.','ALL SP:fajr'],
+ // 11–20 Sunnah & dhikr
+ ['Pray the 2 Sunnah before Fajr.','The Prophet ﷺ kept them up more regularly than any other voluntary prayer — Bukhari 1169.','SP:fajr'],
+ ['Pray the 4 Sunnah before Dhuhr.','Whoever keeps 4 before Dhuhr and 4 after, Allah forbids the Fire for him — Abu Dawud 1269.','SP:dhuhr'],
+ ['After prayer: SubhanAllah 33, Alhamdulillah 33, Allahu Akbar 34 (use the Tasbih counter).','His sins are forgiven even if like the foam of the sea — Muslim 597.','T:akbar:34'],
+ ['Say Astaghfirullah 100 times (Tasbih counter).','The Prophet ﷺ sought forgiveness 100 times a day — Muslim 2702.','T:istighfar:100'],
+ ['Send Durood on the Prophet ﷺ 100 times.','Whoever sends one blessing on me, Allah sends ten on him — Muslim 408.','T:salawat:100'],
+ ['Pray at least 3 Sunnah prayers today.','12 Sunnah rak\'ahs a day build you a house in Jannah — Muslim 728.','S:3'],
+ ['Recite the dua for lawful rizq after Fajr.','Beneficial knowledge, good provision, accepted deeds — Ibn Majah 925.','A:rizq'],
+ ['Recite the dua for good health, morning and evening.','Taught by the Prophet ﷺ — Abu Dawud 5090.','A:health'],
+ ['All 5 on time, plus at least 3 Sunnah prayers.','Consistency is what Allah loves most — Bukhari 6464.','ALL S:3'],
+ ['Say "La ilaha illallah…" 100 times.','Equal to freeing ten slaves, and a protection from Shaytan — Bukhari 3293.','T:tahlil:100'],
+ // 21–30 Leave haram
+ ['A fully clean day: tick every item in the Haram Guard.','Leave what makes you doubt for what does not — Tirmidhi 2518.','H:all'],
+ ['No lying today — not even as a joke.','Truthfulness leads to righteousness, and righteousness to Paradise — Bukhari 6094.','H:lie'],
+ ['Lower your gaze. No haram content on your phone today.','Tell the believing men and women to lower their gaze — Qur\'an 24:30–31.','H:gaze'],
+ ['No backbiting. If someone starts, change the topic.','Would you like to eat your dead brother\'s flesh? — Qur\'an 49:12.','H:backbite'],
+ ['When an urge comes, use 🆘 Urge SOS and defeat it.','Whoever leaves something for Allah, Allah replaces it with better — Ahmad 23074.','URGE'],
+ ['One full day without your bad habits.','Allah does not change a people until they change themselves — Qur\'an 13:11.','B:all'],
+ ['Keep your phone in another room during one prayer time and its dhikr.','Successful are those humble in their prayer — Qur\'an 23:1–2.','SELF'],
+ ['Make sincere tawbah with Sayyidul Istighfar (Duas tab).','Whoever says it with certainty and dies that day enters Jannah — Bukhari 6306.','SELF'],
+ ['A haram-free day AND all 5 prayers on time.','Prayer prohibits immorality and wrongdoing — Qur\'an 29:45.','H:all ALL'],
+ ['Read (or listen to) Surah Al-Mulk before sleeping.','It intercedes for its reader until he is forgiven — Tirmidhi 2891.','SELF'],
+ // 31–40 Qur'an & knowledge
+ ['Read at least one page of Qur\'an today.','Each letter brings a reward, multiplied ten times — Tirmidhi 2910.','G:quran'],
+ ['Learn the meaning of Ayat al-Kursi (2:255).','The greatest verse in the Book of Allah — Muslim 810.','SELF'],
+ ['Read 2 pages of Qur\'an (Al-Kahf if today is Friday).','Al-Kahf on Friday gives light until the next Friday — al-Hakim.','G:quran'],
+ ['Study for 25 focused minutes with the Study timer — start with Rabbi zidni \'ilma.','Whoever takes a path seeking knowledge, Allah makes easy a path to Jannah — Muslim 2699.','STUDY:25'],
+ ['Memorise one new dua from the Duas tab.','Dua is worship — Tirmidhi 2969.','SELF'],
+ ['Recite a surah you don\'t usually recite in one of your prayers today.','Recite what is easy from the Qur\'an — Qur\'an 73:20.','SELF'],
+ ['Teach someone one thing about Salah.','The best of you are those who learn the Qur\'an and teach it — Bukhari 5027.','SELF'],
+ ['Study for 50 focused minutes (2 sessions).','Seeking knowledge is an obligation on every Muslim — Ibn Majah 224.','STUDY:50'],
+ ['Read Qur\'an AND pray all 5 on time.','Recite the Qur\'an, for it will come as an intercessor — Muslim 804.','G:quran ALL'],
+ ['Day 40: all 5 prayers {at}.','40 days of prayer in congregation from the first takbir is a freedom from the Fire and from hypocrisy — Tirmidhi 241.','ALLM'],
+ // 41–50 Night prayer
+ ['Pray Witr before you sleep.','Allah is Witr (One) and loves Witr — Bukhari 6410.','G:witr'],
+ ['Sleep early, in wudu, to wake for Fajr.','Whoever sleeps in a state of purity, an angel stays with him — Ibn Hibban 1051.','G:sleep'],
+ ['Pray 2 rak\'ahs of Tahajjud tonight.','The best prayer after the Fard is the night prayer — Muslim 1163.','N:tahajjud'],
+ ['Pray Salat al-Hajah after Isha and ask Allah for your need.','Seek help through patience and prayer — Qur\'an 2:45.','N:hajah'],
+ ['Pray Istikhara for a decision you are facing.','The Prophet ﷺ taught Istikhara like a surah of the Qur\'an — Bukhari 1162.','N:istikhara'],
+ ['Tahajjud tonight, ending with Witr.','In the last third of the night Allah says: who is calling Me, that I may answer? — Bukhari 1145.','N:tahajjud G:witr'],
+ ['In the last third of the night, make dua for your parents by name.','My Lord, have mercy on them as they raised me — Qur\'an 17:24.','SELF'],
+ ['Pray Fajr {at}.','Those who walk to the masjid in darkness get complete light on the Day of Judgement — Abu Dawud 561.','P:fajr'],
+ ['Read your Personal Dua List in sujood today.','The closest a servant is to his Lord is in sujood — Muslim 482.','SELF'],
+ ['Halfway! All 5 on time AND Tahajjud tonight.','Allah is with the patient — Qur\'an 2:153.','ALL N:tahajjud'],
+ // 51–60 Family & character
+ ['Help your parents or family with something today.','Paradise is under the feet of mothers — Nasa\'i 3104.','G:helpParents'],
+ ['Make dua for your parents: Rabbir-hamhuma kama rabbayani saghira.','Qur\'an 17:24.','A:parents'],
+ ['Do one kind deed or give a small sadaqah.','Your smile for your brother is charity — Tirmidhi 1956.','G:kind'],
+ ['Call or visit a relative you haven\'t spoken to for a while.','Whoever wants his provision increased, let him keep ties of kinship — Bukhari 5986.','SELF'],
+ ['Be gentle with your parents all day — and help them.','Do not say "uff" to them — Qur\'an 17:23.','H:parentsrespect G:helpParents'],
+ ['Give sadaqah today, even something small.','Charity does not decrease wealth — Muslim 2588.','G:kind'],
+ ['Forgive someone who hurt you, for the sake of Allah.','Do you not love that Allah should forgive you? — Qur\'an 24:22.','SELF'],
+ ['Invite a friend to pray with you in jama\'ah.','Whoever guides to good gets the reward of the one who does it — Muslim 1893.','SELF'],
+ ['Visit or ask about someone sick or elderly.','Whoever visits the sick is in the harvest of Paradise — Muslim 2568.','SELF'],
+ ['All 5 on time AND one kind deed.','The most beloved people to Allah are the most beneficial to people — Tabarani.','ALL G:kind'],
+ // 61–70 Khushu' & excellence in Salah
+ ['Pray every prayer slowly: calm in ruku and sujood.','Pray as you have seen me praying — Bukhari 631.','ALL SELF'],
+ ['Learn the meaning of Surah Al-Fatihah, line by line.','No prayer without Al-Fatihah — Bukhari 756.','SELF'],
+ ['Make a long sujood with your own dua in every prayer today.','Increase in dua in sujood — Muslim 482.','SELF'],
+ ['Be ready before each adhan today: pray all 5 at the start of their time.','Hasten to forgiveness from your Lord — Qur\'an 3:133.','ALL'],
+ ['Pray the 4 main Sunnah prayers today (Fajr, Dhuhr, Maghrib, Isha).','12 rak\'ahs a day — a house in Jannah — Muslim 728.','S:4'],
+ ['Read Qur\'an and do the after-prayer tasbih (33/33/34).','Remember Me and I will remember you — Qur\'an 2:152.','G:quran T:akbar:34'],
+ ['Make wudu carefully and say the dua after wudu (Learn tab).','The 8 gates of Paradise open for him — Muslim 234.','SELF'],
+ ['All 5 prayers {at} — try for the first row.','If people knew the reward of the first row they would draw lots for it — Bukhari 615.','ALLM'],
+ ['Pray 2 rak\'ahs of Duha (mid-morning).','Duha is charity for every joint of your body — Muslim 720.','SELF'],
+ ['All 5 on time, 4 Sunnah prayers and Witr.','Allah loves deeds done consistently — Bukhari 6464.','ALL S:4 G:witr'],
+ // 71–80 Gratitude & dhikr
+ ['Write 3 blessings you are grateful for in today\'s Reflection.','If you are grateful, I will surely increase you — Qur\'an 14:7.','NOTE'],
+ ['Say Alhamdulillah 100 times (Tasbih counter).','Alhamdulillah fills the scale — Muslim 223.','T:hamd:100'],
+ ['Say SubhanAllah 100 times.','Whoever says SubhanAllahi wa bihamdihi 100 times, his sins are erased — Bukhari 6405.','T:subhan:100'],
+ ['Complete the morning & evening adhkar: protection, 3 Quls and the health dua.','In the remembrance of Allah do hearts find rest — Qur\'an 13:28.','A:protect A:quls A:health'],
+ ['Durood on the Prophet ﷺ 100 times.','Allah and His angels send blessings on the Prophet — Qur\'an 33:56.','T:salawat:100'],
+ ['Istighfar 100 times.','Seek forgiveness of your Lord… He will send rain and increase you in wealth and children — Qur\'an 71:10–12.','T:istighfar:100'],
+ ['Replace 15 minutes of phone time with dhikr.','Keep your tongue moist with the remembrance of Allah — Tirmidhi 3375.','SELF'],
+ ['Thank someone who helped you and make dua for them.','Whoever does not thank people does not thank Allah — Abu Dawud 4811.','SELF'],
+ ['When worried today, say Hasbunallahu wa ni\'mal wakil.','Qur\'an 3:173.','SELF'],
+ ['Tick every Daily Adhkar & Dua item.','Remember Allah much, that you may succeed — Qur\'an 62:10.','A:all'],
+ // 81–90 Steadfastness
+ ['Pray Fajr {at}.','The two cool prayers (Fajr and Asr) lead to Paradise — Bukhari 574.','P:fajr'],
+ ['Pray Isha {at}.','Isha in congregation is like half a night of prayer — Muslim 656.','P:isha'],
+ ['Pray both Fajr and Isha {at}.','The heaviest prayers on the hypocrites are Isha and Fajr — Bukhari 657.','P:fajr P:isha'],
+ ['Pray both Fajr and Asr {at}.','Whoever prays the two cool prayers enters Paradise — Bukhari 574.','P:fajr P:asr'],
+ ['A haram-free day with all your bad habits avoided.','Whoever guarantees what is between his jaws and his legs, I guarantee him Paradise — Bukhari 6474.','H:all B:all'],
+ ['Fast today if it is Monday or Thursday — or plan your next fast.','Deeds are presented on Monday and Thursday — Tirmidhi 747.','SELF'],
+ ['Pray Tahajjud tonight.','Our Lord descends in the last third of every night — Bukhari 1145.','N:tahajjud'],
+ ['Pray Salat al-Hajah for your future and studies.','Your Lord says: call upon Me, I will answer you — Qur\'an 40:60.','N:hajah'],
+ ['All 5 prayers {at}.','Walking to the masjid: each step raises a degree and removes a sin — Muslim 666.','ALLM'],
+ ['Read your "why" again and renew your intention with a dua.','Actions are only by intentions — Bukhari 1.','SELF'],
+ // 91–100 Finish strong
+ ['All 5 on time — 10 days to go!','Do not be like her who undoes her thread after spinning it strongly — Qur\'an 16:92.','ALL'],
+ ['All 5 on time plus 3 Sunnah prayers.','My servant keeps drawing near to Me with voluntary deeds until I love him — Bukhari 6502.','ALL S:3'],
+ ['All 5 on time and read Qur\'an.','This Qur\'an guides to what is most upright — Qur\'an 17:9.','ALL G:quran'],
+ ['All 5 {at} and Istighfar 100 times.','Allah will not punish them while they seek forgiveness — Qur\'an 8:33.','ALLM T:istighfar:100'],
+ ['A completely haram-free day.','Fear Allah wherever you are — Tirmidhi 1987.','H:all'],
+ ['Tahajjud and Salat al-Hajah tonight.','Is there anyone asking, that I may give him? — Bukhari 1145.','N:tahajjud N:hajah'],
+ ['Help your family and give sadaqah.','The upper hand is better than the lower hand — Bukhari 1429.','G:helpParents G:kind'],
+ ['Write a letter to your future self about keeping Salah for life (Reflection).','Worship your Lord until certainty comes to you — Qur\'an 15:99.','NOTE'],
+ ['All 5 {at}, then Witr.','Be steadfast as you have been commanded — Qur\'an 11:112.','ALLM G:witr'],
+ ['Day 100: all 5 prayers {at} and read Qur\'an — then keep going for life.','The most beloved deeds to Allah are the most consistent — Bukhari 6464.','ALLM G:quran'],
+];
+
+const RAB = [
+  D('Make me establish the prayer','Mission reward','رَبِّ اجْعَلْنِي مُقِيمَ الصَّلَاةِ وَمِن ذُرِّيَّتِي ۚ رَبَّنَا وَتَقَبَّلْ دُعَاءِ',"Rabbij'alni muqimas-salati wa min dhurriyyati, Rabbana wa taqabbal du'a.",'My Lord, make me an establisher of prayer, and from my descendants. Our Lord, and accept my supplication.',"Qur'an 14:40"),
+  D('Forgiveness for me, my parents and the believers','Mission reward','رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ',"Rabbanagh-fir li wa li-walidayya wa lil-mu'minina yawma yaqumul-hisab.",'Our Lord, forgive me and my parents and the believers on the Day the account is established.',"Qur'an 14:41"),
+  D('Keep our hearts guided','Mission reward','رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً ۚ إِنَّكَ أَنتَ الْوَهَّابُ',"Rabbana la tuzigh qulubana ba'da idh hadaytana wa hab lana min ladunka rahmah, innaka Antal-Wahhab.",'Our Lord, let not our hearts deviate after You have guided us, and grant us mercy from Yourself. Indeed, You are the Bestower.',"Qur'an 3:8"),
+  D('Accept from us','Mission reward','رَبَّنَا تَقَبَّلْ مِنَّا ۖ إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ',"Rabbana taqabbal minna, innaka Antas-Sami'ul-'Alim.",'Our Lord, accept this from us. Indeed, You are the All-Hearing, the All-Knowing.',"Qur'an 2:127"),
+  D('Patience and firm feet','Mission reward','رَبَّنَا أَفْرِغْ عَلَيْنَا صَبْرًا وَثَبِّتْ أَقْدَامَنَا وَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ',"Rabbana afrigh 'alayna sabran wa thabbit aqdamana wansurna 'alal-qawmil-kafirin.",'Our Lord, pour upon us patience, plant firmly our feet and give us victory over the disbelieving people.',"Qur'an 2:250"),
+  D('Do not hold our mistakes against us','Mission reward','رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا',"Rabbana la tu'akhidhna in nasina aw akhta'na.",'Our Lord, do not impose blame upon us if we forget or make a mistake.',"Qur'an 2:286"),
+  D('We have believed, so forgive us','Mission reward','رَبَّنَا إِنَّنَا آمَنَّا فَاغْفِرْ لَنَا ذُنُوبَنَا وَقِنَا عَذَابَ النَّارِ',"Rabbana innana amanna faghfir lana dhunubana wa qina 'adhaban-nar.",'Our Lord, indeed we have believed, so forgive us our sins and protect us from the punishment of the Fire.',"Qur'an 3:16"),
+  D('Mercy and right guidance in our affairs','Mission reward','رَبَّنَا آتِنَا مِن لَّدُنكَ رَحْمَةً وَهَيِّئْ لَنَا مِنْ أَمْرِنَا رَشَدًا',"Rabbana atina min ladunka rahmatan wa hayyi' lana min amrina rashada.",'Our Lord, grant us mercy from Yourself and prepare for us right guidance in our affair.',"Qur'an 18:10"),
+  D('Help me to remember You, thank You and worship You well','Mission reward','اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ',"Allahumma a'inni 'ala dhikrika wa shukrika wa husni 'ibadatik.",'O Allah, help me to remember You, to thank You, and to worship You in the best manner.','Sunan Abi Dawud 1522'),
+  D('Turn our hearts to Your obedience','Mission reward','اللَّهُمَّ مُصَرِّفَ الْقُلُوبِ صَرِّفْ قُلُوبَنَا عَلَى طَاعَتِكَ',"Allahumma musarrifal-qulubi sarrif qulubana 'ala ta'atik.",'O Allah, Turner of the hearts, turn our hearts to Your obedience.','Sahih Muslim 2654'),
+  D('You love to pardon, so pardon me','Mission reward','اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي',"Allahumma innaka 'Afuwwun tuhibbul-'afwa fa'fu 'anni.",'O Allah, You are the One who pardons, and You love to pardon, so pardon me.',"Jami' at-Tirmidhi 3513"),
+  D('My Lord, forgive and have mercy','Mission reward','رَّبِّ اغْفِرْ وَارْحَمْ وَأَنتَ خَيْرُ الرَّاحِمِينَ',"Rabbigh-fir warham wa Anta khayrur-rahimin.",'My Lord, forgive and have mercy, and You are the best of the merciful.',"Qur'an 23:118"),
+  D('Allah is sufficient for me','Mission reward','حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ ۖ عَلَيْهِ تَوَكَّلْتُ ۖ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ',"Hasbiyallahu la ilaha illa Huwa, 'alayhi tawakkaltu, wa Huwa Rabbul-'arshil-'azim.",'Allah is sufficient for me; there is no deity except Him. On Him I have relied, and He is the Lord of the Great Throne.',"Qur'an 9:129"),
+  D('I have wronged myself','Mission reward','رَبِّ إِنِّي ظَلَمْتُ نَفْسِي فَاغْفِرْ لِي',"Rabbi inni zalamtu nafsi faghfir li.",'My Lord, indeed I have wronged myself, so forgive me.',"Qur'an 28:16"),
+  D('Forgive us and our brothers in faith','Mission reward','رَبَّنَا اغْفِرْ لَنَا وَلِإِخْوَانِنَا الَّذِينَ سَبَقُونَا بِالْإِيمَانِ وَلَا تَجْعَلْ فِي قُلُوبِنَا غِلًّا لِّلَّذِينَ آمَنُوا رَبَّنَا إِنَّكَ رَءُوفٌ رَّحِيمٌ',"Rabbanagh-fir lana wa li-ikhwaninal-ladhina sabaquna bil-iman, wa la taj'al fi qulubina ghillal-lilladhina amanu, Rabbana innaka Ra'ufur-Rahim.",'Our Lord, forgive us and our brothers who preceded us in faith, and put no resentment in our hearts toward those who believe. Our Lord, You are Kind and Merciful.',"Qur'an 59:10"),
+  D('Perfect our light','Mission reward','رَبَّنَا أَتْمِمْ لَنَا نُورَنَا وَاغْفِرْ لَنَا ۖ إِنَّكَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',"Rabbana atmim lana nurana waghfir lana, innaka 'ala kulli shay'in Qadir.",'Our Lord, perfect for us our light and forgive us. Indeed, You are over all things competent.',"Qur'an 66:8"),
+  D('Keep the Fire away from us','Mission reward','رَبَّنَا اصْرِفْ عَنَّا عَذَابَ جَهَنَّمَ ۖ إِنَّ عَذَابَهَا كَانَ غَرَامًا',"Rabbanas-rif 'anna 'adhaba jahannam, inna 'adhabaha kana gharama.",'Our Lord, avert from us the punishment of Hell. Indeed, its punishment is ever adhering.',"Qur'an 25:65"),
+  D('Forgive our sins, take us with the righteous','Mission reward','رَبَّنَا فَاغْفِرْ لَنَا ذُنُوبَنَا وَكَفِّرْ عَنَّا سَيِّئَاتِنَا وَتَوَفَّنَا مَعَ الْأَبْرَارِ',"Rabbana faghfir lana dhunubana wa kaffir 'anna sayyi'atina wa tawaffana ma'al-abrar.",'Our Lord, forgive us our sins, remove from us our misdeeds and cause us to die with the righteous.',"Qur'an 3:193"),
+  D('Make me grateful and righteous','Mission reward','رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ وَعَلَىٰ وَالِدَيَّ وَأَنْ أَعْمَلَ صَالِحًا تَرْضَاهُ وَأَدْخِلْنِي بِرَحْمَتِكَ فِي عِبَادِكَ الصَّالِحِينَ',"Rabbi awzi'ni an ashkura ni'matakal-lati an'amta 'alayya wa 'ala walidayya wa an a'mala salihan tardahu wa adkhilni bi-rahmatika fi 'ibadikas-salihin.",'My Lord, enable me to be grateful for Your favour which You have bestowed upon me and my parents, to do righteousness that pleases You, and admit me by Your mercy among Your righteous servants.',"Qur'an 27:19"),
+  D('Protect me from losing Your blessings','Mission reward','اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ زَوَالِ نِعْمَتِكَ، وَتَحَوُّلِ عَافِيَتِكَ، وَفُجَاءَةِ نِقْمَتِكَ، وَجَمِيعِ سَخَطِكَ',"Allahumma inni a'udhu bika min zawali ni'matik, wa tahawwuli 'afiyatik, wa fuja'ati niqmatik, wa jami'i sakhatik.",'O Allah, I seek refuge in You from the loss of Your blessings, the change of Your protection, Your sudden punishment, and all Your displeasure.','Sahih Muslim 2739'),
+];
+
 const NAFL = [
   {id:'tahajjud', t:'Tahajjud — night prayer (min. 2 rak\'ahs)', d:'Best prayer after the Fard — Muslim 1163'},
   {id:'hajah', t:'Salat al-Hajah — 2 rak\'ahs after Isha', d:'Optional · strongly recommended — for my needs: studies, success, family, rizq'},
@@ -1506,7 +1669,7 @@ function renderToday(){
       </div></div>`;
   }).join('');
 
-  renderTargets();
+  renderTargets(); renderMission();
   checkList($('#adhkar'), ADHKAR, 'a');
   checkList($('#haram'), HARAM, 'h');
   { const a=prayerTimes(cur), b=prayerTimes(addDays(cur,1)), l3=lastThird(cur);
@@ -1576,7 +1739,7 @@ function renderJourney(){
   const avg = logged?Math.round(total/logged):0, prayed=ok+late+miss;
   $('#stats').innerHTML = [
     [logged,'Days logged'],[avg+'%','Avg score'],[streak(),'Day streak'],
-    ...(SIS() ? [[ok,'On-time prayers'],[masjidDays,'All-5 on-time days']] : [[masjid,'Masjid prayers'],[prayed?Math.round(masjid*100/prayed)+'%':'—','Masjid rate'],[masjidDays,'All-5 Masjid days']]),[onTimeDays,'Perfect days'],[prayed?Math.round(ok*100/prayed)+'%':'—','On-time rate'],[haramClean,'Haram-free days'],[urges,'Urges defeated'],[Math.round(study/60*10)/10+'h','Study hours'],[qadaLeft(),'Qada pending'],[thj,'Tahajjud nights'],[thjRak,'Tahajjud rak\'ahs'],[S.myDuas.filter(x=>x.ans).length+'/'+S.myDuas.length,'Duas answered'],[hjh,'Salat al-Hajah'],[ist,'Istikhara']
+    ...(SIS() ? [[ok,'On-time prayers'],[masjidDays,'All-5 on-time days']] : [[masjid,'Masjid prayers'],[prayed?Math.round(masjid*100/prayed)+'%':'—','Masjid rate'],[masjidDays,'All-5 Masjid days']]),[onTimeDays,'Perfect days'],[prayed?Math.round(ok*100/prayed)+'%':'—','On-time rate'],[haramClean,'Haram-free days'],[urges,'Urges defeated'],[Math.round(study/60*10)/10+'h','Study hours'],[qadaLeft(),'Qada pending'],[Object.keys(S.missions||{}).length+'/100','Missions done'],[Object.values(S.missions||{}).filter(x=>x.ameen).length,'Duas: Ameen 🤲'],[thj,'Tahajjud nights'],[thjRak,'Tahajjud rak\'ahs'],[S.myDuas.filter(x=>x.ans).length+'/'+S.myDuas.length,'Duas answered'],[hjh,'Salat al-Hajah'],[ist,'Istikhara']
   ].map(([b,s])=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`).join('');
   $('#perPrayer').innerHTML = PRAYERS.map(p=>{ const c=per[p.id], n=c.masjid+c.ok+c.late+c.miss, pct=n?Math.round(c.masjid*100/n):0, pct2=n?Math.round(c.ok*100/n):0;
     return `<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><b>${p.n}</b><span class="note">${SIS()?`on time ${c.ok} · late ${c.late} · missed ${c.miss} · excused ${c.exc}`:`🕌 ${c.masjid} · home ${c.ok} · late ${c.late} · missed ${c.miss}`}</span></div>
@@ -1788,6 +1951,82 @@ $('#wStart').onclick=()=>{
     if(!S.lat) setTimeout(()=>toast('Next: set your location in Pledge → Settings for prayer times 📍'),2600); }
 };
 $('#editTargets').addEventListener('click',()=>openWelcome(2));
+
+/* ---------------- Daily missions ---------------- */
+const PHASES=['Foundation','Sunnah & Dhikr','Leave Haram','Qur\'an & Knowledge','Night Prayer','Family & Character','Excellence in Salah','Gratitude & Dhikr','Steadfastness','Finish Strong'];
+const REWARD_POOL = () => RAB.filter((_,i)=>![0,2,18].includes(i)).concat(DUAS, TAH_DUAS.filter(x=>!/Qunut|After Witr|waking/i.test(x.t)), HAJ_DUAS);
+function rewardFor(n){ const P=REWARD_POOL(); if(n===1) return RAB[0]; if(n===100) return RAB[18]; if(n===50) return RAB[2]; return P[(n-2+P.length)%P.length]; }
+function challengeDay(ds){ return diffDays(S.start, ds)+1; }
+function needLabel(tok){
+  const [k,a='',b='']=tok.split(':'), PN=id=>(PRAYERS.find(p=>p.id===id)||{}).n||id, at=SIS()?'on time':'in Masjid';
+  const AD=Object.fromEntries(ADHKAR.map(x=>[x.id,x.t])), HR=Object.fromEntries(HARAM.map(x=>[x.id,x.t])), GD=Object.fromEntries(GOOD.map(x=>[x.id,x.t]));
+  const TS=Object.fromEntries(TASBIH.map(x=>[x.id,x.n]));
+  return ({ALLP:'All 5 prayed', ALL:'All 5 on time', ALLM:SIS()?'All 5 on time':'All 5 in Masjid', P:`${PN(a)} ${at}`, SP:`Sunnah of ${PN(a)}`, S:`${a} Sunnah prayers`,
+    A: a==='all'?'All adhkar ticked':(AD[a]||a).split(' (')[0], G:(GD[a]||a).split(' (')[0], N:({tahajjud:'Tahajjud',hajah:'Salat al-Hajah',istikhara:'Istikhara'})[a]||a,
+    H: a==='all'?'Full Haram Guard':(HR[a]||a), B:'Bad habits avoided', T:`${TS[a]||a} ×${b}`, STUDY:`Study ${a} min`, URGE:'1 urge defeated', NOTE:'Reflection written', SELF:'I did it — honestly'})[k]||tok;
+}
+function needMet(tok, d){
+  d=d||{p:{},s:{},a:{},h:{},g:{},b:{},t:{},n:{}}; const [k,a='',b='']=tok.split(':');
+  switch(k){
+    case 'ALLP': return allPrayed(d); case 'ALL': return allOnTime(d); case 'ALLM': return allMasjid(d);
+    case 'P': return SIS()? onTime(d.p[a]) : d.p[a]==='masjid';
+    case 'SP': return !!(d.s&&d.s[a]); case 'S': return Object.values(d.s||{}).filter(Boolean).length>=+a;
+    case 'A': return a==='all' ? ADHKAR.every(x=>d.a&&d.a[x.id]) : !!(d.a&&d.a[a]);
+    case 'G': return !!(d.g&&d.g[a]); case 'N': return !!(d.n&&d.n[a]);
+    case 'H': return a==='all' ? HARAM.every(x=>d.h&&d.h[x.id]) : !!(d.h&&d.h[a]);
+    case 'B': return S.bad.length ? S.bad.every((_,i)=>d.b&&d.b[i]) : true;
+    case 'T': return ((d.t||{})[a]||0) >= +b; case 'STUDY': return (d.study||0) >= +a;
+    case 'URGE': return (d.urge||0)>=1; case 'NOTE': return (d.note||'').trim().length>=10;
+    case 'SELF': return !!(d.mself);
+  } return false;
+}
+function renderMission(){
+  const el=$('#mission'); if(!el) return;
+  const t=todayStr(), n=challengeDay(cur), isToday=cur===t;
+  S.missions ||= {};
+  if(n<1||n>100){ el.innerHTML = n<1 ? '<p style="margin:0">Your missions start on Day 1 of your challenge.</p>' : '<p style="margin:0"><b>🏆 You completed the 100-day journey!</b> Keep praying on time for life — and start a new round from Pledge → Day 1.</p>'; $('#missionHint').textContent=''; return; }
+  const [txt,tip,needStr]=MISSIONS[n-1], needs=needStr.split(' '), d=peek(cur), rec=S.missions[n];
+  const met=needs.map(tk=>needMet(tk,d)), autoNeeds=needs.filter(x=>x!=='SELF'), allMet=met.every(Boolean);
+  const done=Object.keys(S.missions).length;
+  $('#missionHint').textContent=`${done} / 100 completed`;
+  let h=`<span class="phase">Day ${n} of 100 · ${PHASES[Math.floor((n-1)/10)]}</span>
+    <div class="mt">${esc(txt.replace(/\{at\}/g, SIS()?'on time':'in the Masjid'))}</div>
+    <div class="tip">${esc(tip)}</div>
+    <div class="needs">${needs.map((tk,i)=>`<span class="${met[i]?'ok':''}">${met[i]?'✓ ':''}${esc(needLabel(tk))}</span>`).join('')}</div>`;
+  if(rec){
+    const r=rewardFor(n);
+    h+=`<div class="reward"><b>🎁 Your reward dua — read it and say Ameen</b>
+      <div style="font-weight:600;margin-top:6px">${esc(r.t)}</div><div class="ar" lang="ar">${r.ar}</div><div class="tr">${esc(r.tr)}</div><div style="margin-top:6px">"${esc(r.en)}"</div><div class="src">${esc(r.src)}</div>
+      <button class="ameen${rec.ameen?' done':''}" data-ameen="${n}" ${rec.ameen?'disabled':''}>${rec.ameen?'✓ Ameen — said':'🤲 Ameen'}</button></div>`;
+  } else if(isToday){
+    const selfOnly = needs.includes('SELF') && autoNeeds.every(tk=>needMet(tk,d));
+    if(needs.includes('SELF') && !(d&&d.mself)) h+=`<button class="btn primary claim" data-mself ${autoNeeds.every(tk=>needMet(tk,d))?'':'disabled'}>✅ I completed this mission — honestly</button><div class="note" style="text-align:center;margin-top:6px">Only tap if you truly did it. Allah sees everything 🤍</div>`;
+    else h+=`<button class="btn primary claim" data-claim="${n}" ${allMet?'':'disabled'}>${allMet?'🎁 Claim my reward dua':'🔒 Complete the mission to unlock your dua'}</button>`;
+    h+=`<div class="mbar"><i style="width:${Math.round(met.filter(Boolean).length/met.length*100)}%"></i></div>`;
+  } else {
+    h+=`<p class="note" style="margin-bottom:0">${cur<t?'This mission was not completed. Today is a new chance — go back to Today.':''}</p>`;
+  }
+  el.innerHTML=h;
+}
+function renderMissionDuas(){
+  const M=S.missions||{}, days=Object.keys(M).map(Number).sort((a,b)=>a-b);
+  $('#mdHint').textContent = days.length ? `${days.length} collected · ${days.filter(n=>M[n].ameen).length} Ameen` : '';
+  $('#missionDuas').innerHTML = days.length ? days.map(n=>{ const r=rewardFor(n); return duaMini(Object.assign({},r,{t:`Day ${n} · ${r.t}`, tag:M[n].ameen?'🤲 Ameen':'Say Ameen'})); }).join('')
+    : '<p class="note" style="margin:0">Complete your daily mission on the Today tab to collect a reward dua here.</p>';
+}
+document.addEventListener('click',e=>{
+  const ms=e.target.closest('[data-mself]');
+  if(ms){ const d=day(todayStr()); d.mself=true; save(); renderMission(); const b=document.querySelector('[data-claim]'); if(b&&!b.disabled) b.click(); return; }
+  const c=e.target.closest('[data-claim]');
+  if(c && !c.disabled){ const n=+c.dataset.claim; S.missions ||= {}; S.missions[n]={at:todayStr(), ameen:false}; save(); renderMission(); renderMissionDuas();
+    const el=document.querySelector('#mission .reward'); if(el){ burst(el,['🎁','✨','🌟','💚'],14,'Mission complete!'); el.scrollIntoView({behavior:'smooth',block:'center'}); } vib([30,40,30]); return; }
+  const a=e.target.closest('[data-ameen]');
+  if(a){ const n=+a.dataset.ameen; S.missions[n].ameen=true; save(); burst(a,['🤲','✨','💚','🌟','🌙'],18,'Ameen!'); vib([20,30,60]);
+    setTimeout(()=>{ renderMission(); renderMissionDuas(); }, 250);
+    if(n===100) setTimeout(()=>bigCelebrate('🏆 100 days, 100 missions. MashaAllah! May Allah keep you steadfast for life.'),600);
+    else if(n%10===0) setTimeout(()=>bigCelebrate(`Stage ${n/10} of 10 complete: ${PHASES[n/10-1]} 🌟`),600);
+    else toast('Ameen! May Allah accept your dua 🤲'); }
+});
 
 /* My Why & Targets card */
 function renderTargets(){
@@ -2126,9 +2365,10 @@ function show(v){
   document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
   if(v==='journey'){ renderJourney(); renderCalendar(); }
   if(v==='tools') renderTools();
+  if(v==='today') renderMission();
   window.scrollTo(0,0);
 }
-function renderAll(){ renderPlace(); renderBuyCard(); renderGender(); renderTargets(); renderNumbers(); renderCalendar(); renderDuas(); renderToday(); renderJourney(); renderTools(); }
+function renderAll(){ renderMissionDuas(); renderPlace(); renderBuyCard(); renderGender(); renderTargets(); renderNumbers(); renderCalendar(); renderDuas(); renderToday(); renderJourney(); renderTools(); }
 
 // Refresh "today" + next-prayer highlight when the app comes back to the foreground or the minute changes
 let lastToday=todayStr();
