@@ -216,6 +216,18 @@ nav.tabs button.on{color:var(--brand)}
 .qrow:last-child{border-bottom:0}
 .qrow b.c{font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
 .intent{width:100%;font-weight:600}
+.qibla{text-align:center}
+.qdial{position:relative;width:min(270px,78vw);aspect-ratio:1;margin:8px auto 4px}
+.qdial svg{width:100%;height:100%;display:block}
+#qRose{transition:transform .25s ease-out;transform-origin:50% 50%}
+.qdial .needle{position:absolute;left:50%;top:6%;width:4px;height:44%;margin-left:-2px;border-radius:4px;background:linear-gradient(var(--gold),rgba(224,182,90,.15))}
+.qdial .needle::before{content:"";position:absolute;left:50%;top:-9px;margin-left:-9px;border:9px solid transparent;border-bottom:12px solid var(--gold);border-top:0}
+.ring2{stroke:var(--gold)}
+.qdial.on .ring2{stroke:var(--ok);filter:drop-shadow(0 0 10px rgba(63,191,138,.7))}
+.qstat{font-family:'Reem Kufi',Outfit,sans-serif;font-size:18px;margin:6px 0 2px}
+.qdial.on + .qstat{color:var(--ok)}
+.qsub{font-size:13px;color:var(--muted)}
+.qbig{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--brand)}
 #welcome{overflow-y:auto;place-items:start center;padding-block:max(24px,env(safe-area-inset-top,0px)) 24px}
 #welcome .cbox{text-align:left}
 #welcome .cbox>b,#welcome .cbox>.big,#welcome .cbox .center{text-align:center;display:block}
@@ -484,6 +496,27 @@ body.locked .seg{display:none}
       </table>
     </div>
 
+    <h2>💧 How to make Wudu</h2>
+    <div class="card">
+      <details><summary>💧 Wudu step by step</summary>
+        <p class="note">"Allah does not accept prayer without purification" — Sahih Muslim 224. The Prophet ﷺ described this wudu in Sahih al-Bukhari 159.</p>
+        <ol class="steps">
+          <li><b>Niyyah</b> in your heart, then say <i>Bismillah</i>.</li>
+          <li>Wash both <b>hands</b> up to the wrists — 3 times.</li>
+          <li><b>Rinse the mouth</b> — 3 times.</li>
+          <li><b>Rinse the nose</b> (sniff water in, blow it out with the left hand) — 3 times.</li>
+          <li>Wash the whole <b>face</b>, from hairline to chin and ear to ear — 3 times.</li>
+          <li>Wash the <b>right arm</b> up to and including the elbow, then the <b>left</b> — 3 times each.</li>
+          <li>Wipe the <b>head</b> once with wet hands, front to back and back to front.</li>
+          <li>Wipe the <b>ears</b> — inside with the index fingers, behind with the thumbs — once.</li>
+          <li>Wash the <b>right foot</b> up to and including the ankle, then the <b>left</b> — 3 times each, between the toes too.</li>
+        </ol>
+        <p><b>Breaks wudu:</b> using the toilet, passing wind, deep sleep, losing consciousness, and flowing blood or vomit (in the Hanafi madhhab).</p>
+        <div class="gsec">Dua after wudu</div>
+        <div id="wuduDua"></div>
+      </details>
+    </div>
+
     <h2>Nafl Prayers: Complete Guide</h2>
     <div class="card" id="naflGuide">
 
@@ -716,6 +749,30 @@ body.locked .seg{display:none}
 
   <!-- TOOLS -->
   <section class="view" id="v-tools">
+    <h2>🧭 Qibla Direction <span class="hint">free · works offline</span></h2>
+    <div class="card qibla">
+      <div class="qbig" id="qDeg">—</div>
+      <div class="qsub" id="qInfo">Set your location to find the Qibla.</div>
+      <div class="qdial" id="qDial">
+        <svg viewBox="0 0 200 200" aria-hidden="true">
+          <g id="qRose">
+            <circle cx="100" cy="100" r="94" style="fill:var(--card);stroke:var(--line)"  stroke-width="2"/>
+            <circle class="ring2" cx="100" cy="100" r="86" fill="none" stroke-width="2" stroke-dasharray="2 6"/>
+            <g font-family="Outfit,sans-serif" font-weight="700" font-size="14" text-anchor="middle" style="fill:var(--muted)">
+              <text x="100" y="26" style="fill:var(--miss)">N</text><text x="178" y="105">E</text><text x="100" y="184">S</text><text x="22" y="105">W</text>
+            </g>
+            <g id="qKaaba"><line x1="100" y1="100" x2="100" y2="34" style="stroke:var(--brand)" stroke-width="3" stroke-linecap="round"/><text x="100" y="30" font-size="22" text-anchor="middle">🕋</text></g>
+            <circle cx="100" cy="100" r="6" style="fill:var(--brand)"/>
+          </g>
+        </svg>
+        <div class="needle" aria-hidden="true"></div>
+      </div>
+      <div class="qstat" id="qStat">Tap “Start compass”</div>
+      <div class="qsub" id="qHint">Hold your phone flat. Turn until the 🕋 is under the gold arrow at the top.</div>
+      <div class="row" style="margin-top:10px"><button class="btn primary" id="qStart">🧭 Start compass</button><button class="btn" id="qLoc">📍 Update location</button></div>
+      <p class="note" style="margin-bottom:0">No compass on your phone? Face <b id="qText">—</b> using any compass app or the sun. Keep away from metal and magnets, and move the phone in a figure-8 to calibrate.</p>
+    </div>
+
     <h2>🆘 Urge SOS <span class="hint" id="urgeHint"></span></h2>
     <div class="card">
       <button class="btn sos" id="sosBtn">I'm being tempted right now</button>
@@ -1429,6 +1486,7 @@ function renderDuas(){
   $('#gDuasTah').innerHTML=TAH_DUAS.map(duaMini).join('');
   $('#gDuasHajah').innerHTML=HAJ_ALL().map(duaMini).join('');
   $('#gDuasIst').innerHTML=IST_DUAS().map(duaMini).join('');
+  $('#wuduDua').innerHTML=duaMini(D('Dua after wudu','The 8 gates of Jannah open','أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ',"Ash-hadu an la ilaha illallahu wahdahu la sharika lah, wa ash-hadu anna Muhammadan 'abduhu wa rasuluh.",'I bear witness that none has the right to be worshipped but Allah alone, without partner, and I bear witness that Muhammad is His servant and Messenger.','Sahih Muslim 234'));
   $('#gDuasWitr').innerHTML=TAH_DUAS.filter(x=>/Qunut|After Witr/.test(x.t)).map(duaMini).join('');
   $('#duaListTah').innerHTML=TAH_DUAS.map(duaMini).join('');
   $('#duaListHajah').innerHTML=HAJ_ALL().map(duaMini).join('');
@@ -1652,6 +1710,56 @@ document.addEventListener('click',e=>{ if(e.target.closest('[data-buy]')) buyCha
 
 $('#sGender').addEventListener('change',()=>setTimeout(()=>{ renderGender(); renderAll(); },30));
 
+/* ---------------- Qibla compass ---------------- */
+const KAABA={lat:21.4225, lng:39.8262};
+const Q={bearing:null, heading:null, on:false, aligned:false, got:false};
+function qiblaCalc(){
+  const lat=parseFloat(S.lat), lng=parseFloat(S.lng); if(!isFinite(lat)||!isFinite(lng)) return null;
+  const f1=rad(lat), f2=rad(KAABA.lat), dl=rad(KAABA.lng-lng);
+  const b=(deg(Math.atan2(Math.sin(dl)*Math.cos(f2), Math.cos(f1)*Math.sin(f2)-Math.sin(f1)*Math.cos(f2)*Math.cos(dl)))+360)%360;
+  const a=Math.sin((f2-f1)/2)**2+Math.cos(f1)*Math.cos(f2)*Math.sin(dl/2)**2, km=Math.round(6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
+  return {b, km};
+}
+const DIRS=['North','North-North-East','North-East','East-North-East','East','East-South-East','South-East','South-South-East','South','South-South-West','South-West','West-South-West','West','West-North-West','North-West','North-North-West'];
+function renderQibla(){
+  const q=qiblaCalc();
+  if(!q){ $('#qDeg').textContent='—'; $('#qInfo').textContent='Set your location (📍 below) to find the Qibla.'; $('#qText').textContent='—'; return; }
+  Q.bearing=q.b; const dir=DIRS[Math.round(q.b/22.5)%16];
+  $('#qDeg').textContent=Math.round(q.b)+'°'; $('#qInfo').textContent=`from North · ${dir} · ${q.km.toLocaleString()} km to Makkah`;
+  $('#qText').textContent=`${Math.round(q.b)}° (${dir})`;
+  $('#qKaaba').setAttribute('transform',`rotate(${q.b} 100 100)`);
+  drawCompass();
+}
+function drawCompass(){
+  const h=Q.heading;
+  $('#qRose').style.transform = h==null ? '' : `rotate(${-h}deg)`;
+  if(h==null || Q.bearing==null) return;
+  let diff=((Q.bearing-h+540)%360)-180; const ok=Math.abs(diff)<=4;
+  $('#qDial').classList.toggle('on',ok);
+  $('#qStat').textContent = ok ? '✅ You are facing the Qibla' : (diff>0?`Turn right ${Math.round(diff)}° ↻`:`Turn left ${Math.round(-diff)}° ↺`);
+  if(ok && !Q.aligned) vib([40,60,40]); Q.aligned=ok;
+}
+function onOrient(e){
+  let h=null;
+  if(typeof e.webkitCompassHeading==='number') h=e.webkitCompassHeading;
+  else if(e.absolute && e.alpha!=null) h=(360-e.alpha)%360;
+  if(h==null) return;
+  const so=(screen.orientation&&screen.orientation.angle)||0; h=(h+so)%360;
+  Q.got=true; Q.heading = Q.heading==null ? h : (Q.heading + ((((h-Q.heading)+540)%360)-180)*0.25 + 360)%360;
+  drawCompass();
+}
+async function startCompass(){
+  if(Q.on) return; Q.on=true; $('#qStat').textContent='Starting compass…';
+  try{ if(typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){ const r=await DeviceOrientationEvent.requestPermission(); if(r!=='granted') throw 0; } }catch(e){}
+  addEventListener('deviceorientationabsolute', onOrient, true); addEventListener('deviceorientation', onOrient, true);
+  setTimeout(()=>{ if(!Q.got){ Q.on=false; $('#qStat').textContent='No compass found on this device';
+    $('#qHint').textContent=Q.bearing!=null?`Face ${$('#qText').textContent} from North using a compass app.`:'Set your location first.'; } }, 2500);
+  if(!S.lat) toast('Set your location for an exact Qibla 📍');
+}
+$('#qStart').addEventListener('click', startCompass);
+$('#qLoc').addEventListener('click', ()=>$('#locBtn').click());
+['sLat','sLng'].forEach(id=>$('#'+id).addEventListener('change',()=>setTimeout(renderQibla,50)));
+
 /* ---------------- In-page confirm ---------------- */
 function ask(msg, yes){
   return new Promise(res=>{
@@ -1798,6 +1906,7 @@ function renderQada(){
 }
 $('#qada').addEventListener('click',e=>{ const b=e.target.closest('[data-qada]'); if(!b) return; S.qada[b.dataset.qada]=(S.qada[b.dataset.qada]||0)+1; save(); renderQada(); toast('Qada recorded — may Allah accept it'); });
 function renderTools(){
+  renderQibla();
   const d=peek(T())||{};
   $('#urgeHint').textContent=(d.urge||0)+' defeated today';
   $('#studyHint').textContent=(d.study||0)+' min today';

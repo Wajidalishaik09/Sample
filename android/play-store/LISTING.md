@@ -16,7 +16,7 @@ Prayer times, reminders & duas free. Unlock the 100-day Salah challenge tracker.
 ## Full description (max 4000)
 Build the habit of praying all 5 prayers on time — in 100 days.
 
-FREE: prayer times, live countdown, prayer reminders, the Night Order (Isha → Hajah → Istikhara → Witr), step-by-step guides, 25+ duas, Hijri calendar, tasbih and study tools.
+FREE: prayer times, Qibla compass, live countdown, prayer reminders, the Night Order (Isha → Hajah → Istikhara → Witr), step-by-step guides, 25+ duas, Hijri calendar, tasbih and study tools.
 100-DAY CHALLENGE (one-time unlock): write WHY you are starting, set your targets, and track every prayer, streak and good deed for 100 days.
 
 Namaz 100 is a calm, beautiful prayer tracker made for students and young Muslims who want to leave bad habits, stay away from haram and make Salah the centre of their day. No account, no ads, works offline — everything stays on your phone.
@@ -28,6 +28,8 @@ Namaz 100 is a calm, beautiful prayer tracker made for students and young Muslim
 ⏰ PRAYER TIMES & REMINDERS
 • Prayer times calculated on your phone for your location (Karachi, MWL, ISNA, Egypt, Umm al-Qura; Hanafi or Shafi'i Asr).
 • Live countdown to the next prayer and a reminder before each prayer (at prayer time, or 10–30 minutes before).
+• 🧭 Qibla compass: turn your phone until the Kaaba lines up; it vibrates when you face the Qibla. Works offline.
+• 💧 Step-by-step Wudu guide with the dua after wudu.
 
 🌙 NIGHT ORDER, TAHAJJUD, HAJAH, ISTIKHARA & WITR
 • A clear timeline: Isha → Sunnah → Salat al-Hajah → Istikhara → Witr → Tahajjud → Fajr, with tonight's times.
