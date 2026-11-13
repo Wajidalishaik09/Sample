@@ -216,6 +216,10 @@ nav.tabs button.on{color:var(--brand)}
 .qrow:last-child{border-bottom:0}
 .qrow b.c{font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
 .intent{width:100%;font-weight:600}
+.honest{display:flex;gap:10px;align-items:flex-start;background:var(--gold-soft);border:1px solid var(--gold);border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.45;margin-bottom:6px}
+.honest .e{font-size:22px;line-height:1}
+.honest b{color:var(--ink)}
+.honest i{color:var(--muted);font-size:12.5px}
 #splash{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;padding:24px 20px calc(24px + env(safe-area-inset-bottom));
   background:radial-gradient(ellipse at 50% 30%,#14563f 0%,#0b2a20 55%,#06140f 100%);transition:opacity .6s}
 #splash.hide{opacity:0;pointer-events:none}
@@ -1036,7 +1040,7 @@ body.locked .seg{display:none}
 <div class="modal" id="proofModal" hidden role="dialog" aria-modal="true"><div class="box2" style="max-width:420px">
   <b style="font-size:17px">📸 Your Masjid photo</b>
   <img class="proofimg" id="proofImg" alt="Photo you just took">
-  <p class="note" style="margin:0 0 12px">Is this inside the Masjid, taken just now? The photo is only shown here — it is <b>not saved and not uploaded</b>. Only the time is kept.</p>
+  <p class="note" style="margin:0 0 12px">Is this inside the Masjid, taken just now? Don't cheat — Allah is watching 🤍. The photo is only shown here — it is <b>not saved and not uploaded</b>. Only the time is kept.</p>
   <div class="row"><button class="btn" id="proofRetake">↻ Retake</button><button class="btn primary" id="proofOk">✅ Yes, I'm in the Masjid</button></div>
 </div></div>
 <div class="celebrate" id="welcome" hidden role="dialog" aria-label="Welcome"><div class="cbox" style="max-width:380px;width:100%">
@@ -1728,7 +1732,8 @@ function renderToday(){
   let nextId=null;
   if(pt && cur===todayStr()){ const n=new Date(), h=n.getHours()+n.getMinutes()/60; nextId=(PRAYERS.find(p=>pt[p.id]>h)||{}).id; }
   $('#timesHint').textContent = pt ? `${S.place?'📍 '+S.place.split(',')[0]+' · ':''}Sunrise ${fmt(pt.sunrise)}` : '📍 Set location in Pledge';
-  $('#prayers').innerHTML = PRAYERS.map(p=>{
+  const honest = `<div class="honest" role="note"><span class="e">🤍</span><div><b>Be honest — don't cheat in this app.</b> Only tap ${SIS()?'<b>🌸 On time</b>':'<b>🕌 Masjid</b>'} if you truly ${SIS()?'prayed on time':'prayed in the Masjid'} today. You can hide it from people, but <b>Allah is watching you.</b><br><i>"Does he not know that Allah sees?" — Qur'an 96:14</i></div></div>`;
+  $('#prayers').innerHTML = honest + PRAYERS.map(p=>{
     const v=d.p[p.id]; const s=d.s&&d.s[p.id];
     const sis=SIS();
     return `<div class="prayer${(v==='masjid'||(sis&&v==='ok'))?' done-mas':''}">
@@ -2591,7 +2596,7 @@ document.addEventListener('click',e=>{
     const nb=document.querySelector(`.seg[data-p="${p}"] button[data-v="${v}"]`);
     if(nb && (v==='sunnah' ? d.s[p] : d.p[p]===v)) celebrateBtn(nb, v, d);
     if(SIS() && onTime(d.p[p]) && allMasjid(d)) bigCelebrate('All 5 prayers on time today 🌸');
-    if(v==='masjid' && d.p[p]==='masjid'){ if(allMasjid(d)) bigCelebrate('All 5 prayers in the Masjid today 🕌'); else toast('Alhamdulillah — '+PRAYERS.find(x=>x.id===p).n+' in jama\'ah: 27× the reward 🕌'); }
+    if(v==='masjid' && d.p[p]==='masjid'){ if(allMasjid(d)) bigCelebrate('All 5 prayers in the Masjid today 🕌'); else toast('Alhamdulillah — '+PRAYERS.find(x=>x.id===p).n+' in jama\'ah 🕌 Only if it is true — Allah is watching 🤍'); }
     if(v==='ok' && d.p[p]==='ok' && !SIS()){ toast('Prayed at home. Try to reach the Masjid for the next prayer, in sha Allah 🕌'); }
     if(v==='miss' && d.p[p]==='miss') toast('Make it up (qada) as soon as you can, and make tawbah. Don\'t give up.');
     return; }
