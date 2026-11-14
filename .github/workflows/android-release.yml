@@ -80,8 +80,9 @@ jobs:
               exit 1
             fi
             echo "ANDROID_KEY_ALIAS OK."
-            if ! keytool -keypasswd -keystore "$ANDROID_KEYSTORE_FILE" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" -keypass "$ANDROID_KEY_PASSWORD" -new "$ANDROID_KEY_PASSWORD" >/dev/null 2>&1; then
-              echo "::error::ANDROID_KEY_PASSWORD is wrong. Re-paste only the 24-character value from GITHUB-SECRETS.txt."
+            # PKCS12 keystores use one password for the store and the key.
+            if [ "$ANDROID_KEY_PASSWORD" != "$ANDROID_KEYSTORE_PASSWORD" ]; then
+              echo "::error::ANDROID_KEY_PASSWORD is wrong: it must be the same 24 characters as ANDROID_KEYSTORE_PASSWORD."
               exit 1
             fi
             echo "ANDROID_KEY_PASSWORD OK. All signing secrets verified."
