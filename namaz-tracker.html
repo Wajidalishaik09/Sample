@@ -321,6 +321,8 @@ nav.tabs button.on{color:var(--brand)}
 .paywall .buy{width:100%;min-height:52px;font-size:16px;margin-top:6px}
 .paywall .perr{color:var(--miss);font-size:13px;min-height:16px;margin-top:6px}
 .paywall{display:none}
+.lockmsg{display:none;font-size:13px;color:var(--muted);background:var(--chip);border:1px dashed var(--gold);border-radius:12px;padding:10px 12px;margin:6px 0}
+body.locked .lockmsg{display:block}
 body.locked .paywall{display:block}
 body.locked [data-lock]{display:none!important}
 body.locked .seg{display:none}
@@ -533,11 +535,13 @@ body.locked .seg{display:none}
 
   <!-- DUAS -->
   <section class="view" id="v-duas">
+    <div class="card paywall" id="paywall3"></div>
+
     <h2 data-lock>🎁 My Mission Duas <span class="hint" id="mdHint"></span></h2>
     <div class="card" data-lock id="missionDuas"></div>
 
-    <h2>🤲 My Personal Dua List <span class="hint" id="myDuaHint"></span></h2>
-    <div class="card">
+    <h2 data-lock>🤲 My Personal Dua List <span class="hint" id="myDuaHint"></span></h2>
+    <div class="card" data-lock>
       <p class="note" style="margin-top:0">Write everything you want to ask Allah for. Read this list in <b>Tahajjud</b>, in <b>sujood</b>, between adhan &amp; iqamah, and on Friday. Mark it when Allah answers — and say Alhamdulillah.</p>
       <div id="myDuas"></div>
       <div class="addrow" style="flex-wrap:wrap">
@@ -547,14 +551,14 @@ body.locked .seg{display:none}
       </div>
     </div>
 
-    <h2>Authentic Daily Duas</h2>
-    <div id="duaList"></div>
-    <h2>Tahajjud Duas</h2>
-    <div class="card" id="duaListTah"></div>
-    <h2>Duas for a Need (Hajah)</h2>
-    <div class="card" id="duaListHajah"></div>
-    <h2>Duas for a Decision (Istikhara)</h2>
-    <div class="card" id="duaListIst"></div>
+    <h2 data-lock>Authentic Daily Duas</h2>
+    <div id="duaList" data-lock></div>
+    <h2 data-lock>Tahajjud Duas</h2>
+    <div class="card" id="duaListTah" data-lock></div>
+    <h2 data-lock>Duas for a Need (Hajah)</h2>
+    <div class="card" id="duaListHajah" data-lock></div>
+    <h2 data-lock>Duas for a Decision (Istikhara)</h2>
+    <div class="card" id="duaListIst" data-lock></div>
   </section>
 
   <!-- LEARN -->
@@ -589,7 +593,7 @@ body.locked .seg{display:none}
         </ol>
         <p><b>Breaks wudu:</b> using the toilet, passing wind, deep sleep, losing consciousness, and flowing blood or vomit (in the Hanafi madhhab).</p>
         <div class="gsec">Dua after wudu</div>
-        <div id="wuduDua"></div>
+        <div id="wuduDua" data-lock></div><div class="lockmsg">🔒 These duas (Arabic, transliteration, meaning &amp; source) unlock with the 100-Day Challenge. The steps above are free.</div>
       </details>
     </div>
 
@@ -654,7 +658,7 @@ body.locked .seg{display:none}
         </ol>
         <p class="note">Inside the prayer use Arabic duas from the Qur'an and Sunnah. Ask in your own language after salam with raised hands (some scholars also allow your own language in the sujood of nafl prayers).</p>
         <div class="gsec">Tahajjud duas</div>
-        <div id="gDuasTah"></div>
+        <div id="gDuasTah" data-lock></div><div class="lockmsg">🔒 These duas (Arabic, transliteration, meaning &amp; source) unlock with the 100-Day Challenge. The steps above are free.</div>
       </details>
 
       <details id="g-witr"><summary>🌟 Witr — the last prayer of the night</summary>
@@ -687,7 +691,7 @@ body.locked .seg{display:none}
         <div class="gsec">Other way (Shafi'i / Ahl-e-Hadith)</div>
         <p>Pray <b>2 rak'ahs and say salam</b>, then stand and pray <b>1 rak'ah</b> on its own (Bukhari 991) — or 3 together with one sitting at the end. Qunut is recited after rising from ruku in the last rak'ah. Follow the way your local masjid / scholar teaches.</p>
         <div class="gsec">Witr duas</div>
-        <div id="gDuasWitr"></div>
+        <div id="gDuasWitr" data-lock></div><div class="lockmsg">🔒 These duas (Arabic, transliteration, meaning &amp; source) unlock with the 100-Day Challenge. The steps above are free.</div>
       </details>
 
       <details id="g-hajah"><summary>🤲 Salat al-Hajah — the Prayer of Need</summary>
@@ -719,7 +723,7 @@ body.locked .seg{display:none}
           <li>Never ask for something haram, or for cutting family ties.</li>
         </ol>
         <div class="gsec">Hajah duas</div>
-        <div id="gDuasHajah"></div>
+        <div id="gDuasHajah" data-lock></div><div class="lockmsg">🔒 These duas (Arabic, transliteration, meaning &amp; source) unlock with the 100-Day Challenge. The steps above are free.</div>
       </details>
 
       <details id="g-ist"><summary>🧭 Salat al-Istikhara — the Prayer for Guidance</summary>
@@ -749,7 +753,7 @@ body.locked .seg{display:none}
           <li>Some scholars (e.g. an-Nawawi) said the Istikhara dua may also be said after any Sunnah prayer, such as the Sunnah of Dhuhr, with the intention of Istikhara.</li>
         </ol>
         <div class="gsec">Istikhara duas</div>
-        <div id="gDuasIst"></div>
+        <div id="gDuasIst" data-lock></div><div class="lockmsg">🔒 These duas (Arabic, transliteration, meaning &amp; source) unlock with the 100-Day Challenge. The steps above are free.</div>
       </details>
 
       <div class="callout" style="margin-top:12px"><b>Don't pray nafl at these times</b> (Sahih Muslim 831): from Fajr until the sun has fully risen · when the sun is at its peak (just before Dhuhr) · after Asr until sunset. You can still make <i>dua</i> at those times — and the last hour after Asr on Friday is a special time for dua (Sunan Abi Dawud 1048). Tahajjud is at night, so it's never affected.</div>
@@ -2020,7 +2024,7 @@ $('#wNext2').onclick=()=>{ const v=$('#wWhy').value.trim(); if(v.length<10){ $('
   $('#wWhyErr').textContent=''; S.why=v; save(); wPrep3(); wShow(3); };
 $('#wBack3').onclick=()=>wShow(2);
 function wPrep3(){ const sis=SIS(); $('#wMasjidBox').hidden=sis; $('#wSisBox').hidden=!sis;
-  $('#wPriceNote').textContent = (STORE.play && !STORE.owned) ? `The 100-Day Challenge is a one-time purchase${STORE.price?' of '+STORE.price:''}. Prayer times, reminders, duas and guides stay free.` : ''; }
+  $('#wPriceNote').textContent = (STORE.play && !STORE.owned) ? `The 100-Day Challenge is a one-time purchase${STORE.price?' of '+STORE.price:''}. Prayer times, reminders, Qibla, guides and the quiz stay free.` : ''; }
 $('#wStart').onclick=()=>{
   S.targets={masjid:+$('#wMasjid').value, streak:+$('#wStreak').value, tahajjud:+$('#wTah').value, quran:$('#wQuran').checked, nafl:$('#wNafl').checked};
   const h=$('#wHabit').value.trim(); if(h && !S.bad.includes(h)) S.bad.push(h);
@@ -2283,11 +2287,11 @@ function buyChallenge(){
 function renderPaywall(){
   const price=STORE.price||'', html=`<div class="lock">🔒</div><h3>100-Day Namaz Challenge</h3>
     <p class="note" style="margin:0">${S.why?`Your reason: <i>“${esc(S.why)}”</i>`:'Build the habit of praying every prayer on time.'}</p>
-    <ul><li>${SIS()?'🌸 Track all 5 prayers on time':'🕌 Track all 5 prayers in the Masjid'}, every day</li><li>🎯 Your targets, daily score &amp; 🔥 streaks</li><li>✅ Haram guard, adhkar, good deeds &amp; bad-habit checklists</li><li>📊 100-day progress map, stats &amp; milestones</li></ul>
+    <ul><li>${SIS()?'🌸 Track all 5 prayers on time':'🕌 Track all 5 prayers in the Masjid'}, every day</li><li>🎯 Your targets, daily score &amp; 🔥 streaks</li><li>✅ Haram guard, adhkar, good deeds &amp; bad-habit checklists</li><li>📊 100-day progress map, stats &amp; milestones</li><li>🤲 25+ authentic duas with Arabic, meaning &amp; source — plus your personal dua list</li></ul>
     <button class="btn primary buy" data-buy ${STORE.pending?'disabled':''}>${STORE.pending?'⏳ Payment pending…':`Unlock for ${price||'a one-time price'}`}</button>
-    <div class="note" style="margin-top:6px">One-time purchase — yours forever. Prayer times, reminders, duas, guides and tools stay free.</div>
+    <div class="note" style="margin-top:6px">One-time purchase — yours forever. Prayer times, reminders, Qibla, guides, quiz and tools stay free.</div>
     <div class="perr">${esc(STORE.error||'')}</div>`;
-  $('#paywall').innerHTML=html; $('#paywall2').innerHTML=html;
+  $('#paywall').innerHTML=html; $('#paywall2').innerHTML=html; $('#paywall3').innerHTML=html;
 }
 function applyLock(){ document.body.classList.toggle('locked', isLocked()); renderPaywall(); }
 window.onStoreState = st => {

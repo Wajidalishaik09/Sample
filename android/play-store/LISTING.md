@@ -17,8 +17,8 @@ Prayer times, reminders & duas free. Unlock the 100-day Salah challenge tracker.
 ## Full description (max 4000)
 Build the habit of praying all 5 prayers on time — in 100 days.
 
-FREE: prayer times, Qibla compass, live countdown, prayer reminders, the Night Order (Isha → Hajah → Istikhara → Witr), step-by-step guides, 25+ duas, Hijri calendar, tasbih and study tools.
-100-DAY CHALLENGE (one-time unlock): write WHY you are starting, set your targets, and track every prayer, streak and good deed for 100 days.
+FREE: prayer times, Qibla compass, live countdown, prayer reminders, the Night Order (Isha → Hajah → Istikhara → Witr), step-by-step guides, Hijri calendar, tasbih and study tools.
+100-DAY CHALLENGE (one-time unlock): write WHY you start, set targets, track every prayer and good deed for 100 days, and unlock 25+ authentic duas.
 
 A calm, beautiful prayer tracker for students and young Muslims who want to leave bad habits, avoid haram and make Salah the centre of their day. No account, no ads, works offline — everything stays on your phone.
 
