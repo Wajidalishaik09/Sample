@@ -60,11 +60,31 @@ jobs:
           [ "$ANDROID_KEY_ALIAS" != "$RAW_KEY_ALIAS" ] && echo "::notice::Removed hidden characters from ANDROID_KEY_ALIAS"
           [ "$ANDROID_KEY_PASSWORD" != "$RAW_KEY_PASSWORD" ] && echo "::notice::Removed hidden characters from ANDROID_KEY_PASSWORD"
           if [ -n "${ANDROID_KEYSTORE_FILE:-}" ]; then
-            if ! keytool -list -keystore "$ANDROID_KEYSTORE_FILE" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null 2>&1; then
-              echo "::error::The keystore could not be opened: ANDROID_KEYSTORE_PASSWORD or ANDROID_KEY_ALIAS does not match the key file. Re-paste them from GITHUB-SECRETS.txt."
+            # Check each secret separately so the error names the one to fix.
+            EXPECTED_SHA=5b7a5404357af56b579194a9b32eeb9e6f7267baa22dcd5561718b567eaab73e
+            ACTUAL_SHA=$(sha256sum "$ANDROID_KEYSTORE_FILE" | cut -d' ' -f1)
+            echo "Keystore size: $(wc -c < "$ANDROID_KEYSTORE_FILE") bytes (expected 4280)"
+            if [ "$ACTUAL_SHA" != "$EXPECTED_SHA" ]; then
+              echo "::error::ANDROID_KEYSTORE_BASE64 is wrong or incomplete (the decoded key file does not match namaz100-upload.keystore). Re-paste the WHOLE text of ANDROID_KEYSTORE_BASE64.txt."
               exit 1
             fi
-            echo "Keystore password and alias verified."
+            echo "Keystore file OK (ANDROID_KEYSTORE_BASE64 is correct)."
+            echo "Store password length: ${#ANDROID_KEYSTORE_PASSWORD} (expected 24); key password length: ${#ANDROID_KEY_PASSWORD} (expected 24); alias length: ${#ANDROID_KEY_ALIAS} (expected 6)"
+            if ! keytool -list -keystore "$ANDROID_KEYSTORE_FILE" -storepass "$ANDROID_KEYSTORE_PASSWORD" >/dev/null 2>&1; then
+              echo "::error::ANDROID_KEYSTORE_PASSWORD is wrong. Re-paste only the 24-character value from GITHUB-SECRETS.txt (no 'Value:' label, no spaces)."
+              exit 1
+            fi
+            echo "ANDROID_KEYSTORE_PASSWORD OK."
+            if ! keytool -list -keystore "$ANDROID_KEYSTORE_FILE" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null 2>&1; then
+              echo "::error::ANDROID_KEY_ALIAS is wrong. It must be exactly the 6-letter alias from GITHUB-SECRETS.txt."
+              exit 1
+            fi
+            echo "ANDROID_KEY_ALIAS OK."
+            if ! keytool -keypasswd -keystore "$ANDROID_KEYSTORE_FILE" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" -keypass "$ANDROID_KEY_PASSWORD" -new "$ANDROID_KEY_PASSWORD" >/dev/null 2>&1; then
+              echo "::error::ANDROID_KEY_PASSWORD is wrong. Re-paste only the 24-character value from GITHUB-SECRETS.txt."
+              exit 1
+            fi
+            echo "ANDROID_KEY_PASSWORD OK. All signing secrets verified."
           fi
           gradle -p android :app:bundleRelease :app:assembleRelease --no-daemon --stacktrace
 
