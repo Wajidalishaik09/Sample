@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="MRS">
+  <defs>
+    <linearGradient id="mrsGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8e3a6"/><stop offset=".5" stop-color="#e0b65a"/><stop offset="1" stop-color="#a87a22"/>
+    </linearGradient>
+    <radialGradient id="mrsBg" cx=".5" cy=".4" r=".7">
+      <stop offset="0" stop-color="#1c7a57"/><stop offset="1" stop-color="#0a2a1f"/>
+    </radialGradient>
+  </defs>
+  <circle cx="100" cy="100" r="97" fill="url(#mrsBg)" stroke="url(#mrsGold)" stroke-width="3"/>
+  <circle cx="100" cy="100" r="88" fill="none" stroke="url(#mrsGold)" stroke-width=".8" stroke-dasharray="1.5 4" opacity=".8"/>
+  <g fill="none" stroke="url(#mrsGold)" stroke-width="3" stroke-linejoin="round">
+    <rect x="42" y="42" width="116" height="116" rx="3"/>
+    <rect x="42" y="42" width="116" height="116" rx="3" transform="rotate(45 100 100)"/>
+  </g>
+  <circle cx="100" cy="100" r="50" fill="#0b2a20" stroke="url(#mrsGold)" stroke-width="1.6"/>
+  <text x="100" y="114" text-anchor="middle" font-family="'Reem Kufi', 'Outfit', sans-serif" font-weight="700" font-size="40" letter-spacing="1.5" fill="url(#mrsGold)">MRS</text>
+  <circle cx="100" cy="24" r="3" fill="#f6dc96"/><circle cx="100" cy="176" r="3" fill="#f6dc96"/><circle cx="24" cy="100" r="3" fill="#f6dc96"/><circle cx="176" cy="100" r="3" fill="#f6dc96"/>
+</svg>

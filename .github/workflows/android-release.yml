@@ -1,0 +1,102 @@
+name: Build Android app for Google Play
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, 'claude/**' ]
+    paths: [ 'namaz-tracker.html', 'icons/**', 'android/**', '.github/workflows/android-release.yml' ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      VERSION_NAME: 2.2.${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
+
+      - name: Bundle the tracker and its fonts into the app
+        run: python3 android/prepare_assets.py
+
+      - name: Restore the upload key from repository secrets
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/upload.keystore"
+            echo "ANDROID_KEYSTORE_FILE=$RUNNER_TEMP/upload.keystore" >> "$GITHUB_ENV"
+            echo "Upload key found: the bundle will be signed."
+          else
+            echo "::warning::No ANDROID_KEYSTORE_BASE64 secret: building an UNSIGNED bundle (Google Play will not accept it)."
+          fi
+
+      - name: Build Play bundle (.aab) and test APK
+        env:
+          RAW_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          RAW_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          RAW_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          # Secrets pasted from a phone, PDF or web page often carry invisible
+          # characters (non-breaking / zero-width spaces, BOM, newlines). Keystore
+          # passwords must be plain ASCII, so keep printable ASCII only and trim.
+          clean() { printf '%s' "$1" | LC_ALL=C tr -cd '\041-\176'; }
+          export ANDROID_KEYSTORE_PASSWORD="$(clean "$RAW_STORE_PASSWORD")"
+          export ANDROID_KEY_ALIAS="$(clean "$RAW_KEY_ALIAS")"
+          export ANDROID_KEY_PASSWORD="$(clean "$RAW_KEY_PASSWORD")"
+          [ "$ANDROID_KEYSTORE_PASSWORD" != "$RAW_STORE_PASSWORD" ] && echo "::notice::Removed hidden characters from ANDROID_KEYSTORE_PASSWORD"
+          [ "$ANDROID_KEY_ALIAS" != "$RAW_KEY_ALIAS" ] && echo "::notice::Removed hidden characters from ANDROID_KEY_ALIAS"
+          [ "$ANDROID_KEY_PASSWORD" != "$RAW_KEY_PASSWORD" ] && echo "::notice::Removed hidden characters from ANDROID_KEY_PASSWORD"
+          if [ -n "${ANDROID_KEYSTORE_FILE:-}" ]; then
+            # Check each secret separately so the error names the one to fix.
+            EXPECTED_SHA=5b7a5404357af56b579194a9b32eeb9e6f7267baa22dcd5561718b567eaab73e
+            ACTUAL_SHA=$(sha256sum "$ANDROID_KEYSTORE_FILE" | cut -d' ' -f1)
+            echo "Keystore size: $(wc -c < "$ANDROID_KEYSTORE_FILE") bytes (expected 4280)"
+            if [ "$ACTUAL_SHA" != "$EXPECTED_SHA" ]; then
+              echo "::error::ANDROID_KEYSTORE_BASE64 is wrong or incomplete (the decoded key file does not match namaz100-upload.keystore). Re-paste the WHOLE text of ANDROID_KEYSTORE_BASE64.txt."
+              exit 1
+            fi
+            echo "Keystore file OK (ANDROID_KEYSTORE_BASE64 is correct)."
+            echo "Store password length: ${#ANDROID_KEYSTORE_PASSWORD} (expected 24); key password length: ${#ANDROID_KEY_PASSWORD} (expected 24); alias length: ${#ANDROID_KEY_ALIAS} (expected 6)"
+            if ! keytool -list -keystore "$ANDROID_KEYSTORE_FILE" -storepass "$ANDROID_KEYSTORE_PASSWORD" >/dev/null 2>&1; then
+              echo "::error::ANDROID_KEYSTORE_PASSWORD is wrong. Re-paste only the 24-character value from GITHUB-SECRETS.txt (no 'Value:' label, no spaces)."
+              exit 1
+            fi
+            echo "ANDROID_KEYSTORE_PASSWORD OK."
+            if ! keytool -list -keystore "$ANDROID_KEYSTORE_FILE" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null 2>&1; then
+              echo "::error::ANDROID_KEY_ALIAS is wrong. It must be exactly the 6-letter alias from GITHUB-SECRETS.txt."
+              exit 1
+            fi
+            echo "ANDROID_KEY_ALIAS OK."
+            # PKCS12 keystores use one password for the store and the key.
+            if [ "$ANDROID_KEY_PASSWORD" != "$ANDROID_KEYSTORE_PASSWORD" ]; then
+              echo "::error::ANDROID_KEY_PASSWORD is wrong: it must be the same 24 characters as ANDROID_KEYSTORE_PASSWORD."
+              exit 1
+            fi
+            echo "ANDROID_KEY_PASSWORD OK. All signing secrets verified."
+          fi
+          gradle -p android :app:bundleRelease :app:assembleRelease --no-daemon --stacktrace
+
+      - name: Remove the key from the runner
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.keystore"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: namaz100-play-${{ env.VERSION_NAME }}
+          path: |
+            android/app/build/outputs/bundle/release/*.aab
+            android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error

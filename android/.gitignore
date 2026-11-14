@@ -1,0 +1,8 @@
+build/
+fonts-cache/
+*.keystore
+gen-assets/
+.gradle/
+app/build/
+local.properties
+build-preview/
