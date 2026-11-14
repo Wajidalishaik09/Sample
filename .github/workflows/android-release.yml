@@ -45,10 +45,28 @@ jobs:
 
       - name: Build Play bundle (.aab) and test APK
         env:
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: gradle -p android :app:bundleRelease :app:assembleRelease --no-daemon --stacktrace
+          RAW_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          RAW_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          RAW_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          # Secrets pasted from a phone, PDF or web page often carry invisible
+          # characters (non-breaking / zero-width spaces, BOM, newlines). Keystore
+          # passwords must be plain ASCII, so keep printable ASCII only and trim.
+          clean() { printf '%s' "$1" | LC_ALL=C tr -cd '\041-\176'; }
+          export ANDROID_KEYSTORE_PASSWORD="$(clean "$RAW_STORE_PASSWORD")"
+          export ANDROID_KEY_ALIAS="$(clean "$RAW_KEY_ALIAS")"
+          export ANDROID_KEY_PASSWORD="$(clean "$RAW_KEY_PASSWORD")"
+          [ "$ANDROID_KEYSTORE_PASSWORD" != "$RAW_STORE_PASSWORD" ] && echo "::notice::Removed hidden characters from ANDROID_KEYSTORE_PASSWORD"
+          [ "$ANDROID_KEY_ALIAS" != "$RAW_KEY_ALIAS" ] && echo "::notice::Removed hidden characters from ANDROID_KEY_ALIAS"
+          [ "$ANDROID_KEY_PASSWORD" != "$RAW_KEY_PASSWORD" ] && echo "::notice::Removed hidden characters from ANDROID_KEY_PASSWORD"
+          if [ -n "${ANDROID_KEYSTORE_FILE:-}" ]; then
+            if ! keytool -list -keystore "$ANDROID_KEYSTORE_FILE" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null 2>&1; then
+              echo "::error::The keystore could not be opened: ANDROID_KEYSTORE_PASSWORD or ANDROID_KEY_ALIAS does not match the key file. Re-paste them from GITHUB-SECRETS.txt."
+              exit 1
+            fi
+            echo "Keystore password and alias verified."
+          fi
+          gradle -p android :app:bundleRelease :app:assembleRelease --no-daemon --stacktrace
 
       - name: Remove the key from the runner
         if: always()
